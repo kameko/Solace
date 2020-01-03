@@ -18,21 +18,21 @@ $script = {
             }
             else
             {   
-                & dotnet clean Source/Core
-                & dotnet build Source/Core --configuration $build
+                & dotnet clean "Source/Solace Core"
+                & dotnet build "Source/Solace Core" --configuration $build
 
-                $folders = Get-ChildItem Modules
+                $folders = Get-ChildItem "Solace Modules"
                 foreach ($module in $folders)
                 {
-                    & dotnet clean Modules/$module
-                    & dotnet build Modules/$module --configuration $build
+                    & dotnet clean "Solace Modules/$module"
+                    & dotnet build "Solace Modules/$module" --configuration $build
                 }
             }
         }
         elseif ($release -match "publish")
         {
             # TODO: also build modules and copy them to an output folder
-            & dotnet publish Source/Core --self-contained --configuration Release
+            & dotnet publish "Source/Solace Core" --self-contained --configuration Release
         }
         else 
         {
