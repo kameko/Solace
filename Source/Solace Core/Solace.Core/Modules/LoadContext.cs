@@ -8,7 +8,6 @@ namespace Solace.Core.Modules
     
     internal class LoadContext : AssemblyLoadContext, ILoadContext
     {
-        
         private AssemblyDependencyResolver? _resolver;
         
         public LoadContext(string name, string modulePath, bool isCollectible) : base(name: name, isCollectible: isCollectible)
