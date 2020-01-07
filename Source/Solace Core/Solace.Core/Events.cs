@@ -10,10 +10,14 @@ namespace Solace.Core
     
     public class Events
     {
+        public bool Faulted => !(Exceptions is null) || Tokens.Select(x => x.Faulted).Count() > 0;
         public bool SanitizeEventNames { get; private set; }
+        
         private List<EventToken> Tokens { get; set; }
         private List<BlockSession> BlockSessions { get; set; }
         private readonly object BlockLock = new object();
+        private AggregateException? Exceptions { get; set; }
+        private readonly object ExceptionsLock = new object();
         
         internal CancellationToken CancelToken { get; set; }
         
@@ -51,6 +55,41 @@ namespace Solace.Core
             nn = new string(nn.Where(c => char.IsLetterOrDigit(c) || c == '_' || c == '-').ToArray());
             nn = nn.ToUpper();
             return nn;
+        }
+        
+        public AggregateException? GetException()
+        {
+            AggregateException? ex = null;
+            lock (ExceptionsLock)
+            {
+                ex = Exceptions;
+                Exceptions = null;
+            }
+            
+            var ts = Tokens.FindAll(x => x.Faulted);
+            if (ts.Count() > 0)
+            {
+                var agg_ex_arr = new AggregateException[ts.Count()];
+                var index = 0;
+                foreach (var t in ts)
+                {
+                    agg_ex_arr[index] = t.GetException()!;
+                    index++;
+                }
+                
+                var agg_ex = new AggregateException(agg_ex_arr);
+                ex = new AggregateException(
+                    new AggregateException[]
+                    {
+                        ex!,
+                        agg_ex
+                    }
+                );
+            }
+            
+            ex = ex?.Flatten();
+            
+            return ex;
         }
         
         private string MaybeSanitize(string name)
@@ -129,6 +168,7 @@ namespace Solace.Core
                         // check if the event is blocked, if so, acqure a lock
                         // and then check if it's blocked again. More than likely
                         // this double-check will be cheaper than always getting a lock.
+                        // This is called "Double-Checked Locking".
                         lock (BlockLock)
                         {
                             if (IsBlocked(event_name))
@@ -151,6 +191,10 @@ namespace Solace.Core
                         {
                             break;
                         }
+                        if (token.Module == message.Sender)
+                        {
+                            continue;
+                        }
                         
                         token.Execute(CancelToken, message);
                     }
@@ -160,7 +204,17 @@ namespace Solace.Core
                 {
                     if (task.IsFaulted)
                     {
-                        // TODO: handle fault
+                        lock (ExceptionsLock)
+                        {
+                            var ex = new AggregateException(
+                                new AggregateException[]
+                                {
+                                    Exceptions!,
+                                    task.Exception!
+                                }
+                            );
+                            Exceptions = ex.Flatten();
+                        }
                     }
                 }
             );
@@ -168,6 +222,7 @@ namespace Solace.Core
         
         internal void Block(string event_name, ModuleInfo info)
         {
+            // TODO: consider making this queue-based instead of just "locked or not"
             var name = MaybeSanitize(event_name);
             lock (BlockLock)
             {
