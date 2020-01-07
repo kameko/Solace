@@ -6,15 +6,15 @@ namespace Solace.Core.Modules
     using System.Linq;
     using System.Threading.Tasks;
     
-    public class SystemModule : BaseModule
+    public class TcpModule : BaseModule
     {
         public override ModuleInfo Info { get; protected set; }
         
-        public SystemModule()
+        public TcpModule()
         {
             Info = new ModuleInfo()
             {
-                Name      = "SYSTEM",
+                Name      = "TCP Networking Module",
                 Company   = "Caesura Software Solutions",
                 Version   = new Version(1, 0, 0, 0),
                 

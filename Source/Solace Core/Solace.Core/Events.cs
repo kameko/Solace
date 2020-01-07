@@ -42,7 +42,7 @@ namespace Solace.Core
         
         public void DestroyEvent(string event_name)
         {
-            var name = SanitizeEventNames ? SanitizeName(event_name) : event_name;
+            var name = MaybeSanitize(event_name);
             Tokens.RemoveAll(
                 x => x.EventName.Equals(name, StringComparison.InvariantCultureIgnoreCase)
             );
@@ -148,19 +148,20 @@ namespace Solace.Core
         
         internal void Raise(string event_name, ModuleInfo info)
         {
-            var msg = new ModuleMessage(info);
-            Raise(event_name, msg);
+            var name = MaybeSanitize(event_name);
+            var msg = new ModuleMessage(name, info);
+            Raise(name, msg);
         }
         
         internal void Raise(string event_name, ModuleInfo info, object data)
         {
-            var msg = new ModuleMessage(info, data);
-            Raise(event_name, msg);
+            var name = MaybeSanitize(event_name);
+            var msg = new ModuleMessage(name, info, data);
+            Raise(name, msg);
         }
         
-        internal void Raise(string event_name, ModuleMessage message)
+        private void Raise(string event_name, ModuleMessage message)
         {
-            var name = MaybeSanitize(event_name);
             Task.Run(() =>
                 {
                     if (IsBlocked(event_name))
@@ -174,7 +175,7 @@ namespace Solace.Core
                             if (IsBlocked(event_name))
                             {
                                 var bs = BlockSessions.Find(
-                                    x => x.EventName.Equals(name, StringComparison.InvariantCultureIgnoreCase)
+                                    x => x.EventName.Equals(event_name, StringComparison.InvariantCultureIgnoreCase)
                                 );
                                 if (!(bs is null) && bs.BlockingModule != message.Sender)
                                 {

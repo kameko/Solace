@@ -9,15 +9,17 @@ namespace Solace.Core.Modules
     public class ModuleMessage
     {
         public ModuleInfo Sender { get; internal set; }
+        public string Event { get; set; }
         public object? Data { get; set; }
         
-        public ModuleMessage(ModuleInfo info, object data)
+        public ModuleMessage(string name, ModuleInfo info, object data)
         {
             Sender = info;
+            Event  = name;
             Data   = data;
         }
         
-        public ModuleMessage(ModuleInfo info) : this(info, null!)
+        public ModuleMessage(string name, ModuleInfo info) : this(name, info, null!)
         {
             
         }
