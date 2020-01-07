@@ -55,16 +55,20 @@ namespace Solace.Core
         
         public AggregateException? GetException()
         {
-            lock (ExceptionsLock)
+            if (Faulted)
             {
-                if (Faulted)
+                // Double-Check Locking
+                lock (ExceptionsLock)
                 {
-                    var ex = Exceptions!;
-                    Exceptions = null;
-                    return ex;
+                    if (Faulted)
+                    {
+                        var ex = Exceptions!;
+                        Exceptions = null;
+                        return ex;
+                    }
                 }
-                return null;
             }
+            return null;
         }
     }
 }

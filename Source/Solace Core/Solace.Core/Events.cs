@@ -10,7 +10,7 @@ namespace Solace.Core
     
     public class Events
     {
-        public bool Faulted => !(Exceptions is null) || Tokens.Select(x => x.Faulted).Count() > 0;
+        public bool Faulted => !(Exceptions is null) || Tokens.Where(x => x.Faulted).Count() > 0;
         public bool SanitizeEventNames { get; private set; }
         
         private List<EventToken> Tokens { get; set; }
