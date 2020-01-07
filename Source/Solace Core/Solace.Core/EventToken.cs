@@ -28,14 +28,12 @@ namespace Solace.Core
         
         public void Execute(CancellationToken ct, ModuleMessage message)
         {
-            Task.Run(
-                async () =>
+            Task.Run(async () =>
                 {
                     await Callback(message);
                 },
                 ct
-            ).ContinueWith(
-                task =>
+            ).ContinueWith(task =>
                 {
                     if (task.IsFaulted)
                     {

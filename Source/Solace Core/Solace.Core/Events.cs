@@ -4,6 +4,7 @@ namespace Solace.Core
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using Modules;
     
@@ -12,12 +13,16 @@ namespace Solace.Core
         public bool SanitizeEventNames { get; private set; }
         private List<EventToken> Tokens { get; set; }
         private List<BlockSession> BlockSessions { get; set; }
+        private readonly object BlockLock = new object();
+        
+        internal CancellationToken CancelToken { get; set; }
         
         public Events(bool sanitize_names)
         {
             SanitizeEventNames = sanitize_names;
             Tokens             = new List<EventToken>();
             BlockSessions      = new List<BlockSession>();
+            CancelToken        = new CancellationToken();
         }
         
         public Events() : this(true)
@@ -48,9 +53,14 @@ namespace Solace.Core
             return nn;
         }
         
+        private string MaybeSanitize(string name)
+        {
+            return SanitizeEventNames ? SanitizeName(name) : name;
+        }
+        
         internal bool TokenExists(EventToken token)
         {
-            var name = SanitizeEventNames ? SanitizeName(token.EventName) : token.EventName;
+            var name = MaybeSanitize(token.EventName);
             return Tokens.Exists(
                 x => x.EventName.Equals(name, StringComparison.InvariantCultureIgnoreCase)
                   && x.Callback == token.Callback
@@ -59,7 +69,7 @@ namespace Solace.Core
         
         internal IEnumerable<EventToken> GetTokens(string event_name)
         {
-            var name = SanitizeEventNames ? SanitizeName(event_name) : event_name;
+            var name = MaybeSanitize(event_name);
             return Tokens.Where(x => x.EventName.Equals(name, StringComparison.InvariantCultureIgnoreCase));
         }
         
@@ -77,7 +87,7 @@ namespace Solace.Core
         
         internal void RemoveToken(string event_name, ModuleInfo info, EventCallback callback)
         {
-            var name = SanitizeEventNames ? SanitizeName(event_name) : event_name;
+            var name = MaybeSanitize(event_name);
             var token = Tokens.Find(
                 x => x.EventName.Equals(name, StringComparison.InvariantCultureIgnoreCase)
                   && x.Callback == callback
@@ -90,31 +100,105 @@ namespace Solace.Core
         
         internal void RemoveAllTokens(string event_name, ModuleInfo info)
         {
-            var name = SanitizeEventNames ? SanitizeName(event_name) : event_name;
+            var name = MaybeSanitize(event_name);
             Tokens.RemoveAll(
                 x => x.EventName.Equals(name, StringComparison.InvariantCultureIgnoreCase)
                   && x.Module == info
             );
         }
         
-        internal void Raise(string name, ModuleInfo info)
+        internal void Raise(string event_name, ModuleInfo info)
         {
-            throw new NotImplementedException();
+            var msg = new ModuleMessage(info);
+            Raise(event_name, msg);
         }
         
-        internal void Raise(string name, ModuleInfo info, object data)
+        internal void Raise(string event_name, ModuleInfo info, object data)
         {
-            throw new NotImplementedException();
+            var msg = new ModuleMessage(info, data);
+            Raise(event_name, msg);
         }
         
-        internal void Block(string name, ModuleInfo info)
+        internal void Raise(string event_name, ModuleMessage message)
         {
-            throw new NotImplementedException();
+            var name = MaybeSanitize(event_name);
+            Task.Run(() =>
+                {
+                    if (IsBlocked(event_name))
+                    {
+                        // check if the event is blocked, if so, acqure a lock
+                        // and then check if it's blocked again. More than likely
+                        // this double-check will be cheaper than always getting a lock.
+                        lock (BlockLock)
+                        {
+                            if (IsBlocked(event_name))
+                            {
+                                var bs = BlockSessions.Find(
+                                    x => x.EventName.Equals(name, StringComparison.InvariantCultureIgnoreCase)
+                                );
+                                if (!(bs is null) && bs.BlockingModule != message.Sender)
+                                {
+                                    // This event is blocked and the caller is not the blocker.
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                    
+                    foreach (var token in Tokens)
+                    {
+                        if (CancelToken.IsCancellationRequested)
+                        {
+                            break;
+                        }
+                        
+                        token.Execute(CancelToken, message);
+                    }
+                },
+                CancelToken
+            ).ContinueWith(task =>
+                {
+                    if (task.IsFaulted)
+                    {
+                        // TODO: handle fault
+                    }
+                }
+            );
         }
         
-        internal void Release(string name, ModuleInfo info)
+        internal void Block(string event_name, ModuleInfo info)
         {
-            throw new NotImplementedException();
+            var name = MaybeSanitize(event_name);
+            lock (BlockLock)
+            {
+                if (!IsBlocked(event_name))
+                {
+                    var bs = new BlockSession(name, info);
+                    BlockSessions.Add(bs);
+                }
+            }
+        }
+        
+        internal void Release(string event_name, ModuleInfo info)
+        {
+            var name = MaybeSanitize(event_name);
+            lock (BlockLock)
+            {
+                var bs = BlockSessions.Find(
+                    x => x.EventName.Equals(name, StringComparison.InvariantCultureIgnoreCase)
+                    && x.BlockingModule == info
+                );
+                if (!(bs is null))
+                {
+                    BlockSessions.Remove(bs);
+                }
+            }
+        }
+        
+        internal bool IsBlocked(string event_name)
+        {
+            var name = MaybeSanitize(event_name);
+            return BlockSessions.Exists(x => x.EventName.Equals(name, StringComparison.InvariantCultureIgnoreCase));
         }
         
         private class BlockSession
