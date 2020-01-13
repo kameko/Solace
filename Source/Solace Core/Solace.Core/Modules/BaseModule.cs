@@ -10,7 +10,6 @@ namespace Solace.Core.Modules
     public abstract class BaseModule
     {
         public abstract ModuleInfo Info { get; protected set; }
-        protected EventRegistration Event { get; private set; }
         
         /// <summary>
         /// Called after all the module's dependencies are loaded and running.
@@ -27,7 +26,6 @@ namespace Solace.Core.Modules
         
         public BaseModule()
         {
-            Event     = null!;
             OnStart   = delegate { };
             OnLoad    = delegate { };
             OnUnload  = delegate { };
@@ -64,7 +62,6 @@ namespace Solace.Core.Modules
         
         internal void CallSetup(ModuleInit init)
         {
-            Event = init.Events.Register(Info);
             Setup(init);
         }
         

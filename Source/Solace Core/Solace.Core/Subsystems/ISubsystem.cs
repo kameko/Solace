@@ -1,12 +1,11 @@
 
-namespace Solace.Core.Modules
+namespace Solace.Core.Subsystems
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
     
-    public class ModuleInit
+    public interface ISubsystem
     {
         
     }
