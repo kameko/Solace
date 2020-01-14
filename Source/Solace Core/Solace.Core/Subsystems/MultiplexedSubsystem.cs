@@ -12,17 +12,25 @@ namespace Solace.Core.Subsystems
         private Channel<object> MultiplexedChannel { get; set; }
         private List<ReaderSession> Sessions { get; set; }
         private readonly object SessionLock = new object();
+        private volatile bool HaltExecution;
         
         public MultiplexedSubsystem() : base()
         {
             Sessions           = new List<ReaderSession>();
             MultiplexedChannel = Channel.CreateUnbounded<object>();
+            
+            HaltExecution = false;
         }
         
         protected abstract Task MultiplexedExecute(object message);
         
         protected override Task Execute()
         {
+            if (HaltExecution)
+            {
+                return Task.CompletedTask;
+            }
+            
             var task = Task.Run(() =>
             {
                 List<ReaderSession> sessions = null!;
@@ -52,7 +60,8 @@ namespace Solace.Core.Subsystems
             {
                 if (task.IsFaulted)
                 {
-                    // TODO:
+                    Log.Error(task.Exception!, string.Empty);
+                    HaltExecution = true;
                 }
             });
             
@@ -81,6 +90,7 @@ namespace Solace.Core.Subsystems
             base.Dispose();
             
             MultiplexedChannel.Writer.TryComplete();
+            HaltExecution = true;
         }
         
         private class ReaderSession
