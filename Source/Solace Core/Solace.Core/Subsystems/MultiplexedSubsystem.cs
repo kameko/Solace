@@ -22,7 +22,15 @@ namespace Solace.Core.Subsystems
             HaltExecution = false;
         }
         
-        protected abstract Task MultiplexedExecute(object message);
+        protected void UnplugInput(Guid id)
+        {
+            lock (SessionLock)
+            {
+                Sessions.RemoveAll(x => x.Id == id);
+            }
+        }
+        
+        protected abstract Task MultiplexedExecute(Guid plug_id, object message);
         
         protected override Task Execute()
         {
@@ -43,7 +51,7 @@ namespace Solace.Core.Subsystems
                 {
                     while (session.Reader.TryRead(out var message))
                     {
-                        MultiplexedChannel.Writer.TryWrite(message);
+                        MultiplexedChannel.Writer.TryWrite(new Tuple<Guid, object>(session.Id, message));
                     }
                 }
             });
@@ -52,7 +60,10 @@ namespace Solace.Core.Subsystems
             {
                 while (MultiplexedChannel.Reader.TryRead(out var message))
                 {
-                    await MultiplexedExecute(message);
+                    if (message is Tuple<Guid, object> tuple)
+                    {
+                        await MultiplexedExecute(tuple.Item1, tuple.Item2);
+                    }
                 }
             });
             
@@ -93,7 +104,7 @@ namespace Solace.Core.Subsystems
             HaltExecution = true;
         }
         
-        private class ReaderSession
+        public class ReaderSession
         {
             public Guid Id { get; private set; }
             public ChannelReader<object> Reader { get; set; }
