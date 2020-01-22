@@ -62,7 +62,18 @@ namespace Solace.Core.Subsystems
             }
             
             Log.Info($"Removing subsystem {context.Name}");
-            return Subsystems.Remove(context);
+            var success = Subsystems.Remove(context);
+            
+            try
+            {
+                context.Subsystem.Dispose();
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, $"Subsystem {context.Name} encountered an error when disposing");
+            }
+            
+            return success;
         }
         
         public bool RequestCommunicationContract(string requester_name, string subsystem_name, out CommunicationToken? token)
@@ -93,7 +104,7 @@ namespace Solace.Core.Subsystems
             
             return Task
                 .Run(InternalPulse)
-                .ContinueWith(HandlePulseException);
+                .ContinueWith(PulseContinuation);
         }
         
         private async Task InternalPulse()
@@ -143,15 +154,13 @@ namespace Solace.Core.Subsystems
                 ae = ae.Flatten();
                 throw ae;
             }
-            
-            // return Task.CompletedTask;
         }
         
-        private void HandlePulseException(Task task)
+        private void PulseContinuation(Task task)
         {
             if (task.IsFaulted)
             {
-                // Log.Error(task.Exception!, string.Empty);
+                Log.Verbose(task.Exception!, string.Empty);
             }
         }
         
