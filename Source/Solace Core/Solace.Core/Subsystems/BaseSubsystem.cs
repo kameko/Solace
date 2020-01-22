@@ -22,6 +22,11 @@ namespace Solace.Core.Subsystems
             throw new NotImplementedException();
         }
         
+        public virtual Task AddCommunications(IEnumerable<CommunicationToken> tokens)
+        {
+            throw new NotImplementedException();
+        }
+        
         public virtual void Dispose()
         {
             

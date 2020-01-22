@@ -9,5 +9,6 @@ namespace Solace.Core.Subsystems
     {
         string Name { get; }
         Task Pulse();
+        Task AddCommunications(IEnumerable<CommunicationToken> tokens);
     }
 }

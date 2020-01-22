@@ -11,6 +11,7 @@ namespace Solace.Core.Subsystems
     {
         public CommunicationToken Subscriber { get; private set; }
         public CommunicationToken Producer { get; private set; }
+        public bool Disposed => Subscriber.Disposed && Producer.Disposed;
         
         public CommunicationContract(CommunicationToken subscriber, CommunicationToken producer)
         {
