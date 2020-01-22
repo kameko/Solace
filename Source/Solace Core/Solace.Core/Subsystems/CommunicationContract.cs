@@ -29,6 +29,9 @@ namespace Solace.Core.Subsystems
             
             var cc = new CommunicationContract(t1, t2);
             
+            t1.Contract = cc;
+            t2.Contract = cc;
+            
             return cc;
         }
         
