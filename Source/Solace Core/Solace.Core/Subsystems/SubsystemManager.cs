@@ -10,6 +10,7 @@ namespace Solace.Core.Subsystems
     
     public class SubsystemManager
     {
+        // TODO: make these thread-safe
         private List<SubsystemContext> Subsystems { get; set; }
         private List<CommunicationContract> Contracts { get; set; }
         
@@ -21,10 +22,15 @@ namespace Solace.Core.Subsystems
         
         public void Run(CancellationToken token)
         {
+            Run(token, 15);
+        }
+        
+        public void Run(CancellationToken token, int sleep)
+        {
             while (!token.IsCancellationRequested)
             {
                 Pulse();
-                Thread.Sleep(15);
+                Thread.Sleep(sleep);
             }
         }
         
@@ -95,6 +101,26 @@ namespace Solace.Core.Subsystems
             return true;
         }
         
+        public bool FormCommunicationContract(string subscriber_name, string producer_name, out CommunicationContract? contract)
+        {
+            var subscriber = Subsystems.Find(x => x.Name.Equals(subscriber_name, StringComparison.InvariantCultureIgnoreCase));
+            var producer = Subsystems.Find(x => x.Name.Equals(producer_name, StringComparison.InvariantCultureIgnoreCase));
+            if (subscriber is null || producer is null)
+            {
+                contract = null;
+                return false;
+            }
+            
+            var cc = CommunicationContract.Create(subscriber_name, producer_name);
+            
+            subscriber.TokenBuffer.Add(cc.Subscriber);
+            producer.TokenBuffer.Add(cc.Producer);
+            
+            Contracts.Add(cc);
+            contract = cc;
+            return true;
+        }
+        
         public Task Pulse()
         {
             if (!Subsystems.Any(x => !x.Executing))
@@ -160,7 +186,7 @@ namespace Solace.Core.Subsystems
         {
             if (task.IsFaulted)
             {
-                Log.Verbose(task.Exception!, string.Empty);
+                Log.Verbose(task.Exception!, "Pulse ended with unhandled exception");
             }
         }
         

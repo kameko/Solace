@@ -9,34 +9,37 @@ namespace Solace.Core.Subsystems
     public class Message
     {
         internal CommunicationToken SenderToken { get; set; }
-        internal CommunicationToken? ReceiverToken { get; set; }
+        internal CommunicationToken ReceiverToken { get; set; }
         
         public string Sender => SenderToken.Name;
         public string Command { get; private set; }
-        public string? Data { get; private set; }
+        public string Data { get; private set; }
         
         public Message(string command, string data)
         {
-            SenderToken = null!;
-            Command     = command;
-            Data        = data;
+            SenderToken   = null!;
+            ReceiverToken = null!;
+            Command       = command;
+            Data          = data;
         }
         
-        public Message(string command) : this(command, null!)
+        public Message(string command) : this(command, string.Empty)
         {
             
         }
         
         public Message(Message message)
         {
-            SenderToken = null!;
-            Command     = null!;
+            SenderToken   = null!;
+            ReceiverToken = null!;
+            Command       = null!;
+            Data          = null!;
             Copy(message);
         }
         
         public Message Copy()
         {
-            var message           = new Message(Command, Data!);
+            var message           = new Message(Command, Data);
             message.SenderToken   = SenderToken;
             message.ReceiverToken = ReceiverToken;
             return message;
@@ -52,7 +55,7 @@ namespace Solace.Core.Subsystems
         
         public void Respond(Message message)
         {
-            SenderToken.Send(message);
+            ReceiverToken.Send(message);
         }
         
         public void Respond(string command)
@@ -69,9 +72,18 @@ namespace Solace.Core.Subsystems
         
         public void CloseChannel()
         {
-            if (!(ReceiverToken is null))
+            ReceiverToken.Close();
+        }
+        
+        public override string ToString()
+        {
+            if (Data == string.Empty)
             {
-                ReceiverToken.Close();
+                return Command;
+            }
+            else
+            {
+                return $"{Command}, {Data}";
             }
         }
     }
