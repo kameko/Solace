@@ -17,13 +17,12 @@ namespace Solace.Core.Subsystems
             Communications = new List<CommunicationToken>();
         }
         
-        protected abstract Task Pulse(IEnumerable<Message> messages);
+        protected abstract Task Pulse(Message messages);
         
         public virtual Task Pulse()
         {
             return Task.Run(async () =>
             {
-                var messages = new List<Message>();
                 var tokens   = new List<CommunicationToken>(Communications);
                 foreach (var token in tokens)
                 {
@@ -31,7 +30,8 @@ namespace Solace.Core.Subsystems
                     while (token.Receive(out var message))
                     {
                         message.ReceiverToken = token;
-                        messages.Add(message);
+                        
+                        await Pulse(message);
                         
                         dos_protect--;
                         if (dos_protect < 0)
@@ -40,8 +40,6 @@ namespace Solace.Core.Subsystems
                         }
                     }
                 }
-                
-                await Pulse(messages);
             });
         }
         

@@ -57,25 +57,22 @@ namespace Solace.Tests.Subsystems
                 Name = nameof(PingSubsystem);
             }
             
-            protected override Task Pulse(IEnumerable<Message> messages)
+            protected override Task Pulse(Message message)
             {
-                foreach (var message in messages)
+                if (message.Command == "PING")
                 {
-                    if (message.Command == "PING")
+                    WriteLine($"PONG {PingCount}");
+                    message.Respond(new Message("PONG"));
+                    
+                    PingCount++;
+                    if (PingCount > 10)
                     {
-                        WriteLine($"PONG {PingCount}");
-                        message.Respond(new Message("PONG"));
-                        
-                        PingCount++;
-                        if (PingCount > 10)
-                        {
-                            message.CloseChannel();
-                        }
+                        message.CloseChannel();
                     }
-                    else
-                    {
-                        WriteLine($"{Name} Got unexpected message: {message}");
-                    }
+                }
+                else
+                {
+                    WriteLine($"{Name} Got unexpected message: {message}");
                 }
                 
                 return Task.CompletedTask;
@@ -99,25 +96,22 @@ namespace Solace.Tests.Subsystems
                 Name = nameof(PongSubsystem);
             }
             
-            protected override Task Pulse(IEnumerable<Message> messages)
+            protected override Task Pulse(Message message)
             {
-                foreach (var message in messages)
+                if (message.Command == "PONG")
                 {
-                    if (message.Command == "PONG")
+                    WriteLine($"PING {PongCount}");
+                    message.Respond(new Message("PING"));
+                    
+                    PongCount++;
+                    if (PongCount >= 10)
                     {
-                        WriteLine($"PING {PongCount}");
-                        message.Respond(new Message("PING"));
-                        
-                        PongCount++;
-                        if (PongCount >= 10)
-                        {
-                            message.CloseChannel();
-                        }
+                        message.CloseChannel();
                     }
-                    else
-                    {
-                        WriteLine($"{Name} Got unexpected message: {message}");
-                    }
+                }
+                else
+                {
+                    WriteLine($"{Name} Got unexpected message: {message}");
                 }
                 
                 return Task.CompletedTask;
