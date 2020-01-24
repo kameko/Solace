@@ -6,26 +6,60 @@ namespace Solace.Core.Subsystems
     using System.Linq;
     using System.Threading.Tasks;
     
+    public class Message<T> : Message
+    {
+        public T Data { get; protected set; }
+        
+        public Message(string command) : base(command)
+        {
+            Data = default!;
+        }
+        
+        public Message(string command, T data) : this(command)
+        {
+            Data = data;
+        }
+        
+        public Message(Message message) : this(string.Empty)
+        {
+            Copy(message);
+        }
+        
+        public override void Copy(Message message)
+        {
+            base.Copy(message);
+            if (message is Message<T> mt)
+            {
+                mt.Data = Data;
+            }
+        }
+        
+        public override string ToString()
+        {
+            if (Data?.Equals(default(T)) ?? false)
+            {
+                return Command;
+            }
+            else
+            {
+                return $"{Command}, {Data}";
+            }
+        }
+    }
+    
     public class Message
     {
         internal CommunicationToken SenderToken { get; set; }
         internal CommunicationToken ReceiverToken { get; set; }
         
         public string Sender => SenderToken.Name;
-        public string Command { get; private set; }
-        public string Data { get; private set; }
+        public string Command { get; protected set; }
         
-        public Message(string command, string data)
+        public Message(string command)
         {
             SenderToken   = null!;
             ReceiverToken = null!;
             Command       = command;
-            Data          = data;
-        }
-        
-        public Message(string command) : this(command, string.Empty)
-        {
-            
         }
         
         public Message(Message message)
@@ -33,41 +67,19 @@ namespace Solace.Core.Subsystems
             SenderToken   = null!;
             ReceiverToken = null!;
             Command       = null!;
-            Data          = null!;
             Copy(message);
         }
         
-        public Message Copy()
-        {
-            var message           = new Message(Command, Data);
-            message.SenderToken   = SenderToken;
-            message.ReceiverToken = ReceiverToken;
-            return message;
-        }
-        
-        public void Copy(Message message)
+        public virtual void Copy(Message message)
         {
             SenderToken   = message.SenderToken;
             ReceiverToken = message.ReceiverToken;
             Command       = message.Command;
-            Data          = message.Data;
         }
         
         public void Respond(Message message)
         {
             ReceiverToken.Send(message);
-        }
-        
-        public void Respond(string command)
-        {
-            var message = new Message(command);
-            Respond(message);
-        }
-        
-        public void Respond(string command, string data)
-        {
-            var message = new Message(command, data);
-            Respond(message);
         }
         
         public void CloseChannel()
@@ -77,14 +89,7 @@ namespace Solace.Core.Subsystems
         
         public override string ToString()
         {
-            if (Data == string.Empty)
-            {
-                return Command;
-            }
-            else
-            {
-                return $"{Command}, {Data}";
-            }
+            return Command;
         }
     }
 }

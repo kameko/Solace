@@ -64,10 +64,10 @@ namespace Solace.Tests.Subsystems
                     if (message.Command == "PING")
                     {
                         WriteLine($"PONG {PingCount}");
-                        message.Respond("PONG");
+                        message.Respond(new Message("PONG"));
                         
                         PingCount++;
-                        if (PingCount >= 10)
+                        if (PingCount > 10)
                         {
                             message.CloseChannel();
                         }
@@ -106,7 +106,7 @@ namespace Solace.Tests.Subsystems
                     if (message.Command == "PONG")
                     {
                         WriteLine($"PING {PongCount}");
-                        message.Respond("PING");
+                        message.Respond(new Message("PING"));
                         
                         PongCount++;
                         if (PongCount >= 10)

@@ -8,6 +8,8 @@ namespace Solace.Core.Subsystems
     using System.Threading;
     using System.Threading.Tasks;
     
+    // TODO: replace string identifiers with a custom Identifier class
+    
     public class SubsystemManager
     {
         // TODO: make these thread-safe
