@@ -6,6 +6,25 @@ namespace Solace.Core.Subsystems
     using System.Linq;
     using System.Threading.Tasks;
     
+    public static class Messages
+    {
+        public class ChannelClosed : Message
+        {
+            public static ChannelClosed Instance { get; private set; }
+            public static string Message => "CHANNEL_CLOSED";
+            
+            static ChannelClosed()
+            {
+                Instance = new ChannelClosed();
+            }
+            
+            public ChannelClosed() : base(Message)
+            {
+                
+            }
+        }
+    }
+    
     public class Message<T> : Message
     {
         public T Data { get; protected set; }
