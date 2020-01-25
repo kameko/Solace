@@ -29,7 +29,7 @@ namespace Solace.Tests.Subsystems
         [Fact]
         public void Test1()
         {
-            var sm = new SubsystemManager();
+            var sm   = new SubsystemManager();
             var ping = new PingSubsystem(output);
             var pong = new PongSubsystem(output);
             sm.Add(ping);
@@ -38,7 +38,7 @@ namespace Solace.Tests.Subsystems
             var form_contract_success = sm.FormCommunicationContract(ping.Name, pong.Name, out var contract);
             Assert.True(form_contract_success);
             
-            var send_success = contract!.AsProducer(new Message("PING"));
+            var send_success = contract!.AsProducer(new Message<int>("PING", 0));
             Assert.True(send_success);
             
             var ct = new CancellationTokenSource();
@@ -59,15 +59,15 @@ namespace Solace.Tests.Subsystems
             
             protected override Task Pulse(Message message)
             {
-                if (message.Command == "PING")
+                if (message is Message<int> mi && mi.Command == "PING")
                 {
-                    WriteLine($"PONG {PingCount}");
-                    message.Respond(new Message("PONG"));
+                    WriteLine($"PONG {mi.Data}");
+                    mi.Respond(new Message<int>("PONG", mi.Data + 1));
                     
                     PingCount++;
-                    if (PingCount > 10)
+                    if (PingCount >= 10)
                     {
-                        message.CloseChannel();
+                        mi.CloseChannel();
                     }
                 }
                 else
@@ -98,15 +98,15 @@ namespace Solace.Tests.Subsystems
             
             protected override Task Pulse(Message message)
             {
-                if (message.Command == "PONG")
+                if (message is Message<int> mi && mi.Command == "PONG")
                 {
-                    WriteLine($"PING {PongCount}");
-                    message.Respond(new Message("PING"));
+                    WriteLine($"PING {mi.Data}");
+                    mi.Respond(new Message<int>("PING", mi.Data + 1));
                     
                     PongCount++;
                     if (PongCount >= 10)
                     {
-                        message.CloseChannel();
+                        mi.CloseChannel();
                     }
                 }
                 else
