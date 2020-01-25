@@ -10,14 +10,16 @@ namespace Solace.Core.Subsystems
     public class CommunicationToken : IDisposable, IAsyncDisposable
     {
         internal CommunicationContract Contract { get; set; }
+        internal CommunicationToken Other { get; set; }
         public string Name { get; private set; }
-        public bool Disposed { get; private set; }
+        public bool Closed { get; private set; }
         internal Channel<Message> Input { get; set; }
         internal Channel<Message> Output { get; set; }
         
         public CommunicationToken(string name, Channel<Message> input, Channel<Message> output)
         {
             Contract = null!;
+            Other    = null!;
             Name     = name;
             Input    = input;
             Output   = output;
@@ -40,19 +42,20 @@ namespace Solace.Core.Subsystems
         
         public bool Send(Message message)
         {
-            message.SenderToken = this;
+            message.SenderToken   = this;
+            message.ReceiverToken = Other;
             return Output.Writer.TryWrite(message);
         }
         
         public void Close()
         {
-            Dispose();
+            Output.Writer.TryComplete();
+            Closed = true;
         }
         
         public void Dispose()
         {
-            Output.Writer.TryComplete();
-            Disposed = true;
+            Close();
         }
         
         public ValueTask DisposeAsync()

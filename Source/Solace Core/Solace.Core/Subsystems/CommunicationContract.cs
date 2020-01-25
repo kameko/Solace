@@ -11,9 +11,9 @@ namespace Solace.Core.Subsystems
     {
         public CommunicationToken Subscriber { get; private set; }
         public CommunicationToken Producer { get; private set; }
-        public bool Disposed => Subscriber.Disposed && Producer.Disposed;
+        public bool Closed => Subscriber.Closed && Producer.Closed;
         
-        public CommunicationContract(CommunicationToken subscriber, CommunicationToken producer)
+        private CommunicationContract(CommunicationToken subscriber, CommunicationToken producer)
         {
             Subscriber = subscriber;
             Producer   = producer;
@@ -24,6 +24,26 @@ namespace Solace.Core.Subsystems
             var c1 = Channel.CreateUnbounded<Message>();
             var c2 = Channel.CreateUnbounded<Message>();
             
+            return CreatorHelper(subscriber_name, producer_name, c1, c2);
+        }
+        
+        public static CommunicationContract Create(string subscriber_name, string producer_name, int capacity)
+        {
+            if (capacity > 0)
+            {
+                var c1 = Channel.CreateBounded<Message>(capacity);
+                var c2 = Channel.CreateBounded<Message>(capacity);
+                
+                return CreatorHelper(subscriber_name, producer_name, c1, c2);
+            }
+            else
+            {
+                return Create(subscriber_name, producer_name);
+            }
+        }
+        
+        private static CommunicationContract CreatorHelper(string subscriber_name, string producer_name, Channel<Message> c1, Channel<Message> c2)
+        {
             var t1 = new CommunicationToken(subscriber_name, c1, c2);
             var t2 = new CommunicationToken(producer_name  , c2, c1);
             
@@ -31,6 +51,9 @@ namespace Solace.Core.Subsystems
             
             t1.Contract = cc;
             t2.Contract = cc;
+            
+            t1.Other = t2;
+            t2.Other = t1;
             
             return cc;
         }

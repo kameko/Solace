@@ -9,12 +9,14 @@ namespace Solace.Core.Subsystems
     public abstract class BaseSubsystem : ISubsystem
     {
         public string Name { get; protected set; }
+        public int MessageDenialOfServicePreventionCutoff { get; set; }
         private List<CommunicationToken> Communications { get; set; }
         
         public BaseSubsystem()
         {
             Name = string.Empty;
             Communications = new List<CommunicationToken>();
+            MessageDenialOfServicePreventionCutoff = 30;
         }
         
         protected abstract Task Pulse(Message messages);
@@ -23,14 +25,17 @@ namespace Solace.Core.Subsystems
         {
             return Task.Run(async () =>
             {
-                var tokens   = new List<CommunicationToken>(Communications);
+                var tokens = new List<CommunicationToken>(Communications);
                 foreach (var token in tokens)
                 {
-                    int dos_protect = 30;
+                    if (token.Closed)
+                    {
+                        Communications.Remove(token);
+                    }
+                    
+                    int dos_protect = MessageDenialOfServicePreventionCutoff;
                     while (token.Receive(out var message))
                     {
-                        message.ReceiverToken = token;
-                        
                         await Pulse(message);
                         
                         dos_protect--;
@@ -56,7 +61,11 @@ namespace Solace.Core.Subsystems
         
         public virtual void Dispose()
         {
-            
+            var tokens = new List<CommunicationToken>(Communications);
+            foreach (var token in tokens)
+            {
+                token.Dispose();
+            }
         }
         
         public virtual ValueTask DisposeAsync()

@@ -139,7 +139,7 @@ namespace Solace.Core.Subsystems
         {
             if (Contracts.Count > 0)
             {
-                Contracts.RemoveAll(x => x.Disposed);
+                Contracts.RemoveAll(x => x.Closed);
             }
             
             List<SubsystemContext> subsystems = new List<SubsystemContext>(Subsystems);

@@ -36,7 +36,7 @@ namespace Solace.Core.Subsystems
         
         public override string ToString()
         {
-            if (Data?.Equals(default(T)) ?? false)
+            if (Data?.Equals(default(T)!) ?? true)
             {
                 return Command;
             }
@@ -49,6 +49,7 @@ namespace Solace.Core.Subsystems
     
     public class Message
     {
+        // These are set by CommunicationToken
         internal CommunicationToken SenderToken { get; set; }
         internal CommunicationToken ReceiverToken { get; set; }
         
