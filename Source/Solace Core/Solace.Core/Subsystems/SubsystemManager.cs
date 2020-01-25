@@ -8,8 +8,6 @@ namespace Solace.Core.Subsystems
     using System.Threading;
     using System.Threading.Tasks;
     
-    // TODO: replace string identifiers with a custom Identifier class
-    
     public class SubsystemManager
     {
         private List<SubsystemContext> Subsystems { get; set; }
@@ -49,8 +47,9 @@ namespace Solace.Core.Subsystems
                 var context = new SubsystemContext(subsystem);
                 Subsystems.Add(context);
                 Log.Info($"Adding subsystem {context.Name}");
+                
+                return true;
             }
-            return true;
         }
         
         public bool Remove(string name)
@@ -73,28 +72,30 @@ namespace Solace.Core.Subsystems
         
         private bool Remove(string name, SubsystemContext? context)
         {
+            if (context is null)
+            {
+                Log.Info($"Could not find subsystem {name} to remove");
+                return false;
+            }
+            
+            Log.Info($"Removing subsystem {context.Name}");
+            
+            var success = false;
             lock (SubsystemsLock)
             {
-                if (context is null)
-                {
-                    Log.Info($"Could not find subsystem {name} to remove");
-                    return false;
-                }
-                
-                Log.Info($"Removing subsystem {context.Name}");
-                var success = Subsystems.Remove(context);
-                
-                try
-                {
-                    context.Subsystem.Dispose();
-                }
-                catch (Exception e)
-                {
-                    Log.Error(e, $"Subsystem {context.Name} encountered an error when disposing");
-                }
-                
-                return success;
+                success = Subsystems.Remove(context);
             }
+            
+            try
+            {
+                context.Subsystem.Dispose();
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, $"Subsystem {context.Name} encountered an error when disposing");
+            }
+            
+            return success;
         }
         
         public bool RequestCommunicationContract(string requester_name, string subsystem_name, out CommunicationToken? token)
@@ -172,14 +173,18 @@ namespace Solace.Core.Subsystems
         
         private async Task InternalPulse()
         {
-            List<SubsystemContext>? subsystems = null;
             lock (ContractsLock)
             {
                 if (Contracts.Count > 0)
                 {
                     Contracts.RemoveAll(x => x.Closed);
                 }
-                
+            }
+            
+            List<SubsystemContext>? subsystems = null;
+            
+            lock (SubsystemsLock)
+            {
                 subsystems = new List<SubsystemContext>(Subsystems);
             }
             
