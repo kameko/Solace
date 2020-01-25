@@ -23,6 +23,27 @@ namespace Solace.Core.Subsystems
                 
             }
         }
+        
+        public class Shutdown : Message<string>
+        {
+            public static Shutdown HardShutdown { get; private set; }
+            public static string Message => "SHUTDOWN";
+            
+            static Shutdown()
+            {
+                HardShutdown = new Shutdown("HARD_SHUTDOWN");
+            }
+            
+            public Shutdown() : base(Message)
+            {
+                Data = string.Empty;
+            }
+            
+            public Shutdown(string reason) : base(Message, reason)
+            {
+                
+            }
+        }
     }
     
     public class Message<T> : Message

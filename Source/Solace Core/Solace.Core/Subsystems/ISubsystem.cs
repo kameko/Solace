@@ -8,6 +8,7 @@ namespace Solace.Core.Subsystems
     public interface ISubsystem : IDisposable, IAsyncDisposable
     {
         string Name { get; }
+        bool Disposed { get; }
         
         // TODO: something to fire off initial messages, including accepting
         // initial messages from a config

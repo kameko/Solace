@@ -9,12 +9,14 @@ namespace Solace.Core.Subsystems
     public abstract class BaseSubsystem : ISubsystem
     {
         public string Name { get; protected set; }
+        public bool Disposed { get; private set; }
         public int MessageDenialOfServicePreventionCutoff { get; set; }
         private List<CommunicationToken> Communications { get; set; }
         
         public BaseSubsystem()
         {
             Name = string.Empty;
+            Disposed = false;
             Communications = new List<CommunicationToken>();
             MessageDenialOfServicePreventionCutoff = 30;
         }
@@ -28,6 +30,10 @@ namespace Solace.Core.Subsystems
                 var tokens = new List<CommunicationToken>(Communications);
                 foreach (var token in tokens)
                 {
+                    if (Disposed)
+                    {
+                        return;
+                    }
                     if (token.Closed)
                     {
                         Communications.Remove(token);
@@ -36,6 +42,19 @@ namespace Solace.Core.Subsystems
                     int dos_protect = MessageDenialOfServicePreventionCutoff;
                     while (token.Receive(out var message))
                     {
+                        if (Disposed)
+                        {
+                            return;
+                        }
+                        if (object.ReferenceEquals(message, Messages.Shutdown.HardShutdown))
+                        {
+                            // TODO: maybe a message or run some sort of method for the subsystem
+                            // to clean up or something.
+                            Log.Info($"{Name} received hard shutdown message");
+                            Dispose();
+                            return;
+                        }
+                        
                         await Pulse(message);
                         
                         dos_protect--;
@@ -54,6 +73,7 @@ namespace Solace.Core.Subsystems
             {
                 foreach (var token in tokens)
                 {
+                    Log.Debug($"Adding communication token: {token}");
                     Communications.Add(token);
                 }
             });
@@ -61,15 +81,28 @@ namespace Solace.Core.Subsystems
         
         public virtual void Dispose()
         {
+            Log.Debug("Disposing");
+            
+            if (Disposed)
+            {
+                Log.Warning($"{Name} is already disposed");
+                return;
+            }
+            Disposed = true;
+            
             var tokens = new List<CommunicationToken>(Communications);
             foreach (var token in tokens)
             {
                 token.Dispose();
             }
+            Communications.Clear();
+            
+            Log.Debug("Done disposing");
         }
         
         public virtual ValueTask DisposeAsync()
         {
+            Log.Debug("Disposing asyncronously");
             return new ValueTask(Task.Run(Dispose));
         }
     }
