@@ -12,9 +12,10 @@ namespace Solace.Core.Subsystems
     
     public class SubsystemManager
     {
-        // TODO: make these thread-safe
         private List<SubsystemContext> Subsystems { get; set; }
         private List<CommunicationContract> Contracts { get; set; }
+        private readonly object SubsystemsLock = new object();
+        private readonly object ContractsLock = new object();
         
         public SubsystemManager()
         {
@@ -38,59 +39,76 @@ namespace Solace.Core.Subsystems
         
         public bool Add(ISubsystem subsystem)
         {
-            if (Subsystems.Exists(x => x.Name.Equals(subsystem.Name, StringComparison.InvariantCultureIgnoreCase)))
+            lock (SubsystemsLock)
             {
-                return false;
+                if (Subsystems.Exists(x => x.Name.Equals(subsystem.Name, StringComparison.InvariantCultureIgnoreCase)))
+                {
+                    return false;
+                }
+                
+                var context = new SubsystemContext(subsystem);
+                Subsystems.Add(context);
+                Log.Info($"Adding subsystem {context.Name}");
             }
-            
-            var context = new SubsystemContext(subsystem);
-            Subsystems.Add(context);
-            Log.Info($"Adding subsystem {context.Name}");
             return true;
         }
         
         public bool Remove(string name)
         {
-            var context = Subsystems.Find(x => x.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
-            return Remove(name, context);
+            lock (SubsystemsLock)
+            {
+                var context = Subsystems.Find(x => x.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
+                return Remove(name, context);
+            }
         }
         
         public bool Remove(ISubsystem subsystem)
         {
-            var context = Subsystems.Find(x => x.Subsystem == subsystem);
-            return Remove(subsystem.Name, context);
+            lock (SubsystemsLock)
+            {
+                var context = Subsystems.Find(x => x.Subsystem == subsystem);
+                return Remove(subsystem.Name, context);
+            }
         }
         
         private bool Remove(string name, SubsystemContext? context)
         {
-            if (context is null)
+            lock (SubsystemsLock)
             {
-                Log.Info($"Could not find subsystem {name} to remove");
-                return false;
+                if (context is null)
+                {
+                    Log.Info($"Could not find subsystem {name} to remove");
+                    return false;
+                }
+                
+                Log.Info($"Removing subsystem {context.Name}");
+                var success = Subsystems.Remove(context);
+                
+                try
+                {
+                    context.Subsystem.Dispose();
+                }
+                catch (Exception e)
+                {
+                    Log.Error(e, $"Subsystem {context.Name} encountered an error when disposing");
+                }
+                
+                return success;
             }
-            
-            Log.Info($"Removing subsystem {context.Name}");
-            var success = Subsystems.Remove(context);
-            
-            try
-            {
-                context.Subsystem.Dispose();
-            }
-            catch (Exception e)
-            {
-                Log.Error(e, $"Subsystem {context.Name} encountered an error when disposing");
-            }
-            
-            return success;
         }
         
         public bool RequestCommunicationContract(string requester_name, string subsystem_name, out CommunicationToken? token)
         {
-            var context = Subsystems.Find(x => x.Name.Equals(subsystem_name, StringComparison.InvariantCultureIgnoreCase));
-            if (context is null)
+            SubsystemContext? context = null;
+            
+            lock (SubsystemsLock)
             {
-                token = null;
-                return false;
+                context = Subsystems.Find(x => x.Name.Equals(subsystem_name, StringComparison.InvariantCultureIgnoreCase));
+                if (context is null)
+                {
+                    token = null;
+                    return false;
+                }
             }
             
             var cc = CommunicationContract.Create(requester_name, subsystem_name);
@@ -99,18 +117,28 @@ namespace Solace.Core.Subsystems
             
             token = cc.Subscriber;
             
-            Contracts.Add(cc);
+            lock (ContractsLock)
+            {
+                Contracts.Add(cc);
+            }
+            
             return true;
         }
         
         public bool FormCommunicationContract(string subscriber_name, string producer_name, out CommunicationContract? contract)
         {
-            var subscriber = Subsystems.Find(x => x.Name.Equals(subscriber_name, StringComparison.InvariantCultureIgnoreCase));
-            var producer = Subsystems.Find(x => x.Name.Equals(producer_name, StringComparison.InvariantCultureIgnoreCase));
-            if (subscriber is null || producer is null)
+            SubsystemContext? subscriber = null;
+            SubsystemContext? producer = null;
+            
+            lock (SubsystemsLock)
             {
-                contract = null;
-                return false;
+                subscriber = Subsystems.Find(x => x.Name.Equals(subscriber_name, StringComparison.InvariantCultureIgnoreCase));
+                producer = Subsystems.Find(x => x.Name.Equals(producer_name, StringComparison.InvariantCultureIgnoreCase));
+                if (subscriber is null || producer is null)
+                {
+                    contract = null;
+                    return false;
+                }
             }
             
             var cc = CommunicationContract.Create(subscriber_name, producer_name);
@@ -118,16 +146,23 @@ namespace Solace.Core.Subsystems
             subscriber.TokenBuffer.Add(cc.Subscriber);
             producer.TokenBuffer.Add(cc.Producer);
             
-            Contracts.Add(cc);
+            lock (ContractsLock)
+            {
+                Contracts.Add(cc);
+            }
+            
             contract = cc;
             return true;
         }
         
         public Task Pulse()
         {
-            if (!Subsystems.Any(x => !x.Executing))
+            lock (SubsystemsLock)
             {
-                return Task.CompletedTask;
+                if (!Subsystems.Any(x => !x.Executing))
+                {
+                    return Task.CompletedTask;
+                }
             }
             
             return Task
@@ -137,12 +172,17 @@ namespace Solace.Core.Subsystems
         
         private async Task InternalPulse()
         {
-            if (Contracts.Count > 0)
+            List<SubsystemContext>? subsystems = null;
+            lock (ContractsLock)
             {
-                Contracts.RemoveAll(x => x.Closed);
+                if (Contracts.Count > 0)
+                {
+                    Contracts.RemoveAll(x => x.Closed);
+                }
+                
+                subsystems = new List<SubsystemContext>(Subsystems);
             }
             
-            List<SubsystemContext> subsystems = new List<SubsystemContext>(Subsystems);
             await InternalPulseSelect(subsystems);
         }
         
@@ -166,7 +206,10 @@ namespace Solace.Core.Subsystems
                 {
                     Log.Error(e, $"Subsystem {context.Name} encountered an unhandled error and will be removed");
                     
-                    Remove(context.Name, context);
+                    lock (SubsystemsLock)
+                    {
+                        Remove(context.Name, context);
+                    }
                     
                     if (exceptions is null)
                     {
