@@ -78,11 +78,11 @@ namespace Solace.Core.Subsystems
         {
             if (Data?.Equals(default(T)!) ?? true)
             {
-                return Command;
+                return base.ToString();
             }
             else
             {
-                return $"{Command}, {Data}";
+                return $"{base.ToString()}, {Data}";
             }
         }
     }
@@ -130,7 +130,14 @@ namespace Solace.Core.Subsystems
         
         public override string ToString()
         {
-            return Command;
+            if (SenderToken.Closed || ReceiverToken.Closed)
+            {
+                return $"{SenderToken.Name} -x-> {ReceiverToken.Name}: {Command}";
+            }
+            else
+            {
+                return $"{SenderToken.Name} ---> {ReceiverToken.Name}: {Command}";
+            }
         }
     }
 }
