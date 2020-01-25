@@ -41,9 +41,13 @@ namespace Solace.Tests.Subsystems
             var send_success = contract!.AsProducer(new Message<int>("PING", 0));
             Assert.True(send_success);
             
+            WriteLine(contract.ToString());
+            
             var ct = new CancellationTokenSource();
             ct.CancelAfter(3000);
             sm.Run(ct.Token);
+            
+            WriteLine(contract.ToString());
         }
         
         private class PingSubsystem : BaseSubsystem

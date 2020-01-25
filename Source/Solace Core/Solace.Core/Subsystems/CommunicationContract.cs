@@ -7,10 +7,6 @@ namespace Solace.Core.Subsystems
     using System.Threading.Tasks;
     using System.Threading.Channels;
     
-    // TODO: ToString that prints the relationship such as "MyModule1 <---> MyModule2"
-    // or in the case that one is closed, "MyModule1 --> MyModule2"
-    // and then override Token's ToString to call it's owning Contract's ToString.
-    
     public class CommunicationContract : IDisposable, IAsyncDisposable
     {
         public CommunicationToken Subscriber { get; private set; }
@@ -82,6 +78,30 @@ namespace Solace.Core.Subsystems
         {
             await Subscriber.DisposeAsync();
             await Producer.DisposeAsync();
+        }
+        
+        public override string ToString()
+        {
+            string relationship = string.Empty;
+            
+            if (Closed)
+            {
+                relationship = "x";
+            }
+            else if (Subscriber.Closed)
+            {
+                relationship = "<--";
+            }
+            else if (Producer.Closed)
+            {
+                relationship = "-->";
+            }
+            else
+            {
+                relationship = "<--->";
+            }
+            
+            return $"{Subscriber.Name} {relationship} {Producer.Name}";
         }
     }
 }

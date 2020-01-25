@@ -63,5 +63,11 @@ namespace Solace.Core.Subsystems
         {
             return new ValueTask(Task.Run(Dispose));
         }
+        
+        public override string ToString()
+        {
+            // TODO: maybe customize
+            return Contract.ToString();
+        }
     }
 }
