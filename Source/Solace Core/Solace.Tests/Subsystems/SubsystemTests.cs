@@ -61,7 +61,7 @@ namespace Solace.Tests.Subsystems
             {
                 if (message is Message<int> mi && mi.Command == "PING")
                 {
-                    WriteLine($"PONG {mi.Data}");
+                    WriteLine($"PONG {mi.Data} ({PingCount})");
                     mi.Respond(new Message<int>("PONG", mi.Data + 1));
                     
                     PingCount++;
@@ -100,7 +100,7 @@ namespace Solace.Tests.Subsystems
             {
                 if (message is Message<int> mi && mi.Command == "PONG")
                 {
-                    WriteLine($"PING {mi.Data}");
+                    WriteLine($"PING {mi.Data} ({PongCount})");
                     mi.Respond(new Message<int>("PING", mi.Data + 1));
                     
                     PongCount++;
