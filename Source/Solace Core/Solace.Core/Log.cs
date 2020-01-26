@@ -3,10 +3,8 @@ namespace Solace.Core
 {
     using System;
     using System.Runtime.CompilerServices;
-    using Serilog;
-    using Serilog.Events;
     
-    // TODO: remove Serilog from this, put it elsewhere
+    using Serilog.Events;
     
     public static class Log
     {
@@ -83,13 +81,119 @@ namespace Solace.Core
             }
         }
         
-        private static ILogger BuildContext(string sourceFilePath, string callerName, int sourceLineNumber)
+        // TODO: remove Serilog dependency and move this into the Server project.
+        public static void AttachSerilog()
+        {
+            OnLog += SerilogLogger;
+        }
+        
+        private static void SerilogLogger(LogToken log)
         {
             var logger = Serilog.Log.Logger;
-            logger.ForContext("CallerFilePath", sourceFilePath);
-            logger.ForContext("CallerMemberName", callerName);
-            logger.ForContext("CallerLineNumber", sourceLineNumber);
-            return logger;
+            logger.ForContext("CallerFilePath", log.CallerFilePath);
+            logger.ForContext("CallerMemberName", log.CallerMemberName);
+            logger.ForContext("CallerLineNumber", log.CallerLineNumber);
+            
+            if (log.Exception is null && log.Arguments.Length == 0)
+            {
+                switch (log.Level)
+                {
+                    case LogLevel.Write:
+                    case LogLevel.Info:
+                        logger.Information(log.Message);
+                        break;
+                    case LogLevel.Warning:
+                        logger.Warning(log.Message);
+                        break;
+                    case LogLevel.Error:
+                        logger.Error(log.Message);
+                        break;
+                    case LogLevel.Fatal:
+                        logger.Fatal(log.Message);
+                        break;
+                    case LogLevel.Debug:
+                        logger.Debug(log.Message);
+                        break;
+                    case LogLevel.Verbose:
+                        logger.Verbose(log.Message);
+                        break;
+                }
+            }
+            else if (!(log.Exception is null) && log.Arguments.Length == 0)
+            {
+                switch (log.Level)
+                {
+                    case LogLevel.Write:
+                    case LogLevel.Info:
+                        logger.Information(log.Exception, log.Message);
+                        break;
+                    case LogLevel.Warning:
+                        logger.Warning(log.Exception, log.Message);
+                        break;
+                    case LogLevel.Error:
+                        logger.Error(log.Exception, log.Message);
+                        break;
+                    case LogLevel.Fatal:
+                        logger.Fatal(log.Exception, log.Message);
+                        break;
+                    case LogLevel.Debug:
+                        logger.Debug(log.Exception, log.Message);
+                        break;
+                    case LogLevel.Verbose:
+                        logger.Verbose(log.Exception, log.Message);
+                        break;
+                }
+            }
+            else if (log.Exception is null && log.Arguments.Length > 0)
+            {
+                switch (log.Level)
+                {
+                    case LogLevel.Write:
+                    case LogLevel.Info:
+                        logger.Information(log.Message, log.Arguments);
+                        break;
+                    case LogLevel.Warning:
+                        logger.Warning(log.Message, log.Arguments);
+                        break;
+                    case LogLevel.Error:
+                        logger.Error(log.Message, log.Arguments);
+                        break;
+                    case LogLevel.Fatal:
+                        logger.Fatal(log.Message, log.Arguments);
+                        break;
+                    case LogLevel.Debug:
+                        logger.Debug(log.Message, log.Arguments);
+                        break;
+                    case LogLevel.Verbose:
+                        logger.Verbose(log.Message, log.Arguments);
+                        break;
+                }
+            }
+            else
+            {
+                switch (log.Level)
+                {
+                    case LogLevel.Write:
+                    case LogLevel.Info:
+                        logger.Information(log.Exception, log.Message, log.Arguments);
+                        break;
+                    case LogLevel.Warning:
+                        logger.Warning(log.Exception, log.Message, log.Arguments);
+                        break;
+                    case LogLevel.Error:
+                        logger.Error(log.Exception, log.Message, log.Arguments);
+                        break;
+                    case LogLevel.Fatal:
+                        logger.Fatal(log.Exception, log.Message, log.Arguments);
+                        break;
+                    case LogLevel.Debug:
+                        logger.Debug(log.Exception, log.Message, log.Arguments);
+                        break;
+                    case LogLevel.Verbose:
+                        logger.Verbose(log.Exception, log.Message, log.Arguments);
+                        break;
+                }
+            }
         }
         
         private static void Write(LogEventLevel level, string message, 
@@ -97,8 +201,6 @@ namespace Solace.Core
             [CallerMemberName] string callerName = "",
             [CallerLineNumber] int sourceLineNumber = 0)
         {
-            var logger = BuildContext(sourceFilePath, callerName, sourceLineNumber);
-            logger.Write(level, message);
             OnLog.Invoke(new LogToken(LogLevel.Write, sourceFilePath, callerName, sourceLineNumber, message));
         }
         
@@ -107,8 +209,6 @@ namespace Solace.Core
             [CallerMemberName] string callerName = "",
             [CallerLineNumber] int sourceLineNumber = 0)
         {
-            var logger = BuildContext(sourceFilePath, callerName, sourceLineNumber);
-            logger.Write(level, ex, message);
             OnLog.Invoke(new LogToken(LogLevel.Write, sourceFilePath, callerName, sourceLineNumber, ex, message));
         }
         
@@ -117,8 +217,6 @@ namespace Solace.Core
             [CallerMemberName] string callerName = "",
             [CallerLineNumber] int sourceLineNumber = 0)
         {
-            var logger = BuildContext(sourceFilePath, callerName, sourceLineNumber);
-            logger.Write(level, message, args);
             OnLog.Invoke(new LogToken(LogLevel.Write, sourceFilePath, callerName, sourceLineNumber, message, args));
         }
         
@@ -127,8 +225,6 @@ namespace Solace.Core
             [CallerMemberName] string callerName = "",
             [CallerLineNumber] int sourceLineNumber = 0)
         {
-            var logger = BuildContext(sourceFilePath, callerName, sourceLineNumber);
-            logger.Write(level, ex, message, args);
             OnLog.Invoke(new LogToken(LogLevel.Write, sourceFilePath, callerName, sourceLineNumber, ex, message, args));
         }
         
@@ -137,8 +233,6 @@ namespace Solace.Core
             [CallerMemberName] string callerName = "",
             [CallerLineNumber] int sourceLineNumber = 0)
         {
-            var logger = BuildContext(sourceFilePath, callerName, sourceLineNumber);
-            logger.Information(message);
             OnLog.Invoke(new LogToken(LogLevel.Info, sourceFilePath, callerName, sourceLineNumber, message));
         }
         
@@ -147,8 +241,6 @@ namespace Solace.Core
             [CallerMemberName] string callerName = "",
             [CallerLineNumber] int sourceLineNumber = 0)
         {
-            var logger = BuildContext(sourceFilePath, callerName, sourceLineNumber);
-            logger.Information(message, args);
             OnLog.Invoke(new LogToken(LogLevel.Info, sourceFilePath, callerName, sourceLineNumber, message, args));
         }
         
@@ -157,8 +249,6 @@ namespace Solace.Core
             [CallerMemberName] string callerName = "",
             [CallerLineNumber] int sourceLineNumber = 0)
         {
-            var logger = BuildContext(sourceFilePath, callerName, sourceLineNumber);
-            logger.Information(ex, message);
             OnLog.Invoke(new LogToken(LogLevel.Info, sourceFilePath, callerName, sourceLineNumber, ex, message));
         }
         
@@ -167,8 +257,6 @@ namespace Solace.Core
             [CallerMemberName] string callerName = "",
             [CallerLineNumber] int sourceLineNumber = 0)
         {
-            var logger = BuildContext(sourceFilePath, callerName, sourceLineNumber);
-            logger.Information(ex, message, args);
             OnLog.Invoke(new LogToken(LogLevel.Info, sourceFilePath, callerName, sourceLineNumber, ex, message, args));
         }
         
@@ -177,8 +265,6 @@ namespace Solace.Core
             [CallerMemberName] string callerName = "",
             [CallerLineNumber] int sourceLineNumber = 0)
         {
-            var logger = BuildContext(sourceFilePath, callerName, sourceLineNumber);
-            logger.Warning(message);
             OnLog.Invoke(new LogToken(LogLevel.Warning, sourceFilePath, callerName, sourceLineNumber, message));
         }
         
@@ -187,8 +273,6 @@ namespace Solace.Core
             [CallerMemberName] string callerName = "",
             [CallerLineNumber] int sourceLineNumber = 0)
         {
-            var logger = BuildContext(sourceFilePath, callerName, sourceLineNumber);
-            logger.Warning(message, args);
             OnLog.Invoke(new LogToken(LogLevel.Warning, sourceFilePath, callerName, sourceLineNumber, message, args));
         }
         
@@ -197,8 +281,6 @@ namespace Solace.Core
             [CallerMemberName] string callerName = "",
             [CallerLineNumber] int sourceLineNumber = 0)
         {
-            var logger = BuildContext(sourceFilePath, callerName, sourceLineNumber);
-            logger.Warning(ex, message);
             OnLog.Invoke(new LogToken(LogLevel.Warning, sourceFilePath, callerName, sourceLineNumber, ex, message));
         }
         
@@ -207,8 +289,6 @@ namespace Solace.Core
             [CallerMemberName] string callerName = "",
             [CallerLineNumber] int sourceLineNumber = 0)
         {
-            var logger = BuildContext(sourceFilePath, callerName, sourceLineNumber);
-            logger.Warning(ex, message, args);
             OnLog.Invoke(new LogToken(LogLevel.Warning, sourceFilePath, callerName, sourceLineNumber, ex, message, args));
         }
         
@@ -217,8 +297,6 @@ namespace Solace.Core
             [CallerMemberName] string callerName = "",
             [CallerLineNumber] int sourceLineNumber = 0)
         {
-            var logger = BuildContext(sourceFilePath, callerName, sourceLineNumber);
-            logger.Error(message);
             OnLog.Invoke(new LogToken(LogLevel.Error, sourceFilePath, callerName, sourceLineNumber, message));
         }
         
@@ -227,8 +305,6 @@ namespace Solace.Core
             [CallerMemberName] string callerName = "",
             [CallerLineNumber] int sourceLineNumber = 0)
         {
-            var logger = BuildContext(sourceFilePath, callerName, sourceLineNumber);
-            logger.Error(message, args);
             OnLog.Invoke(new LogToken(LogLevel.Error, sourceFilePath, callerName, sourceLineNumber, message, args));
         }
         
@@ -237,8 +313,6 @@ namespace Solace.Core
             [CallerMemberName] string callerName = "",
             [CallerLineNumber] int sourceLineNumber = 0)
         {
-            var logger = BuildContext(sourceFilePath, callerName, sourceLineNumber);
-            logger.Error(ex, message);
             OnLog.Invoke(new LogToken(LogLevel.Error, sourceFilePath, callerName, sourceLineNumber, ex, message));
         }
         
@@ -247,8 +321,6 @@ namespace Solace.Core
             [CallerMemberName] string callerName = "",
             [CallerLineNumber] int sourceLineNumber = 0)
         {
-            var logger = BuildContext(sourceFilePath, callerName, sourceLineNumber);
-            logger.Error(ex, message, args);
             OnLog.Invoke(new LogToken(LogLevel.Error, sourceFilePath, callerName, sourceLineNumber, ex, message, args));
         }
         
@@ -257,8 +329,6 @@ namespace Solace.Core
             [CallerMemberName] string callerName = "",
             [CallerLineNumber] int sourceLineNumber = 0)
         {
-            var logger = BuildContext(sourceFilePath, callerName, sourceLineNumber);
-            logger.Fatal(message);
             OnLog.Invoke(new LogToken(LogLevel.Fatal, sourceFilePath, callerName, sourceLineNumber, message));
         }
         
@@ -267,8 +337,6 @@ namespace Solace.Core
             [CallerMemberName] string callerName = "",
             [CallerLineNumber] int sourceLineNumber = 0)
         {
-            var logger = BuildContext(sourceFilePath, callerName, sourceLineNumber);
-            logger.Fatal(message, args);
             OnLog.Invoke(new LogToken(LogLevel.Fatal, sourceFilePath, callerName, sourceLineNumber, message, args));
         }
         
@@ -277,8 +345,6 @@ namespace Solace.Core
             [CallerMemberName] string callerName = "",
             [CallerLineNumber] int sourceLineNumber = 0)
         {
-            var logger = BuildContext(sourceFilePath, callerName, sourceLineNumber);
-            logger.Fatal(ex, message);
             OnLog.Invoke(new LogToken(LogLevel.Fatal, sourceFilePath, callerName, sourceLineNumber, ex, message));
         }
         
@@ -287,8 +353,6 @@ namespace Solace.Core
             [CallerMemberName] string callerName = "",
             [CallerLineNumber] int sourceLineNumber = 0)
         {
-            var logger = BuildContext(sourceFilePath, callerName, sourceLineNumber);
-            logger.Fatal(ex, message, args);
             OnLog.Invoke(new LogToken(LogLevel.Fatal, sourceFilePath, callerName, sourceLineNumber, ex, message, args));
         }
         
@@ -297,8 +361,6 @@ namespace Solace.Core
             [CallerMemberName] string callerName = "",
             [CallerLineNumber] int sourceLineNumber = 0)
         {
-            var logger = BuildContext(sourceFilePath, callerName, sourceLineNumber);
-            logger.Debug(message);
             OnLog.Invoke(new LogToken(LogLevel.Debug, sourceFilePath, callerName, sourceLineNumber, message));
         }
         
@@ -307,8 +369,6 @@ namespace Solace.Core
             [CallerMemberName] string callerName = "",
             [CallerLineNumber] int sourceLineNumber = 0)
         {
-            var logger = BuildContext(sourceFilePath, callerName, sourceLineNumber);
-            logger.Debug(message, args);
             OnLog.Invoke(new LogToken(LogLevel.Debug, sourceFilePath, callerName, sourceLineNumber, message, args));
         }
         
@@ -317,8 +377,6 @@ namespace Solace.Core
             [CallerMemberName] string callerName = "",
             [CallerLineNumber] int sourceLineNumber = 0)
         {
-            var logger = BuildContext(sourceFilePath, callerName, sourceLineNumber);
-            logger.Debug(ex, message);
             OnLog.Invoke(new LogToken(LogLevel.Debug, sourceFilePath, callerName, sourceLineNumber, ex, message));
         }
         
@@ -327,8 +385,6 @@ namespace Solace.Core
             [CallerMemberName] string callerName = "",
             [CallerLineNumber] int sourceLineNumber = 0)
         {
-            var logger = BuildContext(sourceFilePath, callerName, sourceLineNumber);
-            logger.Debug(ex, message, args);
             OnLog.Invoke(new LogToken(LogLevel.Debug, sourceFilePath, callerName, sourceLineNumber, ex, message, args));
         }
         
@@ -337,8 +393,6 @@ namespace Solace.Core
             [CallerMemberName] string callerName = "",
             [CallerLineNumber] int sourceLineNumber = 0)
         {
-            var logger = BuildContext(sourceFilePath, callerName, sourceLineNumber);
-            logger.Verbose(message);
             OnLog.Invoke(new LogToken(LogLevel.Verbose, sourceFilePath, callerName, sourceLineNumber, message));
         }
         
@@ -347,8 +401,6 @@ namespace Solace.Core
             [CallerMemberName] string callerName = "",
             [CallerLineNumber] int sourceLineNumber = 0)
         {
-            var logger = BuildContext(sourceFilePath, callerName, sourceLineNumber);
-            logger.Verbose(message, args);
             OnLog.Invoke(new LogToken(LogLevel.Verbose, sourceFilePath, callerName, sourceLineNumber, message, args));
         }
         
@@ -357,8 +409,6 @@ namespace Solace.Core
             [CallerMemberName] string callerName = "",
             [CallerLineNumber] int sourceLineNumber = 0)
         {
-            var logger = BuildContext(sourceFilePath, callerName, sourceLineNumber);
-            logger.Verbose(ex, message);
             OnLog.Invoke(new LogToken(LogLevel.Verbose, sourceFilePath, callerName, sourceLineNumber, ex, message));
         }
         
@@ -367,8 +417,6 @@ namespace Solace.Core
             [CallerMemberName] string callerName = "",
             [CallerLineNumber] int sourceLineNumber = 0)
         {
-            var logger = BuildContext(sourceFilePath, callerName, sourceLineNumber);
-            logger.Verbose(ex, message, args);
             OnLog.Invoke(new LogToken(LogLevel.Verbose, sourceFilePath, callerName, sourceLineNumber, ex, message, args));
         }
     }
