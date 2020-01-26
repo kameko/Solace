@@ -86,7 +86,7 @@ namespace Solace.Core.Subsystems
             
             if (Closed)
             {
-                relationship = "x";
+                relationship = "<-x->";
             }
             else if (Subscriber.Closed)
             {

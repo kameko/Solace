@@ -11,7 +11,8 @@ namespace Solace.Core.Subsystems
         public string Name { get; protected set; }
         public bool Disposed { get; private set; }
         public int MessageDenialOfServicePreventionCutoff { get; set; }
-        private List<CommunicationToken> Communications { get; set; }
+        internal List<CommunicationToken> Communications { get; set; }
+        internal readonly object CommunicationsLock = new object();
         
         public BaseSubsystem()
         {
@@ -27,7 +28,11 @@ namespace Solace.Core.Subsystems
         {
             return Task.Run(async () =>
             {
-                var tokens = new List<CommunicationToken>(Communications);
+                List<CommunicationToken>? tokens = null;
+                lock (CommunicationsLock)
+                {
+                    tokens = new List<CommunicationToken>(Communications);
+                }
                 foreach (var token in tokens)
                 {
                     if (Disposed)
@@ -36,7 +41,10 @@ namespace Solace.Core.Subsystems
                     }
                     if (token.Closed)
                     {
-                        Communications.Remove(token);
+                        lock (CommunicationsLock)
+                        {
+                            Communications.Remove(token);
+                        }
                     }
                     
                     int dos_protect = MessageDenialOfServicePreventionCutoff;
@@ -71,10 +79,13 @@ namespace Solace.Core.Subsystems
         {
             return Task.Run(() => 
             {
-                foreach (var token in tokens)
+                lock (CommunicationsLock)
                 {
-                    Log.Debug($"Adding communication token: {token}");
-                    Communications.Add(token);
+                    foreach (var token in tokens)
+                    {
+                        Log.Debug($"{Name}: Adding communication token: {token}");
+                        Communications.Add(token);
+                    }
                 }
             });
         }
@@ -90,7 +101,11 @@ namespace Solace.Core.Subsystems
             }
             Disposed = true;
             
-            var tokens = new List<CommunicationToken>(Communications);
+            List<CommunicationToken>? tokens = null;
+            lock (CommunicationsLock)
+            {
+                tokens = new List<CommunicationToken>(Communications);
+            }
             foreach (var token in tokens)
             {
                 token.Dispose();

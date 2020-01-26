@@ -8,6 +8,22 @@ namespace Solace.Core.Subsystems
     
     public static class Messages
     {
+        public class Start : Message
+        {
+            public static Start Instance { get; private set; }
+            public static string Message = "START";
+            
+            static Start()
+            {
+                Instance = new Start();
+            }
+            
+            public Start() : base(Message)
+            {
+                
+            }
+        }
+        
         public class ChannelClosed : Message
         {
             public static ChannelClosed Instance { get; private set; }
@@ -70,7 +86,7 @@ namespace Solace.Core.Subsystems
             base.Copy(message);
             if (message is Message<T> mt)
             {
-                mt.Data = Data;
+                Data = mt.Data;
             }
         }
         
@@ -90,24 +106,20 @@ namespace Solace.Core.Subsystems
     public class Message
     {
         // These are set by CommunicationToken
-        internal CommunicationToken SenderToken { get; set; }
-        internal CommunicationToken ReceiverToken { get; set; }
+        internal CommunicationToken? SenderToken { get; set; }
+        internal CommunicationToken? ReceiverToken { get; set; }
         
-        public string Sender => SenderToken.Name;
+        public string Sender => SenderToken?.Name ?? string.Empty;
         public string Command { get; protected set; }
         
         public Message(string command)
         {
-            SenderToken   = null!;
-            ReceiverToken = null!;
-            Command       = command;
+            Command = command;
         }
         
         public Message(Message message)
         {
-            SenderToken   = null!;
-            ReceiverToken = null!;
-            Command       = null!;
+            Command = null!;
             Copy(message);
         }
         
@@ -120,23 +132,24 @@ namespace Solace.Core.Subsystems
         
         public void Respond(Message message)
         {
-            ReceiverToken.Send(message);
+            // TODO: throw an exception if null, but not NullRef
+            ReceiverToken?.Send(message);
         }
         
         public void CloseChannel()
         {
-            ReceiverToken.Close();
+            ReceiverToken?.Close();
         }
         
         public override string ToString()
         {
-            if (SenderToken.Closed || ReceiverToken.Closed)
+            if (SenderToken?.Closed ?? true) // || ReceiverToken.Closed)
             {
-                return $"{SenderToken.Name} -x-> {ReceiverToken.Name}: {Command}";
+                return $"{SenderToken?.Name} -x-> {ReceiverToken?.Name}: {Command}";
             }
             else
             {
-                return $"{SenderToken.Name} ---> {ReceiverToken.Name}: {Command}";
+                return $"{SenderToken?.Name} ---> {ReceiverToken?.Name}: {Command}";
             }
         }
     }

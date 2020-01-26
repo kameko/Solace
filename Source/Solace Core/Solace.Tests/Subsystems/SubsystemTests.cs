@@ -18,6 +18,15 @@ namespace Solace.Tests.Subsystems
         {
             this.output = output;
             WriteLine(string.Empty);
+            
+            Core.Log.OnLog += log =>
+            {
+                string file = log.CallerFilePath.Split('\\', '/').Last().Replace(".cs", "");
+                WriteLine(
+                    $"[{log.Level.ToString().ToUpper()} {file}@" +
+                    $"{log.CallerMemberName}:{log.CallerLineNumber}] {log.Message}"
+                );
+            };
         }
         
         protected void WriteLine(string message)
@@ -26,6 +35,9 @@ namespace Solace.Tests.Subsystems
             Console.WriteLine(message);
         }
         
+        // FIXME: Message ToString is throwing out nonsense, like both
+        // Ping and Pong are called Pong and that Ping and Pong's messages
+        // are the same. Something screwy is happening.
         [Fact]
         public void Test1()
         {

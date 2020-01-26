@@ -10,6 +10,7 @@ namespace Solace.Core.Subsystems
     
     public class SubsystemManager
     {
+        private SystemSubsystem SystemSubsystem { get; set; }
         private List<SubsystemContext> Subsystems { get; set; }
         private List<CommunicationContract> Contracts { get; set; }
         private readonly object SubsystemsLock = new object();
@@ -17,8 +18,12 @@ namespace Solace.Core.Subsystems
         
         public SubsystemManager()
         {
-            Subsystems = new List<SubsystemContext>();
-            Contracts  = new List<CommunicationContract>();
+            Subsystems      = new List<SubsystemContext>();
+            Contracts       = new List<CommunicationContract>();
+            SystemSubsystem = new SystemSubsystem();
+            
+            var sssc = new SubsystemContext(SystemSubsystem);
+            Subsystems.Add(sssc);
         }
         
         public void Run(CancellationToken token)
@@ -47,6 +52,22 @@ namespace Solace.Core.Subsystems
                 var context = new SubsystemContext(subsystem);
                 Subsystems.Add(context);
                 Log.Info($"Adding subsystem {context.Name}");
+                
+                var contract_success = FormCommunicationContract(SystemSubsystem.Name, subsystem.Name, out var contract);
+                if (contract_success)
+                {
+                    contract!.AsSubscriber(Messages.Start.Instance);
+                }
+                else
+                {
+                    Log.Error(
+                        $"Forming communication contract with the primary " + 
+                        $"System subsystem and new subsystem {subsystem.Name} failed. " +
+                        $"Removing failed subsystem from system"
+                    );
+                    Subsystems.Remove(context);
+                    return false;
+                }
                 
                 return true;
             }
@@ -129,12 +150,12 @@ namespace Solace.Core.Subsystems
         public bool FormCommunicationContract(string subscriber_name, string producer_name, out CommunicationContract? contract)
         {
             SubsystemContext? subscriber = null;
-            SubsystemContext? producer = null;
+            SubsystemContext? producer   = null;
             
             lock (SubsystemsLock)
             {
                 subscriber = Subsystems.Find(x => x.Name.Equals(subscriber_name, StringComparison.InvariantCultureIgnoreCase));
-                producer = Subsystems.Find(x => x.Name.Equals(producer_name, StringComparison.InvariantCultureIgnoreCase));
+                producer   = Subsystems.Find(x => x.Name.Equals(producer_name  , StringComparison.InvariantCultureIgnoreCase));
                 if (subscriber is null || producer is null)
                 {
                     contract = null;
