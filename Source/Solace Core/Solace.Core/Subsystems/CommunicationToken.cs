@@ -71,7 +71,7 @@ namespace Solace.Core.Subsystems
         /// </summary>
         public void Close()
         {
-            Send(Messages.ChannelClosed.Instance);
+            Send(new Messages.ChannelClosed());
             Output.Writer.TryComplete();
             Closed = true;
         }

@@ -35,9 +35,6 @@ namespace Solace.Tests.Subsystems
             Console.WriteLine(message);
         }
         
-        // FIXME: Message ToString is throwing out nonsense, like both
-        // Ping and Pong are called Pong and that Ping and Pong's messages
-        // are the same. Something screwy is happening.
         [Fact]
         public void Test1()
         {
@@ -77,7 +74,7 @@ namespace Solace.Tests.Subsystems
             {
                 if (message is Message<int> mi && mi.Command == "PING")
                 {
-                    WriteLine($"PONG {mi.Data} ({PingCount})");
+                    WriteLine($"PONG {mi} ({PingCount})");
                     mi.Respond(new Message<int>("PONG", mi.Data + 1));
                     
                     PingCount++;
@@ -116,7 +113,7 @@ namespace Solace.Tests.Subsystems
             {
                 if (message is Message<int> mi && mi.Command == "PONG")
                 {
-                    WriteLine($"PING {mi.Data} ({PongCount})");
+                    WriteLine($"PING {mi} ({PongCount})");
                     mi.Respond(new Message<int>("PING", mi.Data + 1));
                     
                     PongCount++;

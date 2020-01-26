@@ -10,13 +10,7 @@ namespace Solace.Core.Subsystems
     {
         public class Start : Message
         {
-            public static Start Instance { get; private set; }
             public static string Message = "START";
-            
-            static Start()
-            {
-                Instance = new Start();
-            }
             
             public Start() : base(Message)
             {
@@ -26,13 +20,7 @@ namespace Solace.Core.Subsystems
         
         public class ChannelClosed : Message
         {
-            public static ChannelClosed Instance { get; private set; }
             public static string Message => "CHANNEL_CLOSED";
-            
-            static ChannelClosed()
-            {
-                Instance = new ChannelClosed();
-            }
             
             public ChannelClosed() : base(Message)
             {

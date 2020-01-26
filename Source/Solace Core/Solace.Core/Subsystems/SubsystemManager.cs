@@ -56,7 +56,7 @@ namespace Solace.Core.Subsystems
                 var contract_success = FormCommunicationContract(SystemSubsystem.Name, subsystem.Name, out var contract);
                 if (contract_success)
                 {
-                    contract!.AsSubscriber(Messages.Start.Instance);
+                    contract!.AsSubscriber(new Messages.Start());
                 }
                 else
                 {
@@ -121,6 +121,13 @@ namespace Solace.Core.Subsystems
         
         public bool RequestCommunicationContract(string requester_name, string subsystem_name, out CommunicationToken? token)
         {
+            // sanity check
+            if (requester_name.Equals(subsystem_name, StringComparison.InvariantCultureIgnoreCase))
+            {
+                token = null;
+                return false;
+            }
+            
             SubsystemContext? context = null;
             
             lock (SubsystemsLock)
@@ -149,6 +156,12 @@ namespace Solace.Core.Subsystems
         
         public bool FormCommunicationContract(string subscriber_name, string producer_name, out CommunicationContract? contract)
         {
+            if (subscriber_name.Equals(producer_name, StringComparison.InvariantCultureIgnoreCase))
+            {
+                contract = null;
+                return false;
+            }
+            
             SubsystemContext? subscriber = null;
             SubsystemContext? producer   = null;
             
