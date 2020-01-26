@@ -34,7 +34,7 @@ namespace Solace.Core
             public int CallerLineNumber { get; set; }
             public string Message { get; set; }
             public Exception? Exception { get; set; }
-            public object[] Arguments { get; set; }
+            public object[]? Arguments { get; set; }
             
             public LogToken(LogLevel level, string path, string member, int line, string message)
             {
@@ -44,7 +44,7 @@ namespace Solace.Core
                 CallerLineNumber = line;
                 Message          = message;
                 Exception        = null;
-                Arguments        = new object[0];
+                Arguments        = null;
             }
             
             public LogToken(LogLevel level, string path, string member, int line, Exception exception, string message)
@@ -55,7 +55,7 @@ namespace Solace.Core
                 CallerLineNumber = line;
                 Message          = message;
                 Exception        = exception;
-                Arguments        = new object[0];
+                Arguments        = null;
             }
             
             public LogToken(LogLevel level, string path, string member, int line, string message, object[] args)
@@ -94,7 +94,7 @@ namespace Solace.Core
             logger.ForContext("CallerMemberName", log.CallerMemberName);
             logger.ForContext("CallerLineNumber", log.CallerLineNumber);
             
-            if (log.Exception is null && log.Arguments.Length == 0)
+            if (log.Exception is null && log.Arguments is null)
             {
                 switch (log.Level)
                 {
@@ -119,7 +119,7 @@ namespace Solace.Core
                         break;
                 }
             }
-            else if (!(log.Exception is null) && log.Arguments.Length == 0)
+            else if (!(log.Exception is null) && log.Arguments is null)
             {
                 switch (log.Level)
                 {
@@ -144,7 +144,7 @@ namespace Solace.Core
                         break;
                 }
             }
-            else if (log.Exception is null && log.Arguments.Length > 0)
+            else if (log.Exception is null && !(log.Arguments is null))
             {
                 switch (log.Level)
                 {
