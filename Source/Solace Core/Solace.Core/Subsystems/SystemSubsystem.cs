@@ -15,9 +15,12 @@ namespace Solace.Core.Subsystems
             Name = "SYSTEM";
         }
         
-        protected override Task Pulse(Message messages)
+        protected override Task Pulse(Message message)
         {
-            // throw new NotImplementedException();
+            // TODO:
+            
+            Log.Debug($"{Name} received message: {message}");
+            
             return Task.CompletedTask;
         }
         
@@ -57,6 +60,10 @@ namespace Solace.Core.Subsystems
                         dos_protect--;
                         if (dos_protect < 0)
                         {
+                            Log.Debug(
+                                $"{Name}: Denial of service cutoff ({MessageDenialOfServicePreventionCutoff}) " +
+                                $"from {token.Name} reached" 
+                            );
                             break;
                         }
                     }
