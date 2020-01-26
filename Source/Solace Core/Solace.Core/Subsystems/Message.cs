@@ -8,6 +8,12 @@ namespace Solace.Core.Subsystems
     
     public static class Messages
     {
+        // NOTICE:
+        // When adding a message here, do NOT add a static "Instance"
+        // property. Their Sender/Receiver tokens will be sporatically
+        // set in a thread-unsafe way and create false data.
+        // This goes for any static instance of a Message, not just here.
+        
         public class Start : Message
         {
             public static string Message = "START";
