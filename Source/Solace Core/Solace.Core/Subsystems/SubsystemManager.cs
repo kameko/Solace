@@ -287,6 +287,7 @@ namespace Solace.Core.Subsystems
         
         private class SubsystemContext
         {
+            // TODO: more metadata, like when the subsystem was loaded
             public ISubsystem Subsystem { get; private set; }
             public bool Executing { get; private set; }
             public ConcurrentBag<CommunicationToken> TokenBuffer { get; private set; }
