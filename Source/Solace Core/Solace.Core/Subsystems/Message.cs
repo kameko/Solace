@@ -139,7 +139,7 @@ namespace Solace.Core.Subsystems
         {
             if (SenderToken?.Closed ?? true) // || ReceiverToken.Closed)
             {
-                return $"{SenderToken?.Name} -x-> {ReceiverToken?.Name}: {Command}";
+                return $"{SenderToken?.Name} x--> {ReceiverToken?.Name}: {Command}";
             }
             else
             {

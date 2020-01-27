@@ -24,7 +24,7 @@ namespace Solace.Tests.Subsystems
                 string file = log.CallerFilePath.Split('\\', '/').Last().Replace(".cs", "");
                 WriteLine(
                     $"[{log.Level.ToString().ToUpper()} {file}@" +
-                    $"{log.CallerMemberName}:{log.CallerLineNumber}] {log.Message}"
+                    $"{log.CallerMemberName}():{log.CallerLineNumber}] {log.Message}"
                 );
             };
         }
