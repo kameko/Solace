@@ -12,7 +12,6 @@ namespace Solace.Core.Modules
         public Version Version { get; set; }
         
         // Non-comparable data.
-        public ModuleDependencies Dependencies { get; set; }
         public string Copyright { get; set; }
         
         public ModuleInfo()
@@ -20,7 +19,6 @@ namespace Solace.Core.Modules
             Name         = string.Empty;
             Company      = string.Empty;
             Version      = new Version();
-            Dependencies = new ModuleDependencies();
             Copyright    = string.Empty;
         }
         

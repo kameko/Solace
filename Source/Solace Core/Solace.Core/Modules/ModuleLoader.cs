@@ -6,11 +6,11 @@ namespace Solace.Core.Modules
     using System.IO;
     using System.Reflection;
     
-    public class ModuleLoader : IModuleLoader
+    public class ModuleLoader
     {
         public string Name => Loader.Name ?? string.Empty;
         
-        private ILoadContext Loader { get; set; }
+        private LoadContext Loader { get; set; }
         private IIOPlatform IO { get; set; }
         
         public ModuleLoader(string name)
@@ -22,12 +22,6 @@ namespace Solace.Core.Modules
         public ModuleLoader() : this(Guid.NewGuid().ToString().ToUpper())
         {
             
-        }
-        
-        public ModuleLoader(ILoadContext loader, IIOPlatform io)
-        {
-            Loader = loader;
-            IO     = io;
         }
         
         public bool TryLoadModule(string path, out BaseModule? module)
@@ -77,7 +71,7 @@ namespace Solace.Core.Modules
                 // FileNotFoundException
                 // BadImageFormatException
                 // FileLoadException
-                return (false, null, $"{nameof(ILoadContext)}: {e.GetType()}: {e.Message}", e);
+                return (false, null, $"{nameof(LoadContext)}: {e.GetType()}: {e.Message}", e);
             }
             
             if (assembly is null)

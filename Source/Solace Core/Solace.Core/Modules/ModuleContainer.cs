@@ -4,14 +4,14 @@ namespace Solace.Core.Modules
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Threading;
     using System.Threading.Tasks;
     
-    public abstract class BaseModule
+    public class ModuleContainer
     {
-        public abstract ModuleInfo Info { get; protected set; }
+        public ModuleLoader? Loader { get; set; }
+        public BaseModule? Module { get; set; }
         
-        public BaseModule()
+        public ModuleContainer()
         {
             
         }

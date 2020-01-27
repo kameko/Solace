@@ -6,7 +6,7 @@ namespace Solace.Core.Modules
     using System.Reflection;
     using System.Runtime.Loader;
     
-    internal class LoadContext : AssemblyLoadContext, ILoadContext
+    internal class LoadContext : AssemblyLoadContext
     {
         private AssemblyDependencyResolver? _resolver;
         
