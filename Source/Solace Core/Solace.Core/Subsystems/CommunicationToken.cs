@@ -58,6 +58,15 @@ namespace Solace.Core.Subsystems
                 return false;
             }
             
+            if (!(message.SenderToken is null) || !(message.ReceiverToken is null))
+            {
+                throw new InvalidOperationException(
+                    "Message sender and receiver must be null. If they are not, you may " +
+                    "be attempting to send the same message instance to two different " +
+                    "subsystems which can lead to data corruption"
+                );
+            }
+            
             message.SenderToken   = this;
             message.ReceiverToken = Other;
             return Output.Writer.TryWrite(message);
