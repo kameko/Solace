@@ -10,17 +10,19 @@ namespace Solace.Core.Subsystems
     
     public class SubsystemManager
     {
-        private SystemSubsystem SystemSubsystem { get; set; }
+        internal SystemSubsystem SystemSubsystem { get; set; }
         private List<SubsystemContext> Subsystems { get; set; }
         private List<CommunicationContract> Contracts { get; set; }
         private readonly object SubsystemsLock = new object();
         private readonly object ContractsLock = new object();
+        public event Func<ISubsystem, Task> OnSubsystemFailure;
         
         public SubsystemManager()
         {
-            Subsystems      = new List<SubsystemContext>();
-            Contracts       = new List<CommunicationContract>();
-            SystemSubsystem = new SystemSubsystem();
+            Subsystems         = new List<SubsystemContext>();
+            Contracts          = new List<CommunicationContract>();
+            SystemSubsystem    = new SystemSubsystem();
+            OnSubsystemFailure = delegate { return Task.CompletedTask; };
             
             var sssc = new SubsystemContext(SystemSubsystem);
             Subsystems.Add(sssc);
@@ -255,6 +257,15 @@ namespace Solace.Core.Subsystems
                         exceptions = new List<Exception>();
                     }
                     exceptions.Add(e);
+                    
+                    try
+                    {
+                        await OnSubsystemFailure(context.Subsystem);
+                    }
+                    catch (Exception ei)
+                    {
+                        Log.Error(ei, $"Calling OnSubsystemFailure raised an error when removing subsystem {context.Name}");
+                    }
                 }
             }
             
