@@ -15,18 +15,16 @@ namespace Solace.Core.Subsystems
             Name = "SYSTEM";
         }
         
-        protected override Task Pulse(Message message)
+        protected override void Pulse(Message message)
         {
             // TODO:
             
             Log.Debug($"{Name} received message: {message}");
-            
-            return Task.CompletedTask;
         }
         
         public override Task Pulse()
         {
-            return Task.Run(async () =>
+            return Task.Run(() =>
             {
                 List<CommunicationToken>? tokens = null;
                 lock (CommunicationsLock)
@@ -55,7 +53,7 @@ namespace Solace.Core.Subsystems
                             return;
                         }
                         
-                        await Pulse(message);
+                        Pulse(message);
                         
                         dos_protect--;
                         if (dos_protect < 0)

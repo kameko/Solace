@@ -22,11 +22,11 @@ namespace Solace.Core.Subsystems
             MessageDenialOfServicePreventionCutoff = 30;
         }
         
-        protected abstract Task Pulse(Message message);
+        protected abstract void Pulse(Message message);
         
         public virtual Task Pulse()
         {
-            return Task.Run(async () =>
+            return Task.Run(() =>
             {
                 List<CommunicationToken>? tokens = null;
                 lock (CommunicationsLock)
@@ -63,7 +63,7 @@ namespace Solace.Core.Subsystems
                             return;
                         }
                         
-                        await Pulse(message);
+                        Pulse(message);
                         
                         dos_protect--;
                         if (dos_protect < 0)

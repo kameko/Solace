@@ -70,7 +70,7 @@ namespace Solace.Tests.Subsystems
                 Name = nameof(PingSubsystem);
             }
             
-            protected override Task Pulse(Message message)
+            protected override void Pulse(Message message)
             {
                 if (message is Message<int> mi && mi.Command == "PING")
                 {
@@ -87,8 +87,6 @@ namespace Solace.Tests.Subsystems
                 {
                     WriteLine($"{Name} Got unexpected message: {message}");
                 }
-                
-                return Task.CompletedTask;
             }
             
             protected void WriteLine(string message)
@@ -109,7 +107,7 @@ namespace Solace.Tests.Subsystems
                 Name = nameof(PongSubsystem);
             }
             
-            protected override Task Pulse(Message message)
+            protected override void Pulse(Message message)
             {
                 if (message is Message<int> mi && mi.Command == "PONG")
                 {
@@ -126,8 +124,6 @@ namespace Solace.Tests.Subsystems
                 {
                     WriteLine($"{Name} Got unexpected message: {message}");
                 }
-                
-                return Task.CompletedTask;
             }
             
             protected void WriteLine(string message)
