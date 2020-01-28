@@ -8,12 +8,26 @@ namespace Solace.Core.Modules
     
     public class ModuleContainer
     {
-        public ModuleLoader? Loader { get; set; }
-        public BaseModule? Module { get; set; }
+        private ModuleLoader? Loader { get; set; }
+        private BaseModule? Module { get; set; }
         
         public ModuleContainer()
         {
             
         }
+        
+        public BaseModule Load(string name, string path)
+        {
+            Loader = new ModuleLoader(name);
+            return Loader.LoadModule(path);
+        }
+        
+        public bool TryLoad(string name, string path, out BaseModule? module)
+        {
+            Loader = new ModuleLoader(name);
+            return Loader.TryLoadModule(path, out module);
+        }
+        
+        
     }
 }

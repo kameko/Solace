@@ -6,6 +6,7 @@ namespace Solace.Core.Modules
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using Subsystems;
     
     public abstract class BaseModule
     {
@@ -15,5 +16,7 @@ namespace Solace.Core.Modules
         {
             
         }
+        
+        public abstract IEnumerable<ISubsystem> GetSubsystems();
     }
 }

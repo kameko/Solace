@@ -8,6 +8,11 @@ namespace Solace.Core.Modules
     
     public class ModuleManager
     {
+        private List<ModuleContainer> Containers { get; set; }
         
+        public ModuleManager()
+        {
+            Containers = new List<ModuleContainer>();
+        }
     }
 }
