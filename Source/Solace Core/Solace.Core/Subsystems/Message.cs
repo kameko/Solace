@@ -105,6 +105,7 @@ namespace Solace.Core.Subsystems
         
         public string Sender => SenderToken?.Name ?? string.Empty;
         public string Command { get; protected set; }
+        private Dictionary<string, object>? Items { get; set; }
         
         public Message(string command)
         {
@@ -122,6 +123,57 @@ namespace Solace.Core.Subsystems
             SenderToken   = message.SenderToken;
             ReceiverToken = message.ReceiverToken;
             Command       = message.Command;
+            
+            if (!(message.Items is null))
+            {
+                Items = new Dictionary<string, object>(message.Items);
+            }
+        }
+        
+        public void AddItem(string name, object item)
+        {
+            if (Items is null)
+            {
+                Items = new Dictionary<string, object>();
+            }
+            
+            Items.Add(name, item);
+        }
+        
+        public void AddItem(object item)
+        {
+            if (Items is null)
+            {
+                Items = new Dictionary<string, object>();
+            }
+            
+            AddItem(Items.Count().ToString(), item);
+        }
+        
+        public bool GetItem<T>(string name, out T item)
+        {
+            object? obj = null;
+            var success = Items?.TryGetValue(name, out obj) ?? false;
+            if (success && (obj is T tobj))
+            {
+                item = tobj;
+                return true;
+            }
+            
+            item = default!;
+            return false;
+        }
+        
+        public Dictionary<string, object> GetAllItems()
+        {
+            if (Items is null)
+            {
+                return new Dictionary<string, object>();
+            }
+            else
+            {
+                return new Dictionary<string, object>(Items);
+            }
         }
         
         public void Respond(Message message)
