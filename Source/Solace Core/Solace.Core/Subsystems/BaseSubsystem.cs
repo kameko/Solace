@@ -6,6 +6,10 @@ namespace Solace.Core.Subsystems
     using System.Linq;
     using System.Threading.Tasks;
     
+    // TODO: need a way for subsystems to save communication contracts
+    // they formed so they can send messages any time they want, like
+    // saving to a database
+    
     public abstract class BaseSubsystem : ISubsystem
     {
         public string Name { get; protected set; }
