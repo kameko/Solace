@@ -98,6 +98,12 @@ namespace Solace.Core.Subsystems
             });
         }
         
+        public virtual Task InformFault(Exception exception)
+        {
+            // TODO:
+            return Task.CompletedTask;
+        }
+        
         public virtual void Dispose()
         {
             Log.Debug("Disposing");

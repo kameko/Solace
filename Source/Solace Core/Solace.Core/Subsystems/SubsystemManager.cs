@@ -247,7 +247,6 @@ namespace Solace.Core.Subsystems
                 {
                     Log.Error(e, $"Subsystem {context.Name} encountered an unhandled error and will be removed");
                     
-                    // TODO: tell subsystem it faulted so it can halt itself
                     lock (SubsystemsLock)
                     {
                         Remove(context.Name, context);
@@ -258,6 +257,15 @@ namespace Solace.Core.Subsystems
                         exceptions = new List<Exception>();
                     }
                     exceptions.Add(e);
+                    
+                    try
+                    {
+                        await context.Subsystem.InformFault(e);
+                    }
+                    catch (Exception ei)
+                    {
+                        Log.Error(ei, $"Error encountered in subsystem {context.Name} when informing it of it's fault");
+                    }
                     
                     try
                     {

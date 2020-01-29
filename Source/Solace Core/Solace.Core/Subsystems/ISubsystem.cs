@@ -15,5 +15,6 @@ namespace Solace.Core.Subsystems
         
         Task Pulse();
         Task AddCommunications(IEnumerable<CommunicationToken> tokens);
+        Task InformFault(Exception exception);
     }
 }
