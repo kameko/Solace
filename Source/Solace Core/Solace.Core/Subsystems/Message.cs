@@ -65,7 +65,17 @@ namespace Solace.Core.Subsystems
             Data = default!;
         }
         
+        public Message(Version version, string command) : base(version, command)
+        {
+            Data = default!;
+        }
+        
         public Message(string command, T data) : this(command)
+        {
+            Data = data;
+        }
+        
+        public Message(Version version, string command, T data) : this(version, command)
         {
             Data = data;
         }
@@ -103,17 +113,31 @@ namespace Solace.Core.Subsystems
         internal CommunicationToken? SenderToken { get; set; }
         internal CommunicationToken? ReceiverToken { get; set; }
         
+        // TODO: add a categorial "purpose" field, like "Database" or "Chat" etc,
+        // some way for the subsystem to know what it does, what to expect the
+        // data to look like and how to respond to it.
+        // Maybe rip out Version and put Version, Sender and Purpose in a Sender object
+        // or something.
+        
+        public Version Version { get; set; }
         public string Sender => SenderToken?.Name ?? string.Empty;
         public string Command { get; protected set; }
         private Dictionary<string, object>? Items { get; set; }
         
-        public Message(string command)
+        public Message(Version version, string command)
         {
+            Version = version;
             Command = command;
+        }
+        
+        public Message(string command) : this(new Version(), command)
+        {
+            
         }
         
         public Message(Message message)
         {
+            Version = null!;
             Command = null!;
             Copy(message);
         }
@@ -122,6 +146,7 @@ namespace Solace.Core.Subsystems
         {
             SenderToken   = message.SenderToken;
             ReceiverToken = message.ReceiverToken;
+            Version       = message.Version;
             Command       = message.Command;
             
             if (!(message.Items is null))
