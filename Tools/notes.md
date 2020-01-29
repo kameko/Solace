@@ -1,6 +1,7 @@
 
 ### General Plans/TODOs:
  - Version the entire system independently, the initial release will be 1.0.0.0. When a module's minor version is updated, it will tick the system build version (third place) by one. When a plugin's major version is updated, it will tick the system minor version by one. Not sure what to do with the last revision digit yet.
+ - Do not delete log files, categorize them into folders: Decade -> Year - Month -> day.txt, example 2020/2021/January/1.txt
  - Create an extension to the module system to allow for raw C# code to be compiled into a DLL and loaded at runtime, to skip the manual build step. Also enable it to work with Git remote repositories.
  - Consider a permissions system for modules. Obviously wouldn't be any kind of actual security or sandboxing, but it might be nice for modules to document what OS APIs they access, and potentially detect/report if they use any they shouldn't (so the module developer can properly document it).
  - Need a user system with permissions for local and remote connections to the bot.
