@@ -9,6 +9,8 @@ namespace Solace.Core.Subsystems
     // TODO: need a way for subsystems to save communication contracts
     // they formed so they can send messages any time they want, like
     // saving to a database
+    // TODO: need a way for subsystems to request to stay open for a few seconds
+    // during the shutdown process so they can finish processing messages
     
     public abstract class BaseSubsystem : ISubsystem
     {
@@ -26,6 +28,7 @@ namespace Solace.Core.Subsystems
             MessageDenialOfServicePreventionCutoff = 30;
         }
         
+        // TODO: cancellation token argument
         protected abstract void Pulse(Message message);
         
         public virtual Task Pulse()
@@ -100,7 +103,9 @@ namespace Solace.Core.Subsystems
         
         public virtual Task InformFault(Exception exception)
         {
-            // TODO:
+            // TODO: create an internal CancellationTokenSource, have Pulse()
+            // listen for it, then cancel it and call Pulse(Message) with a Fault
+            // message.
             return Task.CompletedTask;
         }
         

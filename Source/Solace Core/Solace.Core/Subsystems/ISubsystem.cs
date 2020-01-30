@@ -9,10 +9,6 @@ namespace Solace.Core.Subsystems
     {
         string Name { get; }
         bool Disposed { get; }
-        
-        // TODO: something to fire off initial messages, including accepting
-        // initial messages from a config
-        
         Task Pulse();
         Task AddCommunications(IEnumerable<CommunicationToken> tokens);
         Task InformFault(Exception exception);
