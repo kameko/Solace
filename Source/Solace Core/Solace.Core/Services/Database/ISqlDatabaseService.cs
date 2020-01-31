@@ -1,13 +1,11 @@
 
-namespace Solace.Core.Services
+namespace Solace.Core.Services.Database
 {
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
     
-    
-    
-    public interface IService
+    public interface ISqlDatabaseService : IDatabaseService
     {
         
     }
