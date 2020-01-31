@@ -16,7 +16,5 @@ namespace Solace.Core.Modules
         {
             
         }
-        
-        public abstract IEnumerable<ISubsystem> GetSubsystems();
     }
 }
