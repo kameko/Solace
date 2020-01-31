@@ -6,7 +6,7 @@ namespace Solace.Core.Services
     using System.Linq;
     using System.Threading.Tasks;
     
-    public class BaseService : IService
+    public abstract class BaseService : IService
     {
         
     }
