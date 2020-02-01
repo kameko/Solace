@@ -8,6 +8,14 @@ namespace Solace.Core.Services
     
     public abstract class BaseService : IService
     {
+        public virtual void Install(IConfiguration config)
+        {
+            
+        }
         
+        public virtual void Setup(IConfiguration config)
+        {
+            
+        }
     }
 }
