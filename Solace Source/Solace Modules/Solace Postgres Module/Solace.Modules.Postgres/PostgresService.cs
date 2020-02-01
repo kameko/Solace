@@ -8,6 +8,10 @@ namespace Solace.Modules.Postgres
     using Microsoft.EntityFrameworkCore;
     using Core.Services.Database;
     
+    // TODO:
+    // https://www.connectionstrings.com/npgsql/ 
+    // 
+    
     public class PostgresService : SqlDatabaseService
     {
         

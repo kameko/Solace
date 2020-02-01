@@ -3,6 +3,7 @@ namespace Solace.Core.Services
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
     
     public interface IService
@@ -27,5 +28,11 @@ namespace Solace.Core.Services
         /// </summary>
         /// <param name="config"></param>
         void Setup(IConfiguration config);
+        
+        /// <summary>
+        /// Start the service, if applicable.
+        /// </summary>
+        /// <param name="token"></param>
+        void Start(CancellationToken token);
     }
 }
