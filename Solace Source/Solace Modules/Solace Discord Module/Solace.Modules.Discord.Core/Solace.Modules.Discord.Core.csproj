@@ -2,6 +2,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\Solace Core\Solace.Core\Solace.Core.csproj" />
+    <Private>false</Private>
+    <ExcludeAssets>runtime</ExcludeAssets>
   </ItemGroup>
 
   <PropertyGroup>
