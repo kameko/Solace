@@ -10,12 +10,17 @@ namespace Solace.Core.Services
     {
         public virtual void Install(IConfiguration config)
         {
-            
+            throw new NotImplementedException();
+        }
+        
+        public virtual void Uninstall()
+        {
+            throw new NotImplementedException();
         }
         
         public virtual void Setup(IConfiguration config)
         {
-            
+            throw new NotImplementedException();
         }
     }
 }

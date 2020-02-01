@@ -15,6 +15,12 @@ namespace Solace.Core.Services
         void Install(IConfiguration config);
         
         /// <summary>
+        /// Called once when the user is requesting permanent removal
+        /// of the installed service.
+        /// </summary>
+        void Uninstall();
+        
+        /// <summary>
         /// Called once at the start of every session of this service,
         /// either when the program starts up or if the service was
         /// killed and restarted.
