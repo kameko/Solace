@@ -9,24 +9,28 @@ namespace Solace.Core.Services
     
     public abstract class BaseService : IService
     {
-        public virtual void Install(IConfiguration config)
+        public virtual Task Install(IConfiguration config)
         {
             // No implementation.
+            return Task.CompletedTask;
         }
         
-        public virtual void Uninstall()
+        public virtual Task Uninstall()
         {
             // No implementation.
+            return Task.CompletedTask;
         }
         
-        public virtual void Setup(IConfiguration config)
+        public virtual Task Setup(IConfiguration config)
         {
             // No implementation.
+            return Task.CompletedTask;
         }
         
-        public virtual void Start(CancellationToken token)
+        public virtual Task Start(CancellationToken token)
         {
             // No implementation.
+            return Task.CompletedTask;
         }
     }
 }

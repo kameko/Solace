@@ -13,13 +13,13 @@ namespace Solace.Core.Services
         /// run in an installed instance of Solace.
         /// </summary>
         /// <param name="config"></param>
-        void Install(IConfiguration config);
+        Task Install(IConfiguration config);
         
         /// <summary>
         /// Called once when the user is requesting permanent removal
         /// of the installed service.
         /// </summary>
-        void Uninstall();
+        Task Uninstall();
         
         /// <summary>
         /// Called once at the start of every session of this service,
@@ -27,12 +27,12 @@ namespace Solace.Core.Services
         /// killed and restarted.
         /// </summary>
         /// <param name="config"></param>
-        void Setup(IConfiguration config);
+        Task Setup(IConfiguration config);
         
         /// <summary>
         /// Start the service, if applicable.
         /// </summary>
         /// <param name="token"></param>
-        void Start(CancellationToken token);
+        Task Start(CancellationToken token);
     }
 }
