@@ -7,6 +7,6 @@ namespace Solace.Core.Services.Database
     
     public interface ISqlDatabaseService : IDatabaseService
     {
-        
+        Task Connect(string connection_string);
     }
 }
