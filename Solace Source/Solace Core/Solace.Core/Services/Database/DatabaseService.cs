@@ -5,7 +5,6 @@ namespace Solace.Core.Services.Database
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using Microsoft.EntityFrameworkCore;
     
     public abstract class DatabaseService : BaseService, IDatabaseService
     {
@@ -24,8 +23,9 @@ namespace Solace.Core.Services.Database
             return (Task.FromResult(new List<T>()) as Task<IEnumerable<T>>)!;
         }
         
-        public virtual Task<IEnumerable<T>> Query<T>(DbSet<T> db) where T : class
+        public virtual Task<IEnumerable<T>> Query<T>(Func<IEnumerable<T>, IEnumerable<T>> db) where T : class
         {
+            // NOTICE: the argument passed to the db delegate is meant to be a DbSet, which inherits IEnumerable
             return (Task.FromResult(new List<T>()) as Task<IEnumerable<T>>)!;
         }
     }
