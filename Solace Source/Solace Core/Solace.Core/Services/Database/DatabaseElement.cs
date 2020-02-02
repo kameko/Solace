@@ -7,7 +7,7 @@ namespace Solace.Core.Services.Database
     using System.Threading.Tasks;
     using Microsoft.EntityFrameworkCore;
     
-    public abstract class DatabaseContext : DbContext
+    public abstract class DatabaseElement : DbContext
     {
         public Action<DbContextOptionsBuilder>? Builder { get; set; }
         
@@ -15,5 +15,10 @@ namespace Solace.Core.Services.Database
         {
             Builder?.Invoke(optionsBuilder);
         }
+    }
+    
+    public class DatabaseElement<T> : DatabaseElement where T : class
+    {
+        public DbSet<T>? DbItem { get; set; }
     }
 }
