@@ -8,6 +8,13 @@ namespace Solace.Core.Services.Database
     
     public abstract class SqlDatabaseService : DatabaseService, ISqlDatabaseService
     {
+        public string ConnectionString { get; protected set; }
+        
+        public SqlDatabaseService()
+        {
+            ConnectionString = string.Empty;
+        }
+        
         public virtual Task Connect(string connection_string)
         {
             return Task.CompletedTask;
