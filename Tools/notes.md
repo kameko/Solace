@@ -51,5 +51,6 @@
  - All frontends use TCP and can work across computers, there is no local-only frontend.
 
 ### Personality layers:
- - Make server-chan not respond to any message with her trigger in it that ends in a dot (.) Make it configurable too.
+ - Make server-chan not respond to any message with her trigger in it that ends in a dot (.) Make it configurable too. Actually, rename Server 2003 to Server NT and only respond to NT. Again, configurable by chat users.
+ - Change Server's name to Server NT.
  - Make server-chan more autonomous and context-sensitive. Give her a mode to toggle between classic mode (the simple markov chain) and smart mode, such as `.\personality server mode classic`. Or maybe just `.\personality classic`, not sure how I want to do the "personality infrastructure" yet.
