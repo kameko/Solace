@@ -11,6 +11,7 @@
  - Some kind of story generator, a mix of AI Dungeon and Drabble-Matic.
 
 ### Discord TODOs:
+ - Discord Core module will use it's own database, probably SQLite, not depending on some system-wide database service. Discord Core module will offer query abilities that the Discord Commands module will be able to use.
  - Scriptable response system: Users should be able to use a scripting language to create intelligent responses.
  - System will automatically download all attachments when received. It will do this by categorizing attachments into a folder for that day, in a folder for that channel, in a folder for that guild. Each attachment will have an accompanying JSON file of the same name with details on what day it was, who uploaded it, what was their discord roles, what Solace permissions do they have, what was the current name of the guild, what the attaching message said, etc..
  - All downloaded attachments will be available to response scripts. A script can say to upload a file if they know the date/channel/guild/filename. Alternatively this system will simply allow a user to upload a file and get a GUID back for it, and they can just use that GUID. A response script that be used with this guid to create a memorable tag for uploading the GUID.
