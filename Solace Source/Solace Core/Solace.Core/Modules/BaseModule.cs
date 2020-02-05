@@ -9,6 +9,7 @@ namespace Solace.Core.Modules
     
     public abstract class BaseModule
     {
+        public bool Unloadable { get; protected set; }
         public abstract ModuleInfo Info { get; protected set; }
         
         public BaseModule()
