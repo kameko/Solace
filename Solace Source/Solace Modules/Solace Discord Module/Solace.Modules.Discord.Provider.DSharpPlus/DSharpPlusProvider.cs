@@ -128,6 +128,12 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
                     message.Reactions.Add(emoji);
                 }
                 
+                foreach (var attachment in discord_message.Message.Attachments)
+                {
+                    // TODO:
+                    
+                }
+                
                 await RaiseOnReceiveMessage(message);
             });
         }
