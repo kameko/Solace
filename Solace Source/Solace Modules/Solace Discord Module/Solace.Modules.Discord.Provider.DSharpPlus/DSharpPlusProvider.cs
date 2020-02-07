@@ -90,10 +90,10 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
                 }
             }
             
-            var message = new DiscordMessage()
+            var message = new SolaceDiscordMessage()
             {
                 Created   = discord_message.Message.CreationTimestamp,
-                Sender    = new DiscordUser()
+                Sender    = new SolaceDiscordUser()
                 {
                     Username      = discord_message.Author.Username,
                     Discriminator = discriminator,
@@ -105,7 +105,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
                 Nickname  = is_dm ? string.Empty : nickname,
                 GuildName = is_dm ? string.Empty : discord_message.Guild.Name,
                 GuildId   = is_dm ? 0L : discord_message.Guild.Id,
-                Channel   = new DiscordChannel()
+                Channel   = new SolaceDiscordChannel()
                 {
                     Name      = discord_message.Channel.Name,
                     Id        = discord_message.Channel.Id,
@@ -122,7 +122,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             {
                 _ = int.TryParse(discord_message.Author.Discriminator, out int user_discriminator);
                 
-                var nuser = new DiscordUser()
+                var nuser = new SolaceDiscordUser()
                 {
                     Username      = user.Username,
                     Discriminator = user_discriminator,
@@ -138,7 +138,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             
             foreach (var channel in discord_message.MentionedChannels)
             {
-                var nchannel = new DiscordChannel()
+                var nchannel = new SolaceDiscordChannel()
                 {
                     Name    = channel.Name,
                     Id      = channel.Id,
@@ -150,7 +150,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             
             foreach (var role in discord_message.MentionedRoles)
             {
-                var nrole = new DiscordRole()
+                var nrole = new SolaceDiscordRole()
                 {
                     Name = role.Name,
                     Id   = role.Id,
@@ -161,7 +161,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             
             foreach (var reaction in discord_message.Message.Reactions)
             {
-                var emoji = new Emoji()
+                var emoji = new SolaceEmoji()
                 {
                     Name = reaction.Emoji.Name,
                     Id   = reaction.Emoji.Id,

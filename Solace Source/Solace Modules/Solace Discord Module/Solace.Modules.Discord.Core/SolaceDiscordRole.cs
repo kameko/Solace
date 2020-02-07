@@ -6,17 +6,14 @@ namespace Solace.Modules.Discord.Core
     using System.Linq;
     using System.Threading.Tasks;
     
-    public class DiscordChannel
+    public class SolaceDiscordRole
     {
         public string Name { get; set; }
         public ulong Id { get; set; }
-        public string GuildName { get; set; }
-        public ulong GuildId { get; set; }
         
-        public DiscordChannel()
+        public SolaceDiscordRole()
         {
-            Name      = string.Empty;
-            GuildName = string.Empty;
+            Name = string.Empty;
         }
     }
 }

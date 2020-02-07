@@ -8,39 +8,39 @@ namespace Solace.Modules.Discord.Core
     using Solace.Core.Services.Communication;
     using Services;
     
-    public class DiscordMessage
+    public class SolaceDiscordMessage
     {
         internal DiscordService? DiscordService { get; set; }
         public DateTimeOffset Created { get; set; }
         public DateTimeOffset Received { get; set; }
-        public DiscordUser Sender { get; set; }
+        public SolaceDiscordUser Sender { get; set; }
         public bool IsDM { get; set; }
         public string Nickname { get; set; }
         public string GuildName { get; set; }
         public ulong GuildId { get; set; }
-        public DiscordChannel Channel { get; set; }
+        public SolaceDiscordChannel Channel { get; set; }
         public ulong MessageId { get; set; }
         public string Message { get; set; }
         
-        public List<DiscordUser> MentionedUsers { get; set; }
-        public List<DiscordChannel> MentionedChannels { get; set; }
-        public List<DiscordRole> MentionedRoles { get; set; }
-        public List<Emoji> Reactions { get; set; }
+        public List<SolaceDiscordUser> MentionedUsers { get; set; }
+        public List<SolaceDiscordChannel> MentionedChannels { get; set; }
+        public List<SolaceDiscordRole> MentionedRoles { get; set; }
+        public List<SolaceEmoji> Reactions { get; set; }
         public List<AttachmentToken> Attachments { get; set; }
         
-        public DiscordMessage()
+        public SolaceDiscordMessage()
         {
             Received    = DateTime.UtcNow;
-            Sender      = new DiscordUser();
+            Sender      = new SolaceDiscordUser();
             Nickname    = string.Empty;
             GuildName   = string.Empty;
-            Channel     = new DiscordChannel();
+            Channel     = new SolaceDiscordChannel();
             Message     = string.Empty;
             
-            MentionedUsers    = new List<DiscordUser>();
-            MentionedChannels = new List<DiscordChannel>();
-            MentionedRoles    = new List<DiscordRole>();
-            Reactions         = new List<Emoji>();
+            MentionedUsers    = new List<SolaceDiscordUser>();
+            MentionedChannels = new List<SolaceDiscordChannel>();
+            MentionedRoles    = new List<SolaceDiscordRole>();
+            Reactions         = new List<SolaceEmoji>();
             Attachments       = new List<AttachmentToken>();
         }
         

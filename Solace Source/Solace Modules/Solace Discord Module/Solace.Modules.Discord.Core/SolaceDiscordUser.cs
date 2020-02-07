@@ -6,7 +6,7 @@ namespace Solace.Modules.Discord.Core
     using System.Linq;
     using System.Threading.Tasks;
     
-    public class DiscordUser
+    public class SolaceDiscordUser
     {
         public string Username { get; set; }
         public int Discriminator { get; set; }
@@ -16,7 +16,7 @@ namespace Solace.Modules.Discord.Core
         public Uri AvatarUrl { get; set; }
         public string AvatarHash { get; set; }
         
-        public DiscordUser()
+        public SolaceDiscordUser()
         {
             Username   = string.Empty;
             AvatarUrl  = new Uri("https://none.none/");
