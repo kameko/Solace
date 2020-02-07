@@ -19,5 +19,14 @@ namespace Solace.Modules.Discord.Core
             Username  = string.Empty;
             AvatarUrl = new Uri("https://none.none/");
         }
+        
+        public void TrySetUrl(string url)
+        {
+            var success = Uri.TryCreate(url, UriKind.Absolute, out Uri? uri);
+            if (success)
+            {
+                AvatarUrl = uri!;
+            }
+        }
     }
 }

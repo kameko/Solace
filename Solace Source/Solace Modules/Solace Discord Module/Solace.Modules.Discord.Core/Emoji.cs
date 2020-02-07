@@ -17,5 +17,14 @@ namespace Solace.Modules.Discord.Core
             Name = string.Empty;
             Url  = new Uri("https://none.none/");
         }
+        
+        public void TrySetUrl(string url)
+        {
+            var success = Uri.TryCreate(url, UriKind.Absolute, out Uri? uri);
+            if (success)
+            {
+                Url = uri!;
+            }
+        }
     }
 }

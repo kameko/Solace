@@ -73,10 +73,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
                     Message   = discord_message.Message.Content,
                 };
                 
-                if (!string.IsNullOrEmpty(discord_message.Author.AvatarUrl))
-                {
-                    message.Sender.AvatarUrl = new Uri(discord_message.Author.AvatarUrl);
-                }
+                message.Sender.TrySetUrl(discord_message.Author.AvatarUrl);
                 
                 foreach (var user in discord_message.MentionedUsers)
                 {
@@ -90,10 +87,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
                         IsBot         = user.IsBot,
                     };
                     
-                    if (!string.IsNullOrEmpty(user.AvatarUrl))
-                    {
-                        nuser.AvatarUrl = new Uri(user.AvatarUrl);
-                    }
+                    nuser.TrySetUrl(user.AvatarUrl);
                     
                     message.MentionedUsers.Add(nuser);
                 }
@@ -129,10 +123,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
                         Id   = reaction.Emoji.Id,
                     };
                     
-                    if (!string.IsNullOrEmpty(reaction.Emoji.Url))
-                    {
-                        emoji.Url = new Uri(reaction.Emoji.Url);
-                    }
+                    emoji.TrySetUrl(reaction.Emoji.Url);
                     
                     message.Reactions.Add(emoji);
                 }
