@@ -19,5 +19,15 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         {
             await OnReceiveMessage.Invoke(message);
         }
+        
+        public virtual Task Setup(string token)
+        {
+            return Task.CompletedTask;
+        }
+        
+        public virtual Task Connect()
+        {
+            return Task.CompletedTask;
+        }
     }
 }
