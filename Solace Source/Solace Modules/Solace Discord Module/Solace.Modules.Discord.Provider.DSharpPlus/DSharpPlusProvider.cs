@@ -52,20 +52,25 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
                 
                 var message = new DiscordMessage()
                 {
-                    Sender = new DiscordUser()
+                    Sender    = new DiscordUser()
                     {
                         Username      = discord_message.Author.Username,
                         Discriminator = discriminator,
                         Id            = discord_message.Author.Id,
                         IsBot         = discord_message.Author.IsBot,
                     },
-                    Nickname         = channel_sender.Nickname,
-                    GuildName        = discord_message.Guild.Name,
-                    GuildSnowflake   = discord_message.Guild.Id,
-                    ChannelName      = discord_message.Channel.Name,
-                    ChannelSnowflake = discord_message.Channel.Id,
-                    MessageId        = discord_message.Message.Id,
-                    Message          = discord_message.Message.Content,
+                    Nickname  = channel_sender.Nickname,
+                    GuildName = discord_message.Guild.Name,
+                    GuildId   = discord_message.Guild.Id,
+                    Channel   = new DiscordChannel()
+                    {
+                        Name      = discord_message.Channel.Name,
+                        Id        = discord_message.Channel.Id,
+                        GuildName = discord_message.Channel.Guild.Name,
+                        GuildId   = discord_message.Channel.GuildId
+                    },
+                    MessageId = discord_message.Message.Id,
+                    Message   = discord_message.Message.Content,
                 };
                 
                 foreach (var user in discord_message.MentionedUsers)

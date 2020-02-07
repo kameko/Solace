@@ -12,9 +12,8 @@ namespace Solace.Modules.Discord.Core
         public DiscordUser Sender { get; set; }
         public string Nickname { get; set; }
         public string GuildName { get; set; }
-        public ulong GuildSnowflake { get; set; }
-        public string ChannelName { get; set; }
-        public ulong ChannelSnowflake { get; set; }
+        public ulong GuildId { get; set; }
+        public DiscordChannel Channel { get; set; }
         public ulong MessageId { get; set; }
         public string Message { get; set; }
         public List<DiscordUser> MentionedUsers { get; set; }
@@ -27,7 +26,7 @@ namespace Solace.Modules.Discord.Core
             Sender      = new DiscordUser();
             Nickname    = string.Empty;
             GuildName   = string.Empty;
-            ChannelName = string.Empty;
+            Channel     = new DiscordChannel();
             Message     = string.Empty;
             
             MentionedUsers    = new List<DiscordUser>();
