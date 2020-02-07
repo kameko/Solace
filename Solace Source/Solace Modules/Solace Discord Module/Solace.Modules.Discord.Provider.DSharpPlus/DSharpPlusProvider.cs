@@ -90,6 +90,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
                     Discriminator = discriminator,
                     Id            = discord_message.Author.Id,
                     IsBot         = discord_message.Author.IsBot,
+                    AvatarHash    = discord_message.Author.AvatarHash,
                 },
                 IsDM      = is_dm,
                 Nickname  = is_dm ? string.Empty : nickname,
@@ -118,6 +119,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
                     Discriminator = user_discriminator,
                     Id            = user.Id,
                     IsBot         = user.IsBot,
+                    AvatarHash    = user.AvatarHash,
                 };
                 
                 nuser.TrySetUrl(user.AvatarUrl);

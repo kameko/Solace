@@ -14,11 +14,13 @@ namespace Solace.Modules.Discord.Core
         public ulong Id { get; set; }
         public bool IsBot { get; set; }
         public Uri AvatarUrl { get; set; }
+        public string AvatarHash { get; set; }
         
         public DiscordUser()
         {
-            Username  = string.Empty;
-            AvatarUrl = new Uri("https://none.none/");
+            Username   = string.Empty;
+            AvatarUrl  = new Uri("https://none.none/");
+            AvatarHash = string.Empty;
         }
         
         public void TrySetUrl(string url)
