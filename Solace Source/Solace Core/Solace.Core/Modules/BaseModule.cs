@@ -15,7 +15,8 @@ namespace Solace.Core.Modules
         
         public BaseModule()
         {
-            Info = new ModuleInfo();
+            Unloadable   = true;
+            Info         = new ModuleInfo();
             Dependencies = new List<string>();
         }
     }
