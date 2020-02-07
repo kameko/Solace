@@ -30,12 +30,27 @@ namespace Solace.Modules.Discord.Core.Services
             }
         }
         
+        private void OnServiceLoad(IService service)
+        {
+            if (service is IDiscordProvider idp)
+            {
+                if (!(Backend is null) && (service.Name != Backend.Name))
+                {
+                    Backend = null;
+                    GC.Collect(); // to help AssemblyLoadContext unload the module.
+                }
+                
+                Backend = idp;
+            }
+        }
+        
         public override Task Setup(IConfiguration config, ServiceProvider services)
         {
             Services = services;
             return Task.Run(() =>
             {
                 services.OnServiceUnload += OnServiceUnload;
+                services.OnServiceLoad   += OnServiceLoad;
                 
                 var success = services.GetService<IDiscordProvider>(out var provider);
                 if (success)
