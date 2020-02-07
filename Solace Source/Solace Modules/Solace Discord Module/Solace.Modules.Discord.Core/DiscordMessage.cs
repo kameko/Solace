@@ -14,6 +14,7 @@ namespace Solace.Modules.Discord.Core
         public DateTimeOffset Created { get; set; }
         public DateTimeOffset Received { get; set; }
         public DiscordUser Sender { get; set; }
+        public bool IsDM { get; set; }
         public string Nickname { get; set; }
         public string GuildName { get; set; }
         public ulong GuildId { get; set; }

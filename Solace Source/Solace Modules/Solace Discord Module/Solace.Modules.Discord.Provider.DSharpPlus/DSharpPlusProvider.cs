@@ -47,8 +47,25 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             
             return Task.Run(async () =>
             {
-                _ = int.TryParse(discord_message.Author.Discriminator, out int discriminator);
-                var channel_sender = await discord_message.Channel.Guild.GetMemberAsync(discord_message.Author.Id);
+                var discriminator = 0;
+                var is_dm = false;
+                var nickname = string.Empty;
+                
+                _ = int.TryParse(discord_message.Author.Discriminator, out discriminator);
+                if (discord_message.Channel.Type.HasFlag(ChannelType.Private))
+                {
+                    is_dm = true;
+                }
+                else
+                {
+                    var channel_sender = await discord_message.Channel.Guild.GetMemberAsync(discord_message.Author.Id);
+                    is_dm = false;
+                    nickname = channel_sender?.Nickname ?? string.Empty;
+                    if (string.IsNullOrEmpty(nickname))
+                    {
+                        nickname = string.Empty;
+                    }
+                }
                 
                 var message = new DiscordMessage()
                 {
@@ -60,15 +77,16 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
                         Id            = discord_message.Author.Id,
                         IsBot         = discord_message.Author.IsBot,
                     },
-                    Nickname  = channel_sender?.Nickname ?? string.Empty,
-                    GuildName = discord_message.Guild.Name,
-                    GuildId   = discord_message.Guild.Id,
+                    IsDM      = is_dm,
+                    Nickname  = is_dm ? string.Empty : nickname,
+                    GuildName = is_dm ? string.Empty : discord_message.Guild.Name,
+                    GuildId   = is_dm ? 0L : discord_message.Guild.Id,
                     Channel   = new DiscordChannel()
                     {
                         Name      = discord_message.Channel.Name,
                         Id        = discord_message.Channel.Id,
-                        GuildName = discord_message.Channel.Guild.Name,
-                        GuildId   = discord_message.Channel.GuildId,
+                        GuildName = is_dm ? string.Empty : discord_message.Channel.Guild.Name,
+                        GuildId   = is_dm ? 0L : discord_message.Channel.GuildId,
                     },
                     MessageId = discord_message.Message.Id,
                     Message   = discord_message.Message.Content,
