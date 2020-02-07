@@ -27,7 +27,7 @@ namespace Solace.Core.Services
         /// killed and restarted.
         /// </summary>
         /// <param name="config"></param>
-        Task Setup(IConfiguration config);
+        Task Setup(IConfiguration config, ServiceProvider services);
         
         /// <summary>
         /// Start the service, if applicable.

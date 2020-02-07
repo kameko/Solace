@@ -26,7 +26,7 @@ namespace Solace.Core.Services
             return Task.CompletedTask;
         }
         
-        public virtual Task Setup(IConfiguration config)
+        public virtual Task Setup(IConfiguration config, ServiceProvider services)
         {
             // No implementation.
             return Task.CompletedTask;
