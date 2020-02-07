@@ -10,11 +10,13 @@ namespace Solace.Core.Modules
     public abstract class BaseModule
     {
         public bool Unloadable { get; protected set; }
-        public abstract ModuleInfo Info { get; protected set; }
+        public ModuleInfo Info { get; protected set; }
+        public List<string> Dependencies { get; protected set; }
         
         public BaseModule()
         {
-            
+            Info = new ModuleInfo();
+            Dependencies = new List<string>();
         }
     }
 }
