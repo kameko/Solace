@@ -12,11 +12,13 @@ namespace Solace.Modules.Discord.Core.Services
     
     public class DiscordService : BaseChatService
     {
+        private ServiceProvider Services { get; set; }
         private IDiscordProvider? Backend { get; set; }
         
         public DiscordService() : base()
         {
-            Backend = null;
+            Services = null!;
+            Backend  = null;
         }
         
         private void OnServiceUnload(string service_name)
@@ -30,6 +32,7 @@ namespace Solace.Modules.Discord.Core.Services
         
         public override Task Setup(IConfiguration config, ServiceProvider services)
         {
+            Services = services;
             return Task.Run(() =>
             {
                 services.OnServiceUnload += OnServiceUnload;
