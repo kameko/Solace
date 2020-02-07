@@ -7,6 +7,7 @@ namespace Solace.Modules.Discord.Core.Services.Providers
     
     public interface IDiscordProvider : IProvider
     {
+        bool Connected { get; }
         event Func<SolaceDiscordMessage, Task> OnReceiveMessage;
         
         Task Setup(string token);

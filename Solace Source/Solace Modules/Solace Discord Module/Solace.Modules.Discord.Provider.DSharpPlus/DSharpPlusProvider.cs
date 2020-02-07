@@ -4,8 +4,10 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using Solace.Core;
+    using Solace.Core.Services;
     using Core;
     using Core.Services.Providers;
     using global::DSharpPlus;
@@ -37,12 +39,35 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         
         public override async Task Connect()
         {
+            if (Connected)
+            {
+                return;
+            }
+            
             await Client.ConnectAsync();
+            Connected = true;
+            // TODO: create a task to constantly ping and
+            // try to connect if it doesn't get a response.
+            // needs to be configurable, but should default
+            // to around a ping every two seconds. If it doesn't
+            // get 3 pings in a row, disconnect and reconnect in
+            // a loop.
         }
         
         public override async Task Disconnect()
         {
+            if (!Connected)
+            {
+                return;
+            }
+            
+            Connected = false;
             await Client.DisconnectAsync();
+        }
+        
+        private Task PingLoop(CancellationToken token, int timeout, int tries)
+        {
+            throw new NotImplementedException();
         }
         
         private Task OnMessageCreated(MessageCreateEventArgs discord_message)
@@ -194,6 +219,11 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             }
             
             await RaiseOnReceiveMessage(message);
+        }
+        
+        public override async ValueTask DisposeAsync()
+        {
+            await Disconnect();
         }
     }
 }
