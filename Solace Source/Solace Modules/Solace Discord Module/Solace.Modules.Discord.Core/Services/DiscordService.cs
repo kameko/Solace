@@ -52,10 +52,20 @@ namespace Solace.Modules.Discord.Core.Services
                 services.OnServiceUnload += OnServiceUnload;
                 services.OnServiceLoad   += OnServiceLoad;
                 
-                var success = services.GetService<IDiscordProvider>(out var provider);
-                if (success)
+                var discord_service_success = services.GetService<IDiscordProvider>(out var provider);
+                if (discord_service_success)
                 {
                     Backend = provider;
+                    
+                    var token = config.GetValue("DISCORD.TOKEN");
+                    if (!string.IsNullOrEmpty(token))
+                    {
+                        Backend.Setup(token);
+                    }
+                    else
+                    {
+                        // TODO: handle no token
+                    }
                 }
             });
         }
