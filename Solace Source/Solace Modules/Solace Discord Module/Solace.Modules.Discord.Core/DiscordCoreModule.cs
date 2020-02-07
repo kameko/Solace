@@ -7,6 +7,7 @@ namespace Solace.Modules.Discord.Core
     using System.Threading.Tasks;
     using Solace.Core.Services;
     using Solace.Core.Modules;
+    using Services;
     
     public class DiscordCoreModule : BaseModule
     {
@@ -23,7 +24,10 @@ namespace Solace.Modules.Discord.Core
         
         public override IEnumerable<IService> GetServices()
         {
-            return new List<IService>();
+            return new List<IService>()
+            {
+                new DiscordService()
+            };
         }
     }
 }

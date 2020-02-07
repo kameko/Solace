@@ -6,9 +6,11 @@ namespace Solace.Modules.Discord.Core
     using System.Linq;
     using System.Threading.Tasks;
     using Solace.Core.Services.Communication;
+    using Services;
     
     public class DiscordMessage
     {
+        internal DiscordService? DiscordService { get; set; }
         public DateTimeOffset Created { get; set; }
         public DateTimeOffset Received { get; set; }
         public DiscordUser Sender { get; set; }
@@ -18,6 +20,7 @@ namespace Solace.Modules.Discord.Core
         public DiscordChannel Channel { get; set; }
         public ulong MessageId { get; set; }
         public string Message { get; set; }
+        
         public List<DiscordUser> MentionedUsers { get; set; }
         public List<DiscordChannel> MentionedChannels { get; set; }
         public List<DiscordRole> MentionedRoles { get; set; }
