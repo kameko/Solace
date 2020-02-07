@@ -8,16 +8,16 @@ namespace Solace.Modules.Discord.Core.Services.Providers
     
     public abstract class DiscordProvider : BaseProvider, IDiscordProvider
     {
-        public event Func<DiscordMessage, Task> OnReceive;
+        public event Func<DiscordMessage, Task> OnReceiveMessage;
         
         public DiscordProvider() : base()
         {
-            OnReceive = delegate { return Task.CompletedTask; };
+            OnReceiveMessage = delegate { return Task.CompletedTask; };
         }
         
-        protected async Task RaiseOnReceive(DiscordMessage message)
+        protected async Task RaiseOnReceiveMessage(DiscordMessage message)
         {
-            await OnReceive.Invoke(message);
+            await OnReceiveMessage.Invoke(message);
         }
     }
 }

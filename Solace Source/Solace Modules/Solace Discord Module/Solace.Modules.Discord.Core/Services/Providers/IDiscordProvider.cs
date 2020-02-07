@@ -7,6 +7,6 @@ namespace Solace.Modules.Discord.Core.Services.Providers
     
     public interface IDiscordProvider : IProvider
     {
-        event Func<DiscordMessage, Task> OnReceive;
+        event Func<DiscordMessage, Task> OnReceiveMessage;
     }
 }
