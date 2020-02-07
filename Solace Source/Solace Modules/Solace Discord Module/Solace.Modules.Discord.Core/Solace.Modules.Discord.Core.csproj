@@ -8,6 +8,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="DSharpPlus" Version="4.0.0-nightly-00657" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.1" />
   </ItemGroup>
