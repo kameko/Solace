@@ -15,7 +15,7 @@ namespace Solace.Modules.Discord.Core
         public Emoji()
         {
             Name = string.Empty;
-            Url  = new Uri(string.Empty);
+            Url  = new Uri("https://none.none/");
         }
     }
 }

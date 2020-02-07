@@ -67,52 +67,74 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
                         Name      = discord_message.Channel.Name,
                         Id        = discord_message.Channel.Id,
                         GuildName = discord_message.Channel.Guild.Name,
-                        GuildId   = discord_message.Channel.GuildId
+                        GuildId   = discord_message.Channel.GuildId,
                     },
                     MessageId = discord_message.Message.Id,
                     Message   = discord_message.Message.Content,
                 };
                 
+                if (!string.IsNullOrEmpty(discord_message.Author.AvatarUrl))
+                {
+                    message.Sender.AvatarUrl = new Uri(discord_message.Author.AvatarUrl);
+                }
+                
                 foreach (var user in discord_message.MentionedUsers)
                 {
                     int.TryParse(discord_message.Author.Discriminator, out int user_discriminator);
                     
-                    message.MentionedUsers.Add(new DiscordUser()
+                    var nuser = new DiscordUser()
                     {
                         Username      = user.Username,
                         Discriminator = user_discriminator,
                         Id            = user.Id,
                         IsBot         = user.IsBot,
-                    });
+                    };
+                    
+                    if (!string.IsNullOrEmpty(user.AvatarUrl))
+                    {
+                        nuser.AvatarUrl = new Uri(user.AvatarUrl);
+                    }
+                    
+                    message.MentionedUsers.Add(nuser);
                 }
                 
                 foreach (var channel in discord_message.MentionedChannels)
                 {
-                    message.MentionedChannels.Add(new DiscordChannel()
+                    var nchannel = new DiscordChannel()
                     {
                         Name    = channel.Name,
                         Id      = channel.Id,
                         GuildId = channel.GuildId,
-                    });
+                    };
+                    
+                    message.MentionedChannels.Add(nchannel);
                 }
                 
                 foreach (var role in discord_message.MentionedRoles)
                 {
-                    message.MentionedRoles.Add(new DiscordRole()
+                    var nrole = new DiscordRole()
                     {
                         Name = role.Name,
                         Id   = role.Id,
-                    });
+                    };
+                    
+                    message.MentionedRoles.Add(nrole);
                 }
                 
                 foreach (var reaction in discord_message.Message.Reactions)
                 {
-                    message.Reactions.Add(new Emoji()
+                    var emoji = new Emoji()
                     {
                         Name = reaction.Emoji.Name,
                         Id   = reaction.Emoji.Id,
-                        Url  = new Uri(reaction.Emoji.Url),
-                    });
+                    };
+                    
+                    if (!string.IsNullOrEmpty(reaction.Emoji.Url))
+                    {
+                        emoji.Url = new Uri(reaction.Emoji.Url);
+                    }
+                    
+                    message.Reactions.Add(emoji);
                 }
                 
                 await RaiseOnReceiveMessage(message);

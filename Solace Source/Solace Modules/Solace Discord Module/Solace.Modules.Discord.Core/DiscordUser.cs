@@ -12,10 +12,12 @@ namespace Solace.Modules.Discord.Core
         public int Discriminator { get; set; }
         public ulong Id { get; set; }
         public bool IsBot { get; set; }
+        public Uri AvatarUrl { get; set; }
         
         public DiscordUser()
         {
-            Username = string.Empty;
+            Username  = string.Empty;
+            AvatarUrl = new Uri("https://none.none/");
         }
     }
 }
