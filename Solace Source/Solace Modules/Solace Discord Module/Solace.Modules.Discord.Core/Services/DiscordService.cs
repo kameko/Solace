@@ -12,6 +12,8 @@ namespace Solace.Modules.Discord.Core.Services
     
     public class DiscordService : BaseChatService
     {
+        private const string CONFIG_DISCORD_TOKEN = "DISCORD.TOKEN";
+        
         private ServiceProvider Services { get; set; }
         private IDiscordProvider? Backend { get; set; }
         private string DiscordToken { get; set; }
@@ -27,7 +29,7 @@ namespace Solace.Modules.Discord.Core.Services
         {
             return new List<string>()
             {
-                "DISCORD.TOKEN",
+                CONFIG_DISCORD_TOKEN,
             };
         }
         
@@ -39,14 +41,14 @@ namespace Solace.Modules.Discord.Core.Services
                 services.OnServiceUnload += OnServiceUnload;
                 services.OnServiceLoad   += OnServiceLoad;
                 
-                var token = config.GetValue("DISCORD.TOKEN");
+                var token = config.GetValue(CONFIG_DISCORD_TOKEN);
                 if (!string.IsNullOrEmpty(token))
                 {
                     DiscordToken = token;
                 }
                 else
                 {
-                    throw new InvalidOperationException("Missing configuration token DISCORD.TOKEN");
+                    throw new InvalidOperationException($"Missing configuration token {CONFIG_DISCORD_TOKEN}");
                 }
                 
                 var discord_service_success = services.GetService<IDiscordProvider>(out var provider);
