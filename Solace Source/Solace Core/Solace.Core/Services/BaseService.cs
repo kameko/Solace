@@ -16,6 +16,11 @@ namespace Solace.Core.Services
             Name = string.Empty;
         }
         
+        public virtual IEnumerable<string> GetAllRequiredConfigurationTokens()
+        {
+            return new List<string>();
+        }
+        
         public virtual Task Install(IConfiguration config)
         {
             // No implementation.

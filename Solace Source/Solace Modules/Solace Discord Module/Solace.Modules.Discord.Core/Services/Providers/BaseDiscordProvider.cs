@@ -29,5 +29,10 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         {
             return Task.CompletedTask;
         }
+        
+        public virtual void Disconnect()
+        {
+            
+        }
     }
 }

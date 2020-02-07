@@ -10,6 +10,8 @@ namespace Solace.Core.Services
     {
         string Name { get; }
         
+        IEnumerable<string> GetAllRequiredConfigurationTokens();
+        
         /// <summary>
         /// Called once, the first time the service is ever
         /// run in an installed instance of Solace.
