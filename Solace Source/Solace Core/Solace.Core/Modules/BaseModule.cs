@@ -6,6 +6,7 @@ namespace Solace.Core.Modules
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using Services;
     
     public abstract class BaseModule
     {
@@ -19,5 +20,7 @@ namespace Solace.Core.Modules
             Info         = new ModuleInfo();
             Dependencies = new List<string>();
         }
+        
+        public abstract IEnumerable<IService> GetServices();
     }
 }
