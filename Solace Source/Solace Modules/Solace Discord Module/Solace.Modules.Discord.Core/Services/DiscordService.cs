@@ -8,19 +8,37 @@ namespace Solace.Modules.Discord.Core.Services
     using Solace.Core;
     using Solace.Core.Services;
     using Solace.Core.Services.Communication;
-    
-    // TODO: get the DSharpPlusProvider service
+    using Providers;
     
     public class DiscordService : BaseChatService
     {
+        private IDiscordProvider? Backend { get; set; }
+        
         public DiscordService() : base()
         {
-            
+            Backend = null;
+        }
+        
+        private void OnServiceUnload(string service)
+        {
+            if (service == (Backend?.Name ?? string.Empty))
+            {
+                Backend = null;
+            }
         }
         
         public override Task Setup(IConfiguration config, ServiceProvider services)
         {
-            throw new NotImplementedException();
+            return Task.Run(() =>
+            {
+                services.OnServiceUnload += OnServiceUnload;
+                
+                var success = services.GetService<IDiscordProvider>(out var provider);
+                if (success)
+                {
+                    Backend = provider;
+                }
+            });
         }
     }
 }
