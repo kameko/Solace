@@ -20,8 +20,7 @@ namespace Solace.Modules.Discord.Core
         public List<DiscordChannel> MentionedChannels { get; set; }
         public List<DiscordRole> MentionedRoles { get; set; }
         public List<Emoji> Reactions { get; set; }
-        // TODO: attachments. will require some planning along with the database
-        // to coordinate where we can find them on-disk.
+        public List<AttachmentToken> Attachments { get; set; }
         
         public DiscordMessage()
         {
@@ -35,6 +34,7 @@ namespace Solace.Modules.Discord.Core
             MentionedChannels = new List<DiscordChannel>();
             MentionedRoles    = new List<DiscordRole>();
             Reactions         = new List<Emoji>();
+            Attachments       = new List<AttachmentToken>();
         }
         
         public CommunicationMessage ToCommunicationMessage()

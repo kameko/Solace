@@ -130,8 +130,17 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
                 
                 foreach (var attachment in discord_message.Message.Attachments)
                 {
-                    // TODO:
+                    var token = new AttachmentToken()
+                    {
+                        FileName = attachment.FileName,
+                        Id       = attachment.Id,
+                        FileSize = attachment.FileSize,
+                    };
                     
+                    token.TrySetUrl(attachment.Url);
+                    token.TrySetProxyUrl(attachment.ProxyUrl);
+                    
+                    message.Attachments.Add(token);
                 }
                 
                 await RaiseOnReceiveMessage(message);
