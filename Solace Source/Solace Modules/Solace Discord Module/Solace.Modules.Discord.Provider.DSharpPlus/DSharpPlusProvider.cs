@@ -47,7 +47,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             
             return Task.Run(async () =>
             {
-                int.TryParse(discord_message.Author.Discriminator, out int discriminator);
+                _ = int.TryParse(discord_message.Author.Discriminator, out int discriminator);
                 var channel_sender = await discord_message.Channel.Guild.GetMemberAsync(discord_message.Author.Id);
                 
                 var message = new DiscordMessage()
@@ -60,7 +60,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
                         Id            = discord_message.Author.Id,
                         IsBot         = discord_message.Author.IsBot,
                     },
-                    Nickname  = channel_sender.Nickname,
+                    Nickname  = channel_sender?.Nickname ?? string.Empty,
                     GuildName = discord_message.Guild.Name,
                     GuildId   = discord_message.Guild.Id,
                     Channel   = new DiscordChannel()
@@ -78,7 +78,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
                 
                 foreach (var user in discord_message.MentionedUsers)
                 {
-                    int.TryParse(discord_message.Author.Discriminator, out int user_discriminator);
+                    _ = int.TryParse(discord_message.Author.Discriminator, out int user_discriminator);
                     
                     var nuser = new DiscordUser()
                     {
