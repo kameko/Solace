@@ -11,8 +11,9 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         
         Task Setup(string token);
         Task Connect();
-        void Disconnect();
+        Task Disconnect();
         
+        // TODO: ping, reconnect
         // TODO: sending messages
         // TODO: query guilds/channels for messages
     }

@@ -40,6 +40,11 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             await Client.ConnectAsync();
         }
         
+        public override async Task Disconnect()
+        {
+            await Client.DisconnectAsync();
+        }
+        
         private Task OnMessageCreated(MessageCreateEventArgs discord_message)
         {
             if (discord_message.Author.IsCurrent)
