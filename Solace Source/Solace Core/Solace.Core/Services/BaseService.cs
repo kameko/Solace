@@ -9,6 +9,11 @@ namespace Solace.Core.Services
     
     public abstract class BaseService : IService
     {
+        public BaseService()
+        {
+            
+        }
+        
         public virtual Task Install(IConfiguration config)
         {
             // No implementation.

@@ -7,6 +7,8 @@ namespace Solace.Core.Services.Communication
     
     public interface IChatService : ICommunicationService
     {
+        event Func<CommunicationMessage, Task> OnReceive;
         
+        Task<bool> Send(CommunicationMessage message);
     }
 }

@@ -8,6 +8,9 @@ namespace Solace.Core.Services.Communication
     
     public abstract class BaseCommunicationService : BaseService, ICommunicationService
     {
-        
+        public BaseCommunicationService() : base()
+        {
+            
+        }
     }
 }

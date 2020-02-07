@@ -7,6 +7,6 @@ namespace Solace.Core.Services.Communication
     
     public interface ICommunicationService : IService
     {
-        
+        // TODO: not sure what, if anything, should go in this layer.
     }
 }

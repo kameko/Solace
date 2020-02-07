@@ -8,6 +8,16 @@ namespace Solace.Core.Services.Communication
     
     public abstract class BaseChatService : BaseCommunicationService, IChatService
     {
+        public virtual event Func<CommunicationMessage, Task> OnReceive;
         
+        public BaseChatService() : base()
+        {
+            OnReceive = delegate { return Task.CompletedTask; };
+        }
+        
+        public virtual Task<bool> Send(CommunicationMessage message)
+        {
+            return Task.FromResult<bool>(false);
+        }
     }
 }
