@@ -64,9 +64,7 @@ namespace Solace.Modules.Discord.Core.Services
         {
             if (service_name == (Backend?.Name ?? string.Empty))
             {
-                Backend?.Disconnect();
-                Backend = null;
-                GC.Collect(); // to help AssemblyLoadContext unload the module.
+                DisposeOldBackend();
             }
         }
         
@@ -76,14 +74,19 @@ namespace Solace.Modules.Discord.Core.Services
             {
                 if (!(Backend is null) && (service.Name != Backend.Name))
                 {
-                    Backend.Disconnect();
-                    Backend = null;
-                    GC.Collect(); // to help AssemblyLoadContext unload the module.
+                    DisposeOldBackend();
                 }
                 
                 Backend = idp;
                 Backend.Setup(DiscordToken);
             }
+        }
+        
+        private void DisposeOldBackend()
+        {
+            Backend?.Disconnect();
+            Backend = null;
+            GC.Collect(); // to help AssemblyLoadContext unload the module.
         }
     }
 }
