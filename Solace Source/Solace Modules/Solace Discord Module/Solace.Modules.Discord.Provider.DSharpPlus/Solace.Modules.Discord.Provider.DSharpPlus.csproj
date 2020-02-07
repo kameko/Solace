@@ -1,6 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <ProjectReference Include="..\Solace.Modules.Discord.Core\Solace.Modules.Discord.Core.csproj">
+      <Private>false</Private>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Solace Core\Solace.Core\Solace.Core.csproj">
       <Private>false</Private>
       <ExcludeAssets>runtime</ExcludeAssets>
@@ -8,8 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.1" />
+    <PackageReference Include="DSharpPlus" Version="4.0.0-nightly-00657" />
   </ItemGroup>
 
   <PropertyGroup>

@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Solace.Modules.Discord.Core\Solace.Modules.Discord.Core.csproj" />
+    <ProjectReference Include="..\Solace.Modules.Discord.Provider.DSharpPlus\Solace.Modules.Discord.Provider.DSharpPlus.csproj" />
   </ItemGroup>
 
 </Project>

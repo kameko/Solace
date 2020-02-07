@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Solace.Modules.Discord.Core
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Solace.Modules.Discord.Tests", "Solace Modules\Solace Discord Module\Solace.Modules.Discord.Tests\Solace.Modules.Discord.Tests.csproj", "{72C68CFB-482A-4DA7-8D12-00C46155E4D8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Solace.Modules.Discord.Provider.DSharpPlus", "Solace Modules\Solace Discord Module\Solace.Modules.Discord.Provider.DSharpPlus\Solace.Modules.Discord.Provider.DSharpPlus.csproj", "{6C773DCA-2F6D-43C3-B2F4-79EF923D3E08}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -106,6 +108,18 @@ Global
 		{72C68CFB-482A-4DA7-8D12-00C46155E4D8}.Release|x64.Build.0 = Release|Any CPU
 		{72C68CFB-482A-4DA7-8D12-00C46155E4D8}.Release|x86.ActiveCfg = Release|Any CPU
 		{72C68CFB-482A-4DA7-8D12-00C46155E4D8}.Release|x86.Build.0 = Release|Any CPU
+		{6C773DCA-2F6D-43C3-B2F4-79EF923D3E08}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C773DCA-2F6D-43C3-B2F4-79EF923D3E08}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C773DCA-2F6D-43C3-B2F4-79EF923D3E08}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6C773DCA-2F6D-43C3-B2F4-79EF923D3E08}.Debug|x64.Build.0 = Debug|Any CPU
+		{6C773DCA-2F6D-43C3-B2F4-79EF923D3E08}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{6C773DCA-2F6D-43C3-B2F4-79EF923D3E08}.Debug|x86.Build.0 = Debug|Any CPU
+		{6C773DCA-2F6D-43C3-B2F4-79EF923D3E08}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C773DCA-2F6D-43C3-B2F4-79EF923D3E08}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6C773DCA-2F6D-43C3-B2F4-79EF923D3E08}.Release|x64.ActiveCfg = Release|Any CPU
+		{6C773DCA-2F6D-43C3-B2F4-79EF923D3E08}.Release|x64.Build.0 = Release|Any CPU
+		{6C773DCA-2F6D-43C3-B2F4-79EF923D3E08}.Release|x86.ActiveCfg = Release|Any CPU
+		{6C773DCA-2F6D-43C3-B2F4-79EF923D3E08}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{A0B8B069-F82D-4790-8F10-D3E2ACD3202A} = {8E17D4EF-21D2-4961-86C6-92EC79B7BBB4}
@@ -115,5 +129,6 @@ Global
 		{DCEC2094-C691-4F14-9332-B68987E410A7} = {7208214D-0928-4609-94AB-FAFF27E5C1AB}
 		{94795232-1696-4081-BB96-76215D686284} = {DCEC2094-C691-4F14-9332-B68987E410A7}
 		{72C68CFB-482A-4DA7-8D12-00C46155E4D8} = {DCEC2094-C691-4F14-9332-B68987E410A7}
+		{6C773DCA-2F6D-43C3-B2F4-79EF923D3E08} = {DCEC2094-C691-4F14-9332-B68987E410A7}
 	EndGlobalSection
 EndGlobal
