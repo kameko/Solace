@@ -10,6 +10,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
     using Core.Services.Providers;
     using global::DSharpPlus;
     using global::DSharpPlus.EventArgs;
+    using global::DSharpPlus.Entities;
     
     public class DSharpPlusProvider : BaseDiscordProvider
     {
@@ -80,7 +81,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             else
             {
                 is_dm = false;
-                if (discord_message.Author is global::DSharpPlus.Entities.DiscordMember dm)
+                if (discord_message.Author is DiscordMember dm)
                 {
                     nickname = dm.Nickname;
                 }
