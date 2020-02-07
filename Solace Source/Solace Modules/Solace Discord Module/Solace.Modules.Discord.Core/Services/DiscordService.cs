@@ -19,11 +19,12 @@ namespace Solace.Modules.Discord.Core.Services
             Backend = null;
         }
         
-        private void OnServiceUnload(string service)
+        private void OnServiceUnload(string service_name)
         {
-            if (service == (Backend?.Name ?? string.Empty))
+            if (service_name == (Backend?.Name ?? string.Empty))
             {
                 Backend = null;
+                GC.Collect(); // to help AssemblyLoadContext unload the module.
             }
         }
         
