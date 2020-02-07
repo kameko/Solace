@@ -8,6 +8,8 @@ namespace Solace.Core.Services
     
     public interface IService
     {
+        string Name { get; }
+        
         /// <summary>
         /// Called once, the first time the service is ever
         /// run in an installed instance of Solace.

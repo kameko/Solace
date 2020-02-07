@@ -9,9 +9,11 @@ namespace Solace.Core.Services
     
     public abstract class BaseService : IService
     {
+        public string Name { get; protected set; }
+        
         public BaseService()
         {
-            
+            Name = string.Empty;
         }
         
         public virtual Task Install(IConfiguration config)
