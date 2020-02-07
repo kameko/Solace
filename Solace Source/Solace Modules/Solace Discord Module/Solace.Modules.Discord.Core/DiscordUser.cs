@@ -10,6 +10,7 @@ namespace Solace.Modules.Discord.Core
     {
         public string Username { get; set; }
         public int Discriminator { get; set; }
+        public string FullName => $"{Username}#{Discriminator}";
         public ulong Id { get; set; }
         public bool IsBot { get; set; }
         public Uri AvatarUrl { get; set; }
