@@ -5,6 +5,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using Solace.Core;
     using Core;
     using Core.Services.Providers;
     using global::DSharpPlus;
@@ -47,123 +48,135 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             
             return Task.Run(async () =>
             {
-                var discriminator = 0;
-                var is_dm = false;
-                var nickname = string.Empty;
-                
-                _ = int.TryParse(discord_message.Author.Discriminator, out discriminator);
-                if (discord_message.Channel.Type.HasFlag(ChannelType.Private))
+                if (discord_message.Channel.Type.HasFlag(ChannelType.Text))
                 {
-                    is_dm = true;
+                    await OnTextMessageCreated(discord_message);
                 }
                 else
                 {
-                    var channel_sender = await discord_message.Channel.Guild.GetMemberAsync(discord_message.Author.Id);
-                    is_dm = false;
-                    nickname = channel_sender?.Nickname ?? string.Empty;
-                    if (string.IsNullOrEmpty(nickname))
-                    {
-                        nickname = string.Empty;
-                    }
+                    Log.Warning($"Unhandled Discord message type: {discord_message.Channel.Type}");
                 }
-                
-                var message = new DiscordMessage()
+            });
+        }
+        
+        private async Task OnTextMessageCreated(MessageCreateEventArgs discord_message)
+        {
+            var discriminator = 0;
+            var is_dm = false;
+            var nickname = string.Empty;
+            
+            _ = int.TryParse(discord_message.Author.Discriminator, out discriminator);
+            if (discord_message.Channel.Type.HasFlag(ChannelType.Private))
+            {
+                is_dm = true;
+            }
+            else
+            {
+                var channel_sender = await discord_message.Channel.Guild.GetMemberAsync(discord_message.Author.Id);
+                is_dm = false;
+                nickname = channel_sender?.Nickname ?? string.Empty;
+                if (string.IsNullOrEmpty(nickname))
                 {
-                    Created   = discord_message.Message.CreationTimestamp,
-                    Sender    = new DiscordUser()
-                    {
-                        Username      = discord_message.Author.Username,
-                        Discriminator = discriminator,
-                        Id            = discord_message.Author.Id,
-                        IsBot         = discord_message.Author.IsBot,
-                    },
-                    IsDM      = is_dm,
-                    Nickname  = is_dm ? string.Empty : nickname,
-                    GuildName = is_dm ? string.Empty : discord_message.Guild.Name,
-                    GuildId   = is_dm ? 0L : discord_message.Guild.Id,
-                    Channel   = new DiscordChannel()
-                    {
-                        Name      = discord_message.Channel.Name,
-                        Id        = discord_message.Channel.Id,
-                        GuildName = is_dm ? string.Empty : discord_message.Channel.Guild.Name,
-                        GuildId   = is_dm ? 0L : discord_message.Channel.GuildId,
-                    },
-                    MessageId = discord_message.Message.Id,
-                    Message   = discord_message.Message.Content,
+                    nickname = string.Empty;
+                }
+            }
+            
+            var message = new DiscordMessage()
+            {
+                Created   = discord_message.Message.CreationTimestamp,
+                Sender    = new DiscordUser()
+                {
+                    Username      = discord_message.Author.Username,
+                    Discriminator = discriminator,
+                    Id            = discord_message.Author.Id,
+                    IsBot         = discord_message.Author.IsBot,
+                },
+                IsDM      = is_dm,
+                Nickname  = is_dm ? string.Empty : nickname,
+                GuildName = is_dm ? string.Empty : discord_message.Guild.Name,
+                GuildId   = is_dm ? 0L : discord_message.Guild.Id,
+                Channel   = new DiscordChannel()
+                {
+                    Name      = discord_message.Channel.Name,
+                    Id        = discord_message.Channel.Id,
+                    GuildName = is_dm ? string.Empty : discord_message.Channel.Guild.Name,
+                    GuildId   = is_dm ? 0L : discord_message.Channel.GuildId,
+                },
+                MessageId = discord_message.Message.Id,
+                Message   = discord_message.Message.Content,
+            };
+            
+            message.Sender.TrySetUrl(discord_message.Author.AvatarUrl);
+            
+            foreach (var user in discord_message.MentionedUsers)
+            {
+                _ = int.TryParse(discord_message.Author.Discriminator, out int user_discriminator);
+                
+                var nuser = new DiscordUser()
+                {
+                    Username      = user.Username,
+                    Discriminator = user_discriminator,
+                    Id            = user.Id,
+                    IsBot         = user.IsBot,
                 };
                 
-                message.Sender.TrySetUrl(discord_message.Author.AvatarUrl);
+                nuser.TrySetUrl(user.AvatarUrl);
                 
-                foreach (var user in discord_message.MentionedUsers)
+                message.MentionedUsers.Add(nuser);
+            }
+            
+            foreach (var channel in discord_message.MentionedChannels)
+            {
+                var nchannel = new DiscordChannel()
                 {
-                    _ = int.TryParse(discord_message.Author.Discriminator, out int user_discriminator);
-                    
-                    var nuser = new DiscordUser()
-                    {
-                        Username      = user.Username,
-                        Discriminator = user_discriminator,
-                        Id            = user.Id,
-                        IsBot         = user.IsBot,
-                    };
-                    
-                    nuser.TrySetUrl(user.AvatarUrl);
-                    
-                    message.MentionedUsers.Add(nuser);
-                }
+                    Name    = channel.Name,
+                    Id      = channel.Id,
+                    GuildId = channel.GuildId,
+                };
                 
-                foreach (var channel in discord_message.MentionedChannels)
+                message.MentionedChannels.Add(nchannel);
+            }
+            
+            foreach (var role in discord_message.MentionedRoles)
+            {
+                var nrole = new DiscordRole()
                 {
-                    var nchannel = new DiscordChannel()
-                    {
-                        Name    = channel.Name,
-                        Id      = channel.Id,
-                        GuildId = channel.GuildId,
-                    };
-                    
-                    message.MentionedChannels.Add(nchannel);
-                }
+                    Name = role.Name,
+                    Id   = role.Id,
+                };
                 
-                foreach (var role in discord_message.MentionedRoles)
+                message.MentionedRoles.Add(nrole);
+            }
+            
+            foreach (var reaction in discord_message.Message.Reactions)
+            {
+                var emoji = new Emoji()
                 {
-                    var nrole = new DiscordRole()
-                    {
-                        Name = role.Name,
-                        Id   = role.Id,
-                    };
-                    
-                    message.MentionedRoles.Add(nrole);
-                }
+                    Name = reaction.Emoji.Name,
+                    Id   = reaction.Emoji.Id,
+                };
                 
-                foreach (var reaction in discord_message.Message.Reactions)
+                emoji.TrySetUrl(reaction.Emoji.Url);
+                
+                message.Reactions.Add(emoji);
+            }
+            
+            foreach (var attachment in discord_message.Message.Attachments)
+            {
+                var token = new AttachmentToken()
                 {
-                    var emoji = new Emoji()
-                    {
-                        Name = reaction.Emoji.Name,
-                        Id   = reaction.Emoji.Id,
-                    };
-                    
-                    emoji.TrySetUrl(reaction.Emoji.Url);
-                    
-                    message.Reactions.Add(emoji);
-                }
+                    FileName = attachment.FileName,
+                    Id       = attachment.Id,
+                    FileSize = attachment.FileSize,
+                };
                 
-                foreach (var attachment in discord_message.Message.Attachments)
-                {
-                    var token = new AttachmentToken()
-                    {
-                        FileName = attachment.FileName,
-                        Id       = attachment.Id,
-                        FileSize = attachment.FileSize,
-                    };
-                    
-                    token.TrySetUrl(attachment.Url);
-                    token.TrySetProxyUrl(attachment.ProxyUrl);
-                    
-                    message.Attachments.Add(token);
-                }
+                token.TrySetUrl(attachment.Url);
+                token.TrySetProxyUrl(attachment.ProxyUrl);
                 
-                await RaiseOnReceiveMessage(message);
-            });
+                message.Attachments.Add(token);
+            }
+            
+            await RaiseOnReceiveMessage(message);
         }
     }
 }
