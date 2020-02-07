@@ -9,6 +9,8 @@ namespace Solace.Modules.Discord.Core
     
     public class DiscordMessage
     {
+        public DateTimeOffset Created { get; set; }
+        public DateTimeOffset Received { get; set; }
         public DiscordUser Sender { get; set; }
         public string Nickname { get; set; }
         public string GuildName { get; set; }
@@ -24,6 +26,7 @@ namespace Solace.Modules.Discord.Core
         
         public DiscordMessage()
         {
+            Received    = DateTime.UtcNow;
             Sender      = new DiscordUser();
             Nickname    = string.Empty;
             GuildName   = string.Empty;

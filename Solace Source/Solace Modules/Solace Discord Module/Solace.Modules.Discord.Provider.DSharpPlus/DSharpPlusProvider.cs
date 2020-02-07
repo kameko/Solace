@@ -52,6 +52,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
                 
                 var message = new DiscordMessage()
                 {
+                    Created   = discord_message.Message.CreationTimestamp,
                     Sender    = new DiscordUser()
                     {
                         Username      = discord_message.Author.Username,
