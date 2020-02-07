@@ -25,7 +25,10 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         
         public override IEnumerable<IService> GetServices()
         {
-            return new List<IService>();
+            return new List<IService>()
+            {
+                new DSharpPlusProvider()
+            };
         }
     }
 }
