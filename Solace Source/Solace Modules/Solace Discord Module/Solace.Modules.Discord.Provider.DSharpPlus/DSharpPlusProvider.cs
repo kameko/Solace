@@ -69,8 +69,8 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         private async Task OnTextMessageCreated(MessageCreateEventArgs discord_message)
         {
             var discriminator = 0;
-            var is_dm = false;
-            var nickname = string.Empty;
+            var is_dm         = false;
+            var nickname      = string.Empty;
             
             _ = int.TryParse(discord_message.Author.Discriminator, out discriminator);
             if (discord_message.Channel.Type.HasFlag(ChannelType.Private))
@@ -79,9 +79,11 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             }
             else
             {
-                var channel_sender = await discord_message.Channel.Guild.GetMemberAsync(discord_message.Author.Id);
                 is_dm = false;
-                nickname = channel_sender?.Nickname ?? string.Empty;
+                if (discord_message.Author is global::DSharpPlus.Entities.DiscordMember dm)
+                {
+                    nickname = dm.Nickname;
+                }
                 if (string.IsNullOrEmpty(nickname))
                 {
                     nickname = string.Empty;
