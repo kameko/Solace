@@ -50,7 +50,14 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             {
                 if (discord_message.Channel.Type.HasFlag(ChannelType.Text))
                 {
-                    await OnTextMessageCreated(discord_message);
+                    try
+                    {
+                        await OnTextMessageCreated(discord_message);
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Error(e, string.Empty);
+                    }
                 }
                 else
                 {
