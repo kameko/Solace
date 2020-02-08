@@ -4,6 +4,7 @@ namespace Solace.Modules.Discord.Core.Services.Providers
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     
     public abstract class BaseDiscordProvider : BaseProvider, IDiscordProvider
@@ -36,6 +37,9 @@ namespace Solace.Modules.Discord.Core.Services.Providers
             return Task.CompletedTask;
         }
         
-        
+        public virtual Task PingLoop(CancellationToken token, int timeout, int tries)
+        {
+            return Task.CompletedTask;
+        }
     }
 }

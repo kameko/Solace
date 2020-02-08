@@ -46,12 +46,6 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             
             await Client.ConnectAsync();
             Connected = true;
-            // TODO: create a task to constantly ping and
-            // try to connect if it doesn't get a response.
-            // needs to be configurable, but should default
-            // to around a ping every two seconds. If it doesn't
-            // get 3 pings in a row, disconnect and reconnect in
-            // a loop.
         }
         
         public override async Task Disconnect()
@@ -65,8 +59,14 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             await Client.DisconnectAsync();
         }
         
-        private Task PingLoop(CancellationToken token, int timeout, int tries)
+        public override Task PingLoop(CancellationToken token, int timeout, int tries)
         {
+            // TODO: create a task to constantly ping and
+            // try to connect if it doesn't get a response.
+            // needs to be configurable, but should default
+            // to around a ping every two seconds. If it doesn't
+            // get 3 pings in a row, disconnect and reconnect in
+            // a loop.
             throw new NotImplementedException();
         }
         
