@@ -10,6 +10,7 @@ namespace Solace.Core.Services
     public abstract class BaseService : IService
     {
         public string Name { get; protected set; }
+        public bool Ready { get; protected set; }
         
         public BaseService()
         {

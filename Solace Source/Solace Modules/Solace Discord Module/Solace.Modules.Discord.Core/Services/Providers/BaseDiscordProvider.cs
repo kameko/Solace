@@ -10,7 +10,6 @@ namespace Solace.Modules.Discord.Core.Services.Providers
     public abstract class BaseDiscordProvider : BaseProvider, IDiscordProvider
     {
         public bool Connected { get; protected set; }
-        public bool Ready { get; protected set; }
         public event Func<SolaceDiscordMessage, Task> OnReceiveMessage;
         
         public BaseDiscordProvider() : base()

@@ -9,6 +9,7 @@ namespace Solace.Core.Services
     public interface IService
     {
         string Name { get; }
+        bool Ready { get; }
         
         IEnumerable<string> GetAllRequiredConfigurationTokens();
         
