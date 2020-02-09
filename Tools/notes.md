@@ -22,6 +22,7 @@
    - Make a tag system, `.\tag create tagname "my tag contents"`, `.\tag echo tagname`, `.\tag delete tagname`
    - Do the same with uploads, `.\file create tagname` (with file attached), `.\file upload tagname`
    - Quoting feature
+   - Conversation generator between selected people.
 
 ### Language TODOs:
  - Create a custom scripting language for scripting the system. SolaceScript (.sol)? Big requirement is it must be able to be preemptively multitasked by pausing between it's execution, something other embeddable languages don't offer.
