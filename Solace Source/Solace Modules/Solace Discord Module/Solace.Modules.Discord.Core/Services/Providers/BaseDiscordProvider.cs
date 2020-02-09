@@ -10,6 +10,7 @@ namespace Solace.Modules.Discord.Core.Services.Providers
     public abstract class BaseDiscordProvider : BaseProvider, IDiscordProvider
     {
         public bool Connected { get; protected set; }
+        public bool Ready { get; protected set; }
         public event Func<SolaceDiscordMessage, Task> OnReceiveMessage;
         
         public BaseDiscordProvider() : base()
@@ -23,6 +24,11 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         }
         
         public virtual Task Setup(string token)
+        {
+            return Task.CompletedTask;
+        }
+        
+        public virtual Task Send(ulong channel, string message)
         {
             return Task.CompletedTask;
         }

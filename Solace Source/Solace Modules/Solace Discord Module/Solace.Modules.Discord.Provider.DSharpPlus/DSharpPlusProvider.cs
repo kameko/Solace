@@ -34,7 +34,22 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
                 });
                 
                 Client.MessageCreated += OnMessageCreated;
+                Client.Ready += OnReady;
+                // TODO: log all of the client events
             });
+        }
+        
+        public override async Task Send(ulong channel, string message)
+        {
+            var dc = await Client.GetChannelAsync(channel);
+            await Client.SendMessageAsync(dc, message);
+        }
+        
+        // TODO: resource gathering, might need a new object to represent the resource
+        // https://github.com/DSharpPlus/DSharpPlus/blob/master/DSharpPlus/Entities/DiscordEmbedBuilder.cs 
+        public Task Send(ulong channel, string message, string resource)
+        {
+            throw new NotImplementedException();
         }
         
         public override async Task Connect()
@@ -219,6 +234,12 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             }
             
             await RaiseOnReceiveMessage(message);
+        }
+        
+        private Task OnReady(ReadyEventArgs e)
+        {
+            Ready = true;
+            return Task.CompletedTask;
         }
         
         public override async ValueTask DisposeAsync()
