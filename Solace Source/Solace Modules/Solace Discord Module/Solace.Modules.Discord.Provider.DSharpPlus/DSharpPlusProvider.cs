@@ -30,7 +30,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         {
             if (config is ProviderConfig pc)
             {
-                Setup(pc);
+                return Setup(pc);
             }
             
             return Task.CompletedTask;
