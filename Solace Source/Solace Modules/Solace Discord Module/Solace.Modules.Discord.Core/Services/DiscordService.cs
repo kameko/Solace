@@ -55,7 +55,9 @@ namespace Solace.Modules.Discord.Core.Services
                 if (discord_service_success)
                 {
                     Backend = provider;
-                    Backend.Setup(DiscordToken);
+                    
+                    // TODO:
+                    // Backend.Setup(DiscordToken, services);
                 }
             });
         }
@@ -78,7 +80,9 @@ namespace Solace.Modules.Discord.Core.Services
                 }
                 
                 Backend = idp;
-                Backend.Setup(DiscordToken);
+                
+                // TODO:
+                // Backend.Setup(DiscordToken);
             }
         }
         

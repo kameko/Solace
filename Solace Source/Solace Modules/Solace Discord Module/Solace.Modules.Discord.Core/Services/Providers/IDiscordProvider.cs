@@ -11,7 +11,6 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         bool Connected { get; }
         event Func<SolaceDiscordMessage, Task> OnReceiveMessage;
         
-        Task Setup(string token);
         Task Send(ulong channel, string message);
         Task Connect();
         Task Disconnect();

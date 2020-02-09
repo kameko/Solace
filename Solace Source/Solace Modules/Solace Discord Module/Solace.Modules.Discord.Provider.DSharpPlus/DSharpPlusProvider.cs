@@ -17,30 +17,48 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
     public class DSharpPlusProvider : BaseDiscordProvider
     {
         private DiscordClient Client { get; set; }
+        private ProviderConfig Config { get; set; }
+        private bool Configured => Config is null || Client is null;
         
         public DSharpPlusProvider() : base()
         {
             Client = null!;
+            Config = null!;
         }
         
-        public override Task Setup(string token)
+        public override Task Setup(IConfiguration config, ServiceProvider services)
         {
+            if (config is ProviderConfig pc)
+            {
+                Setup(pc);
+            }
+            
+            return Task.CompletedTask;
+        }
+        
+        public Task Setup(ProviderConfig config)
+        {
+            Config = config;
+            
             return Task.Run(() =>
             {
                 Client = new DiscordClient(new DiscordConfiguration
                 {
-                    Token     = token,
+                    Token     = config.ConnectionToken,
                     TokenType = TokenType.Bot,
                 });
                 
-                Client.MessageCreated += OnMessageCreated;
-                Client.Ready += OnReady;
+                Client.DebugLogger.LogMessageReceived += OnLogMessageReceived;
+                Client.Ready                          += OnReady;
+                Client.MessageCreated                 += OnMessageCreated;
+                
                 // TODO: log all of the client events
             });
         }
         
         public override async Task Send(ulong channel, string message)
         {
+            CheckConfigured();
             var dc = await Client.GetChannelAsync(channel);
             await Client.SendMessageAsync(dc, message);
         }
@@ -49,11 +67,13 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         // https://github.com/DSharpPlus/DSharpPlus/blob/master/DSharpPlus/Entities/DiscordEmbedBuilder.cs 
         public Task Send(ulong channel, string message, string resource)
         {
+            CheckConfigured();
             throw new NotImplementedException();
         }
         
         public override async Task Connect()
         {
+            CheckConfigured();
             if (Connected)
             {
                 return;
@@ -65,6 +85,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         
         public override async Task Disconnect()
         {
+            CheckConfigured();
             if (!Connected)
             {
                 return;
@@ -83,6 +104,14 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             // get 3 pings in a row, disconnect and reconnect in
             // a loop.
             throw new NotImplementedException();
+        }
+        
+        private void CheckConfigured()
+        {
+            if (!Configured)
+            {
+                throw new InvalidOperationException("Provider is not configured yet.");
+            }
         }
         
         private Task OnMessageCreated(MessageCreateEventArgs discord_message)
@@ -240,6 +269,63 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         {
             Ready = true;
             return Task.CompletedTask;
+        }
+        
+        private void OnLogMessageReceived(object? o, DebugLogMessageEventArgs e)
+        {
+            if (!Config.DebugLog)
+            {
+                return;
+            }
+            
+            if (e.Exception is null)
+            {
+                switch (e.Level)
+                {
+                    case LogLevel.Info:
+                        Log.Info(e.Message);
+                        break;
+                    case LogLevel.Warning:
+                        Log.Warning(e.Message);
+                        break;
+                    case LogLevel.Error:
+                        Log.Error(e.Message);
+                        break;
+                    case LogLevel.Critical:
+                        Log.Fatal(e.Message);
+                        break;
+                    case LogLevel.Debug:
+                        Log.Debug(e.Message);
+                        break;
+                    default:
+                        Log.Debug($"UNHANDLED LOG LEVEL \"{e.Level}\" Message: {e.Message}");
+                        break;
+                }
+            }
+            else
+            {
+                switch (e.Level)
+                {
+                    case LogLevel.Info:
+                        Log.Info(e.Exception, e.Message);
+                        break;
+                    case LogLevel.Warning:
+                        Log.Warning(e.Exception, e.Message);
+                        break;
+                    case LogLevel.Error:
+                        Log.Error(e.Exception, e.Message);
+                        break;
+                    case LogLevel.Critical:
+                        Log.Fatal(e.Exception, e.Message);
+                        break;
+                    case LogLevel.Debug:
+                        Log.Debug(e.Exception, e.Message);
+                        break;
+                    default:
+                        Log.Debug(e.Exception, $"UNHANDLED LOG LEVEL \"{e.Level}\" Message: {e.Message}");
+                        break;
+                }
+            }
         }
         
         public override async ValueTask DisposeAsync()

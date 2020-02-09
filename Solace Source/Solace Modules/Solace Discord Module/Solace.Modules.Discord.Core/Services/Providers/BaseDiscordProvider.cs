@@ -22,11 +22,6 @@ namespace Solace.Modules.Discord.Core.Services.Providers
             await OnReceiveMessage.Invoke(message);
         }
         
-        public virtual Task Setup(string token)
-        {
-            return Task.CompletedTask;
-        }
-        
         public virtual Task Send(ulong channel, string message)
         {
             return Task.CompletedTask;
