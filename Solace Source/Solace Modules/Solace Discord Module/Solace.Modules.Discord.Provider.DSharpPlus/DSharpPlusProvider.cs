@@ -56,71 +56,128 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             });
         }
         
-        public override async Task Send(ulong channel, string message)
+        public override async Task<bool> Send(ulong channel, string message)
         {
             CheckConfigured();
-            var dc = await Client.GetChannelAsync(channel);
-            await Client.SendMessageAsync(dc, message);
+            try
+            {
+                var dc = await Client.GetChannelAsync(channel);
+                await Client.SendMessageAsync(dc, message);
+                return true;
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, string.Empty);
+                return false;
+            }
         }
         
         // TODO: resource gathering, might need a new object to represent the resource
         // https://github.com/DSharpPlus/DSharpPlus/blob/master/DSharpPlus/Entities/DiscordEmbedBuilder.cs 
-        public Task Send(ulong channel, string message, string resource)
+        public Task<bool> Send(ulong channel, string message, string resource)
         {
             CheckConfigured();
             throw new NotImplementedException();
         }
         
-        public override async Task Connect()
+        public override async Task<bool> Connect()
         {
             CheckConfigured();
             if (Connected)
             {
-                return;
+                return false;
             }
             
-            await Client.ConnectAsync();
-            Connected = true;
+            try
+            {
+                await Client.ConnectAsync();
+                Connected = true;
+                return true;
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, string.Empty);
+                return false;
+            }
         }
         
-        public override async Task Disconnect()
+        public override async Task<bool> Disconnect()
         {
             CheckConfigured();
             if (!Connected)
             {
-                return;
+                return false;
             }
             
-            Connected = false;
-            await Client.DisconnectAsync();
+            try
+            {
+                Connected = false;
+                await Client.DisconnectAsync();
+                return true;
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, string.Empty);
+                return false;
+            }
         }
         
-        public override Task SetAvatar(string url)
+        public override Task<bool> SetAvatar(string url)
         {
             // TODO: get stream for url
             // await Client.UpdateCurrentUserAsync(null, )
             throw new NotImplementedException();
         }
         
-        public override async Task SetUsername(string name)
+        public override async Task<bool> SetUsername(string name)
         {
-            await Client.UpdateCurrentUserAsync(name);
-        }
-        
-        public override async Task SetNickname(ulong guild, string name)
-        {
-            var user = await Client.GetGuildAsync(guild);
-            await user.CurrentMember.ModifyAsync(m =>
+            CheckConfigured();
+            try
             {
-                m.Nickname = name;
-            });
+                await Client.UpdateCurrentUserAsync(name);
+                return true;
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, string.Empty);
+                return false;
+            }
         }
         
-        public override async Task SetStatus(string status)
+        public override async Task<bool> SetNickname(ulong guild, string name)
+        {
+            CheckConfigured();
+            try
+            {
+                var user = await Client.GetGuildAsync(guild);
+                await user.CurrentMember.ModifyAsync(m =>
+                {
+                    m.Nickname = name;
+                });
+                return true;
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, string.Empty);
+                return false;
+            }
+        }
+        
+        public override async Task<bool> SetStatus(string status)
         {
             // TODO: custom status type
-            var activity = new DiscordActivity(status);
-            await Client.UpdateStatusAsync(activity);
+            CheckConfigured();
+            try
+            {
+                var activity = new DiscordActivity(status);
+                await Client.UpdateStatusAsync(activity);
+                return true;
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, string.Empty);
+                return false;
+            }
         }
         
         public override Task PingLoop(CancellationToken token, int timeout, int tries)
@@ -131,6 +188,8 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             // to around a ping every two seconds. If it doesn't
             // get 3 pings in a row, disconnect and reconnect in
             // a loop.
+            
+            
             throw new NotImplementedException();
         }
         

@@ -22,44 +22,44 @@ namespace Solace.Modules.Discord.Core.Services.Providers
             await OnReceiveMessage.Invoke(message);
         }
         
-        public virtual Task Send(ulong channel, string message)
+        public virtual Task<bool> Send(ulong channel, string message)
         {
-            return Task.CompletedTask;
+            throw new NotImplementedException();
         }
         
-        public virtual Task Connect()
+        public virtual Task<bool> Connect()
         {
-            return Task.CompletedTask;
+            throw new NotImplementedException();
         }
         
-        public virtual Task Disconnect()
+        public virtual Task<bool> Disconnect()
         {
-            return Task.CompletedTask;
+            throw new NotImplementedException();
         }
         
-        public virtual Task SetAvatar(string url)
+        public virtual Task<bool> SetAvatar(string url)
         {
-            return Task.CompletedTask;
+            throw new NotImplementedException();
         }
         
-        public virtual Task SetUsername(string name)
+        public virtual Task<bool> SetUsername(string name)
         {
-            return Task.CompletedTask;
+            throw new NotImplementedException();
         }
         
-        public virtual Task SetNickname(ulong guild, string name)
+        public virtual Task<bool> SetNickname(ulong guild, string name)
         {
-            return Task.CompletedTask;
+            throw new NotImplementedException();
         }
         
-        public virtual Task SetStatus(string status)
+        public virtual Task<bool> SetStatus(string status)
         {
-            return Task.CompletedTask;
+            throw new NotImplementedException();
         }
         
         public virtual Task PingLoop(CancellationToken token, int timeout, int tries)
         {
-            return Task.CompletedTask;
+            throw new NotImplementedException();
         }
     }
 }
