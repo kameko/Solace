@@ -49,6 +49,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
                 });
                 
                 Client.DebugLogger.LogMessageReceived += OnLogMessageReceived;
+                Client.ClientErrored                  += OnClientError;
                 Client.Ready                          += OnReady;
                 Client.MessageCreated                 += OnMessageCreated;
                 
@@ -355,6 +356,12 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         private Task OnReady(ReadyEventArgs e)
         {
             Ready = true;
+            return Task.CompletedTask;
+        }
+        
+        private Task OnClientError(ClientErrorEventArgs e)
+        {
+            Log.Error(e.Exception, $"Event Error: {e.EventName}");
             return Task.CompletedTask;
         }
         
