@@ -95,6 +95,34 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             await Client.DisconnectAsync();
         }
         
+        public override Task SetAvatar(string url)
+        {
+            // TODO: get stream for url
+            // await Client.UpdateCurrentUserAsync(null, )
+            throw new NotImplementedException();
+        }
+        
+        public override async Task SetUsername(string name)
+        {
+            await Client.UpdateCurrentUserAsync(name);
+        }
+        
+        public override async Task SetNickname(ulong guild, string name)
+        {
+            var user = await Client.GetGuildAsync(guild);
+            await user.CurrentMember.ModifyAsync(m =>
+            {
+                m.Nickname = name;
+            });
+        }
+        
+        public override async Task SetStatus(string status)
+        {
+            // TODO: custom status type
+            var activity = new DiscordActivity(status);
+            await Client.UpdateStatusAsync(activity);
+        }
+        
         public override Task PingLoop(CancellationToken token, int timeout, int tries)
         {
             // TODO: create a task to constantly ping and

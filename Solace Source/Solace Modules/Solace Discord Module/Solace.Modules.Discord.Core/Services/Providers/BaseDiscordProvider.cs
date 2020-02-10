@@ -37,6 +37,26 @@ namespace Solace.Modules.Discord.Core.Services.Providers
             return Task.CompletedTask;
         }
         
+        public virtual Task SetAvatar(string url)
+        {
+            return Task.CompletedTask;
+        }
+        
+        public virtual Task SetUsername(string name)
+        {
+            return Task.CompletedTask;
+        }
+        
+        public virtual Task SetNickname(ulong guild, string name)
+        {
+            return Task.CompletedTask;
+        }
+        
+        public virtual Task SetStatus(string status)
+        {
+            return Task.CompletedTask;
+        }
+        
         public virtual Task PingLoop(CancellationToken token, int timeout, int tries)
         {
             return Task.CompletedTask;
