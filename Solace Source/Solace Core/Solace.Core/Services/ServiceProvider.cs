@@ -12,6 +12,8 @@ namespace Solace.Core.Services
         public event Action<string> OnServiceUnload;
         
         private List<IService> Services { get; set; }
+        // TODO: replace lock with something else, either a concurrent
+        // collection or SemaphoreSlim.WaitAsync()
         private readonly object ServicesLock = new object();
         
         public ServiceProvider()
