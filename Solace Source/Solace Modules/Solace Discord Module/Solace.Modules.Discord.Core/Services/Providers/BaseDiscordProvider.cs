@@ -22,6 +22,11 @@ namespace Solace.Modules.Discord.Core.Services.Providers
             await OnReceiveMessage.Invoke(message);
         }
         
+        public virtual Task<SolaceDiscordMessage> QueryOne(ulong channel_id)
+        {
+            throw new NotImplementedException();
+        }
+        
         public virtual Task<bool> Send(ulong channel, string message)
         {
             throw new NotImplementedException();

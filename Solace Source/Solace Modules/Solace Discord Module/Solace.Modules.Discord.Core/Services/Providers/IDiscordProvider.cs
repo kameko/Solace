@@ -11,6 +11,7 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         bool Connected { get; }
         event Func<SolaceDiscordMessage, Task> OnReceiveMessage;
         
+        Task<SolaceDiscordMessage> QueryOne(ulong channel_id);
         Task<bool> Send(ulong channel, string message);
         Task<bool> Connect();
         Task<bool> Disconnect();
@@ -18,6 +19,7 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         Task<bool> SetUsername(string name);
         Task<bool> SetNickname(ulong guild, string name);
         Task<bool> SetStatus(string status);
+        // Task<IEnumerable<SolaceDiscordMessage>> Query(ulong channel, DateTimeOffset before, int number);
         Task PingLoop(CancellationToken token, int timeout, int tries);
         
         // TODO: ping, reconnect

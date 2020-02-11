@@ -58,19 +58,36 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             });
         }
         
-        public async Task<IEnumerable<SolaceDiscordMessage>> Query(ulong channel_id)
+        public override async Task<SolaceDiscordMessage> QueryOne(ulong channel_id)
         {
             CheckConfigured();
             try
             {
                 var channel = await Client.GetChannelAsync(channel_id);
                 var initial = await channel.GetMessagesAsync();
-                var messages = new List<SolaceDiscordMessage>();
-                foreach (var message in initial)
+                if (initial.Count > 0)
                 {
-                    var solmsg = await ConvertMessage(message);
-                    messages.Add(solmsg);
+                    var solmsg = await ConvertMessage(initial[0]);
+                    return solmsg;
                 }
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, string.Empty);
+                // TODO: return something else, or throw.
+            }
+            
+            throw new NotImplementedException();
+        }
+        
+        public async Task<IEnumerable<SolaceDiscordMessage>> Query(ulong channel_id)
+        {
+            CheckConfigured();
+            try
+            {
+                var initial = await QueryOne(channel_id);
+                
+                // ...
             }
             catch (Exception e)
             {
