@@ -25,7 +25,7 @@ namespace Solace.Modules.Discord.Core
         public List<SolaceDiscordUser> MentionedUsers { get; set; }
         public List<SolaceDiscordChannel> MentionedChannels { get; set; }
         public List<SolaceDiscordRole> MentionedRoles { get; set; }
-        public List<SolaceEmoji> Reactions { get; set; }
+        public List<SolaceDiscordEmoji> Reactions { get; set; }
         public List<AttachmentToken> Attachments { get; set; }
         
         public SolaceDiscordMessage()
@@ -40,7 +40,7 @@ namespace Solace.Modules.Discord.Core
             MentionedUsers    = new List<SolaceDiscordUser>();
             MentionedChannels = new List<SolaceDiscordChannel>();
             MentionedRoles    = new List<SolaceDiscordRole>();
-            Reactions         = new List<SolaceEmoji>();
+            Reactions         = new List<SolaceDiscordEmoji>();
             Attachments       = new List<AttachmentToken>();
         }
         

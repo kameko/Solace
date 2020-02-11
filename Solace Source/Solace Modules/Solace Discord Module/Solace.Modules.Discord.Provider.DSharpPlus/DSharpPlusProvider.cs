@@ -324,7 +324,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             
             foreach (var reaction in discord_message.Message.Reactions)
             {
-                var emoji = new SolaceEmoji()
+                var emoji = new SolaceDiscordEmoji()
                 {
                     Name = reaction.Emoji.Name,
                     Id   = reaction.Emoji.Id,
@@ -361,6 +361,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         
         private Task OnClientError(ClientErrorEventArgs e)
         {
+            // TODO: see if this is worth logging or if OnLogMessageReceived handles it for us.
             Log.Error(e.Exception, $"Event Error: {e.EventName}");
             return Task.CompletedTask;
         }
