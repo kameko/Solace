@@ -58,6 +58,28 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             });
         }
         
+        public async Task<IEnumerable<SolaceDiscordMessage>> Query(ulong channel_id)
+        {
+            CheckConfigured();
+            try
+            {
+                var channel = await Client.GetChannelAsync(channel_id);
+                var initial = await channel.GetMessagesAsync();
+                var messages = new List<SolaceDiscordMessage>();
+                foreach (var message in initial)
+                {
+                    var solmsg = await ConvertMessage(message);
+                    messages.Add(solmsg);
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, string.Empty);
+                
+            }
+            throw new NotImplementedException();
+        }
+        
         public override async Task<bool> Send(ulong channel, string message)
         {
             CheckConfigured();
@@ -76,9 +98,11 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         
         // TODO: resource gathering, might need a new object to represent the resource
         // https://github.com/DSharpPlus/DSharpPlus/blob/master/DSharpPlus/Entities/DiscordEmbedBuilder.cs 
-        public Task<bool> Send(ulong channel, string message, string resource)
+        public async Task<bool> Send(ulong channel_id, string message, string resource)
         {
             CheckConfigured();
+            var channel = await Client.GetChannelAsync(channel_id);
+            // channel.SendFileAsync()
             throw new NotImplementedException();
         }
         
@@ -243,126 +267,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         
         private async Task OnTextMessageCreated(MessageCreateEventArgs discord_message)
         {
-            var discriminator = 0;
-            var is_dm         = false;
-            var nickname      = string.Empty;
-            
-            _ = int.TryParse(discord_message.Author.Discriminator, out discriminator);
-            
-            if (discord_message.Channel.Type.HasFlag(ChannelType.Private))
-            {
-                is_dm = true;
-            }
-            else
-            {
-                is_dm = false;
-                if (discord_message.Author is DiscordMember dm)
-                {
-                    nickname = dm.Nickname;
-                }
-                if (string.IsNullOrEmpty(nickname))
-                {
-                    nickname = string.Empty;
-                }
-            }
-            
-            var message = new SolaceDiscordMessage()
-            {
-                Created   = discord_message.Message.CreationTimestamp,
-                Sender    = new SolaceDiscordUser()
-                {
-                    Username      = discord_message.Author.Username,
-                    Discriminator = discriminator,
-                    Id            = discord_message.Author.Id,
-                    IsBot         = discord_message.Author.IsBot,
-                    AvatarHash    = discord_message.Author.AvatarHash,
-                },
-                IsDM      = is_dm,
-                Nickname  = is_dm ? string.Empty : nickname,
-                GuildName = is_dm ? string.Empty : discord_message.Guild.Name,
-                GuildId   = is_dm ? 0L : discord_message.Guild.Id,
-                Channel   = new SolaceDiscordChannel()
-                {
-                    Name      = discord_message.Channel.Name,
-                    Id        = discord_message.Channel.Id,
-                    GuildName = is_dm ? string.Empty : discord_message.Channel.Guild.Name,
-                    GuildId   = is_dm ? 0L : discord_message.Channel.GuildId,
-                },
-                MessageId = discord_message.Message.Id,
-                Message   = discord_message.Message.Content,
-            };
-            
-            message.Sender.TrySetUrl(discord_message.Author.AvatarUrl);
-            
-            foreach (var user in discord_message.MentionedUsers)
-            {
-                _ = int.TryParse(discord_message.Author.Discriminator, out int user_discriminator);
-                
-                var nuser = new SolaceDiscordUser()
-                {
-                    Username      = user.Username,
-                    Discriminator = user_discriminator,
-                    Id            = user.Id,
-                    IsBot         = user.IsBot,
-                    AvatarHash    = user.AvatarHash,
-                };
-                
-                nuser.TrySetUrl(user.AvatarUrl);
-                
-                message.MentionedUsers.Add(nuser);
-            }
-            
-            foreach (var channel in discord_message.MentionedChannels)
-            {
-                var nchannel = new SolaceDiscordChannel()
-                {
-                    Name    = channel.Name,
-                    Id      = channel.Id,
-                    GuildId = channel.GuildId,
-                };
-                
-                message.MentionedChannels.Add(nchannel);
-            }
-            
-            foreach (var role in discord_message.MentionedRoles)
-            {
-                var nrole = new SolaceDiscordRole()
-                {
-                    Name = role.Name,
-                    Id   = role.Id,
-                };
-                
-                message.MentionedRoles.Add(nrole);
-            }
-            
-            foreach (var reaction in discord_message.Message.Reactions)
-            {
-                var emoji = new SolaceDiscordEmoji()
-                {
-                    Name = reaction.Emoji.Name,
-                    Id   = reaction.Emoji.Id,
-                };
-                
-                emoji.TrySetUrl(reaction.Emoji.Url);
-                
-                message.Reactions.Add(emoji);
-            }
-            
-            foreach (var attachment in discord_message.Message.Attachments)
-            {
-                var token = new AttachmentToken()
-                {
-                    FileName = attachment.FileName,
-                    Id       = attachment.Id,
-                    FileSize = attachment.FileSize,
-                };
-                
-                token.TrySetUrl(attachment.Url);
-                token.TrySetProxyUrl(attachment.ProxyUrl);
-                
-                message.Attachments.Add(token);
-            }
-            
+            var message = await ConvertMessage(discord_message.Message);
             await RaiseOnReceiveMessage(message);
         }
         
@@ -434,6 +339,131 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
                         break;
                 }
             }
+        }
+        
+        private Task<SolaceDiscordMessage> ConvertMessage(DiscordMessage discord_message)
+        {
+            var discriminator = 0;
+            var is_dm         = false;
+            var nickname      = string.Empty;
+            
+            _ = int.TryParse(discord_message.Author.Discriminator, out discriminator);
+            
+            if (discord_message.Channel.Type.HasFlag(ChannelType.Private))
+            {
+                is_dm = true;
+            }
+            else
+            {
+                is_dm = false;
+                if (discord_message.Author is DiscordMember dm)
+                {
+                    nickname = dm.Nickname;
+                }
+                if (string.IsNullOrEmpty(nickname))
+                {
+                    nickname = string.Empty;
+                }
+            }
+            
+            var message = new SolaceDiscordMessage()
+            {
+                Created   = discord_message.CreationTimestamp,
+                Sender    = new SolaceDiscordUser()
+                {
+                    Username      = discord_message.Author.Username,
+                    Discriminator = discriminator,
+                    Id            = discord_message.Author.Id,
+                    IsBot         = discord_message.Author.IsBot,
+                    AvatarHash    = discord_message.Author.AvatarHash,
+                },
+                IsDM      = is_dm,
+                Nickname  = is_dm ? string.Empty : nickname,
+                GuildName = is_dm ? string.Empty : discord_message.Channel.Guild.Name,
+                GuildId   = is_dm ? 0L : discord_message.Channel.Guild.Id,
+                Channel   = new SolaceDiscordChannel()
+                {
+                    Name      = discord_message.Channel.Name,
+                    Id        = discord_message.Channel.Id,
+                    GuildName = is_dm ? string.Empty : discord_message.Channel.Guild.Name,
+                    GuildId   = is_dm ? 0L : discord_message.Channel.GuildId,
+                },
+                MessageId = discord_message.Id,
+                Message   = discord_message.Content,
+            };
+            
+            message.Sender.TrySetUrl(discord_message.Author.AvatarUrl);
+            
+            foreach (var user in discord_message.MentionedUsers)
+            {
+                _ = int.TryParse(discord_message.Author.Discriminator, out int user_discriminator);
+                
+                var nuser = new SolaceDiscordUser()
+                {
+                    Username      = user.Username,
+                    Discriminator = user_discriminator,
+                    Id            = user.Id,
+                    IsBot         = user.IsBot,
+                    AvatarHash    = user.AvatarHash,
+                };
+                
+                nuser.TrySetUrl(user.AvatarUrl);
+                
+                message.MentionedUsers.Add(nuser);
+            }
+            
+            foreach (var channel in discord_message.MentionedChannels)
+            {
+                var nchannel = new SolaceDiscordChannel()
+                {
+                    Name    = channel.Name,
+                    Id      = channel.Id,
+                    GuildId = channel.GuildId,
+                };
+                
+                message.MentionedChannels.Add(nchannel);
+            }
+            
+            foreach (var role in discord_message.MentionedRoles)
+            {
+                var nrole = new SolaceDiscordRole()
+                {
+                    Name = role.Name,
+                    Id   = role.Id,
+                };
+                
+                message.MentionedRoles.Add(nrole);
+            }
+            
+            foreach (var reaction in discord_message.Reactions)
+            {
+                var emoji = new SolaceDiscordEmoji()
+                {
+                    Name = reaction.Emoji.Name,
+                    Id   = reaction.Emoji.Id,
+                };
+                
+                emoji.TrySetUrl(reaction.Emoji.Url);
+                
+                message.Reactions.Add(emoji);
+            }
+            
+            foreach (var attachment in discord_message.Attachments)
+            {
+                var token = new AttachmentToken()
+                {
+                    FileName = attachment.FileName,
+                    Id       = attachment.Id,
+                    FileSize = attachment.FileSize,
+                };
+                
+                token.TrySetUrl(attachment.Url);
+                token.TrySetProxyUrl(attachment.ProxyUrl);
+                
+                message.Attachments.Add(token);
+            }
+            
+            return Task.FromResult(message);
         }
         
         public override async ValueTask DisposeAsync()
