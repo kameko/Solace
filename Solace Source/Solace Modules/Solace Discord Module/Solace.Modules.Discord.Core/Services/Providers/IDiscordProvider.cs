@@ -23,5 +23,8 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         // TODO: ping, reconnect
         // TODO: sending attachments
         // TODO: query guilds/channels for messages
+        // will require returning a custom IEnumerable type to act as a stream
+        // of messages that the system will query one-by-one, also a custom
+        // IEnumerable that will query x-by-x to lessen the API load.
     }
 }
