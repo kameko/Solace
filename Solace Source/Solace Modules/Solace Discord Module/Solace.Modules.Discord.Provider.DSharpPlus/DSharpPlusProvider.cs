@@ -4,6 +4,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.IO;
     using System.Threading;
     using System.Threading.Tasks;
     using Solace.Core;
@@ -123,11 +124,22 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             }
         }
         
-        public override Task<bool> SetAvatar(string url)
+        public override async Task<bool> SetAvatar(string url)
         {
-            // TODO: get stream for url
-            // await Client.UpdateCurrentUserAsync(null, )
-            throw new NotImplementedException();
+            CheckConfigured();
+            try
+            {
+                using (var stream = File.Open(url, FileMode.Open))
+                {
+                    await Client.UpdateCurrentUserAsync(null, stream);
+                    return true;
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, string.Empty);
+                return false;
+            }
         }
         
         public override async Task<bool> SetUsername(string name)
@@ -189,7 +201,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             // to around a ping every two seconds. If it doesn't
             // get 3 pings in a row, disconnect and reconnect in
             // a loop.
-            
+            // Might not actually be needed, D#+ apparently handles this.
             
             throw new NotImplementedException();
         }
@@ -236,6 +248,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             var nickname      = string.Empty;
             
             _ = int.TryParse(discord_message.Author.Discriminator, out discriminator);
+            
             if (discord_message.Channel.Type.HasFlag(ChannelType.Private))
             {
                 is_dm = true;
