@@ -44,6 +44,7 @@ namespace Solace.Modules.Discord.Tests.Core.Services.Providers
         
         public Task<SolaceDiscordMessage?> GetMessage(ulong channel_id, ulong message_id)
         {
+            // TODO: for test
             throw new NotImplementedException();
         }
         
@@ -59,6 +60,7 @@ namespace Solace.Modules.Discord.Tests.Core.Services.Providers
         
         public Task<IEnumerable<SolaceDiscordMessage>?> QueryBefore(ulong channel_id, ulong before_message_id, int limit)
         {
+            // TODO: for test
             throw new NotImplementedException();
         }
         
