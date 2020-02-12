@@ -22,7 +22,7 @@ namespace Solace.Modules.Discord.Core.Services.Providers
             await OnReceiveMessage.Invoke(message);
         }
         
-        public virtual Task<SolaceDiscordMessage> QueryOne(ulong channel_id)
+        public virtual Task<SolaceDiscordMessage> QueryLatest(ulong channel_id)
         {
             throw new NotImplementedException();
         }

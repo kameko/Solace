@@ -58,7 +58,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             });
         }
         
-        public override async Task<SolaceDiscordMessage> QueryOne(ulong channel_id)
+        public override async Task<SolaceDiscordMessage> QueryLatest(ulong channel_id)
         {
             CheckConfigured();
             try
@@ -86,7 +86,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             CheckConfigured();
             try
             {
-                var initial = await QueryOne(channel_id);
+                var initial = await QueryLatest(channel_id);
                 
                 // ...
             }

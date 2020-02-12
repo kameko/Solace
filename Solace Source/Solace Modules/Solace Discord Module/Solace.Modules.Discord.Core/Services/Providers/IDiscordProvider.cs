@@ -11,7 +11,7 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         bool Connected { get; }
         event Func<SolaceDiscordMessage, Task> OnReceiveMessage;
         
-        Task<SolaceDiscordMessage> QueryOne(ulong channel_id);
+        Task<SolaceDiscordMessage> QueryLatest(ulong channel_id);
         Task<bool> Send(ulong channel, string message);
         Task<bool> Connect();
         Task<bool> Disconnect();
