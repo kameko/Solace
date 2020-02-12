@@ -25,11 +25,9 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         Task<bool> SetUsername(string name);
         Task<bool> SetNickname(ulong guild, string name);
         Task<bool> SetStatus(string status);
-        // Task<IEnumerable<SolaceDiscordMessage>> Query(ulong channel, DateTimeOffset before, int number);
         Task PingLoop(CancellationToken token, int timeout, int tries);
         
-        // TODO: ping, reconnect
-        // TODO: sending attachments
+        // TODO: get all guilds and channels in a guild.
         // TODO: query guilds/channels for messages
         // will require returning a custom IEnumerable type to act as a stream
         // of messages that the system will query one-by-one, also a custom
