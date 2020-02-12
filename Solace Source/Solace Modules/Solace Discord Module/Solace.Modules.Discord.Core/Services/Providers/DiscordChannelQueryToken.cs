@@ -14,6 +14,7 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         private ulong InitialMessageId { get; set; }
         private ulong CurrentMessageId { get; set; }
         private List<SolaceDiscordMessage>? CurrentBatch { get; set; }
+        private int RequestDelay { get; set; }
         
         public DiscordChannelQueryToken(IDiscordProvider provider, ulong channel_id, ulong message_id)
         {
@@ -22,6 +23,7 @@ namespace Solace.Modules.Discord.Core.Services.Providers
             InitialMessageId = message_id;
             CurrentMessageId = message_id;
             CurrentBatch     = null;
+            RequestDelay     = 100;
         }
         
         public async Task<bool> Setup()
@@ -36,6 +38,11 @@ namespace Solace.Modules.Discord.Core.Services.Providers
             
             CurrentBatch.Add(message);
             return true;
+        }
+        
+        public void SetRequestDelay(int milliseconds)
+        {
+            RequestDelay = milliseconds;
         }
         
         private async Task SetNewBatch(ulong id)
@@ -55,6 +62,8 @@ namespace Solace.Modules.Discord.Core.Services.Providers
                 {
                     await SetNewBatch(current.MessageId);
                     i = CurrentBatch.Count; // Intentionally not Count - 1, for loop decrements for us.
+                    
+                    await Task.Delay(RequestDelay);
                 }
                 
                 yield return current;
