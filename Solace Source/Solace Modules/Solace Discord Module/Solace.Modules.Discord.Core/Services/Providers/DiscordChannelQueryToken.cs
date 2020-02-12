@@ -16,7 +16,6 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         private IDiscordProvider Provider { get; set; }
         private ulong ChannelId { get; set; }
         private ulong InitialMessageId { get; set; }
-        private ulong CurrentMessageId { get; set; }
         private List<SolaceDiscordMessage>? CurrentBatch { get; set; }
         private int RequestDelay { get; set; }
         
@@ -25,7 +24,6 @@ namespace Solace.Modules.Discord.Core.Services.Providers
             Provider         = provider;
             ChannelId        = channel_id;
             InitialMessageId = message_id;
-            CurrentMessageId = message_id;
             CurrentBatch     = null;
             RequestDelay     = DefaultRequestDelay;
         }
