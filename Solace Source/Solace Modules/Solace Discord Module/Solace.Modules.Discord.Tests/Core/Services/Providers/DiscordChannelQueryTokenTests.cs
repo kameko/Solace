@@ -9,19 +9,10 @@ namespace Solace.Modules.Discord.Tests.Core.Services.Providers
     using Xunit;
     using Xunit.Abstractions;
     
-    public class DiscordChannelQueryTokenTests
+    public class DiscordChannelQueryTokenTests : BaseTest
     {
-        private readonly ITestOutputHelper output;
-
-        public DiscordChannelQueryTokenTests(ITestOutputHelper output)
-        {
-            this.output = output;
-            Write(string.Empty);
-        }
+        public DiscordChannelQueryTokenTests(ITestOutputHelper output) : base(output) { }
         
-        public void Write(string message)
-        {
-            output.WriteLine(message);
-        }
+        
     }
 }
