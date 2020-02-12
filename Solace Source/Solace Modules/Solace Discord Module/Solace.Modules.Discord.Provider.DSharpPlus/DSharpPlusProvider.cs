@@ -67,7 +67,8 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
                 var initial = await channel.GetMessagesAsync();
                 if (initial.Count > 0)
                 {
-                    var solmsg = await ConvertMessage(initial[0]);
+                    var msg = initial.OrderByDescending(x => x.CreationTimestamp).First();
+                    var solmsg = await ConvertMessage(msg);
                     return solmsg;
                 }
             }
