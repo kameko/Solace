@@ -104,7 +104,7 @@ namespace Solace.Modules.Discord.Tests.Core.Services.Providers
         {
             await Task.Delay(1000); // Simulate logging in.
             await RaiseOnReady();
-            throw new NotImplementedException();
+            return true;
         }
     }
 }

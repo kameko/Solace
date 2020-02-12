@@ -7,8 +7,6 @@ namespace Solace.Modules.Discord.Core.Services.Providers
     using System.Threading;
     using System.Threading.Tasks;
     
-    // TODO: unit testing
-    
     public class DiscordChannelQueryToken : IAsyncEnumerable<SolaceDiscordMessage>
     {
         public static readonly int DefaultRequestDelay = 1_000;
