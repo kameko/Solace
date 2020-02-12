@@ -10,8 +10,12 @@ namespace Solace.Modules.Discord.Core.Services.Providers
     public interface IDiscordProvider : IProvider
     {
         bool Connected { get; }
+        int MaxQueryLimit { get; }
         event Func<SolaceDiscordMessage, Task> OnReceiveMessage;
         
+        Task<DiscordChannelQueryToken?> QueryChannel(ulong channel_id, ulong starting_message_id);
+        Task<DiscordChannelQueryToken?> QueryChannel(ulong channel_id);
+        Task<SolaceDiscordMessage?> GetMessage(ulong channel_id, ulong message_id);
         Task<SolaceDiscordMessage?> QueryLatest(ulong channel_id);
         Task<IEnumerable<SolaceDiscordMessage>?> QueryLatest(ulong channel_id, int limit);
         Task<IEnumerable<SolaceDiscordMessage>?> QueryBefore(ulong channel_id, ulong before_message_id, int limit);
@@ -28,9 +32,5 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         Task PingLoop(CancellationToken token, int timeout, int tries);
         
         // TODO: get all guilds and channels in a guild.
-        // TODO: query guilds/channels for messages
-        // will require returning a custom IEnumerable type to act as a stream
-        // of messages that the system will query one-by-one, also a custom
-        // IEnumerable that will query x-by-x to lessen the API load.
     }
 }

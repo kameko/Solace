@@ -23,6 +23,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         
         public DSharpPlusProvider() : base()
         {
+            MaxQueryLimit = 100;
             Client = null!;
             Config = null!;
         }
@@ -56,6 +57,45 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
                 
                 // TODO: log all of the client events
             });
+        }
+        
+        public override async Task<DiscordChannelQueryToken?> QueryChannel(ulong channel_id, ulong starting_message_id)
+        {
+            var dcqt = new DiscordChannelQueryToken(this, channel_id, starting_message_id);
+            var success = await dcqt.Setup();
+            if (success)
+            {
+                return dcqt;
+            }
+            return null;
+        }
+        
+        public override async Task<DiscordChannelQueryToken?> QueryChannel(ulong channel_id)
+        {
+            var current = await QueryLatest(channel_id);
+            if (current is null)
+            {
+                return null;
+            }
+            
+            return await QueryChannel(channel_id, current.MessageId);
+        }
+        
+        public override async Task<SolaceDiscordMessage?> GetMessage(ulong channel_id, ulong message_id)
+        {
+            CheckConfigured();
+            try
+            {
+                var channel = await Client.GetChannelAsync(channel_id);
+                var rawmsg  = await channel.GetMessageAsync(message_id);
+                var message = await ConvertMessage(rawmsg);
+                return message;
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, string.Empty);
+                return null;
+            }
         }
         
         public override async Task<SolaceDiscordMessage?> QueryLatest(ulong channel_id)

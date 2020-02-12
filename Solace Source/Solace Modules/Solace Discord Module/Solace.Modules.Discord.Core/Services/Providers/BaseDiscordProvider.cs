@@ -11,6 +11,7 @@ namespace Solace.Modules.Discord.Core.Services.Providers
     public abstract class BaseDiscordProvider : BaseProvider, IDiscordProvider
     {
         public bool Connected { get; protected set; }
+        public int MaxQueryLimit { get; protected set; }
         public event Func<SolaceDiscordMessage, Task> OnReceiveMessage;
         
         public BaseDiscordProvider() : base()
@@ -21,6 +22,21 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         protected async Task RaiseOnReceiveMessage(SolaceDiscordMessage message)
         {
             await OnReceiveMessage.Invoke(message);
+        }
+        
+        public virtual Task<DiscordChannelQueryToken?> QueryChannel(ulong channel_id, ulong starting_message_id)
+        {
+            throw new NotImplementedException();
+        }
+        
+        public virtual Task<DiscordChannelQueryToken?> QueryChannel(ulong channel_id)
+        {
+            throw new NotImplementedException();
+        }
+        
+        public virtual Task<SolaceDiscordMessage?> GetMessage(ulong channel_id, ulong message_id)
+        {
+            throw new NotImplementedException();
         }
         
         public virtual Task<SolaceDiscordMessage?> QueryLatest(ulong channel_id)
