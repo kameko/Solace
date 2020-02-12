@@ -58,7 +58,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             });
         }
         
-        public override async Task<SolaceDiscordMessage> QueryLatest(ulong channel_id)
+        public override async Task<SolaceDiscordMessage?> QueryLatest(ulong channel_id)
         {
             CheckConfigured();
             try
@@ -71,31 +71,33 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
                     var solmsg = await ConvertMessage(msg);
                     return solmsg;
                 }
+                return null;
             }
             catch (Exception e)
             {
                 Log.Error(e, string.Empty);
-                // TODO: return something else, or throw.
+                return null;
             }
-            
-            throw new NotImplementedException();
         }
         
-        public async Task<IEnumerable<SolaceDiscordMessage>> Query(ulong channel_id)
+        public async Task<IEnumerable<SolaceDiscordMessage>?> Query(ulong channel_id)
         {
             CheckConfigured();
             try
             {
                 var initial = await QueryLatest(channel_id);
+                if (initial is null)
+                {
+                    return null;
+                }
                 
-                // ...
+                
             }
             catch (Exception e)
             {
                 Log.Error(e, string.Empty);
-                
+                return null;
             }
-            throw new NotImplementedException();
         }
         
         public override async Task<bool> Send(ulong channel, string message)
@@ -116,12 +118,17 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         
         // TODO: resource gathering, might need a new object to represent the resource
         // https://github.com/DSharpPlus/DSharpPlus/blob/master/DSharpPlus/Entities/DiscordEmbedBuilder.cs 
-        public async Task<bool> Send(ulong channel_id, string message, string resource)
+        public override async Task<bool> Send(ulong channel_id, string message, Stream resource, string filename)
         {
             CheckConfigured();
             var channel = await Client.GetChannelAsync(channel_id);
-            // channel.SendFileAsync()
+            // await channel.SendFileAsync()
             throw new NotImplementedException();
+        }
+        
+        public override async Task<bool> Send(ulong channel_id, Stream resource, string filename)
+        {
+            return await Send(channel_id, string.Empty, resource, filename);
         }
         
         public override async Task<bool> Connect()
@@ -166,16 +173,13 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             }
         }
         
-        public override async Task<bool> SetAvatar(string url)
+        public override async Task<bool> SetAvatar(Stream file_stream)
         {
             CheckConfigured();
             try
             {
-                using (var stream = File.Open(url, FileMode.Open))
-                {
-                    await Client.UpdateCurrentUserAsync(null, stream);
-                    return true;
-                }
+                await Client.UpdateCurrentUserAsync(null, file_stream);
+                return true;
             }
             catch (Exception e)
             {

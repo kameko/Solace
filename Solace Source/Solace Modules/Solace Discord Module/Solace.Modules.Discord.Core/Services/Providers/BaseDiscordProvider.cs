@@ -4,6 +4,7 @@ namespace Solace.Modules.Discord.Core.Services.Providers
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.IO;
     using System.Threading;
     using System.Threading.Tasks;
     
@@ -22,12 +23,22 @@ namespace Solace.Modules.Discord.Core.Services.Providers
             await OnReceiveMessage.Invoke(message);
         }
         
-        public virtual Task<SolaceDiscordMessage> QueryLatest(ulong channel_id)
+        public virtual Task<SolaceDiscordMessage?> QueryLatest(ulong channel_id)
         {
             throw new NotImplementedException();
         }
         
         public virtual Task<bool> Send(ulong channel, string message)
+        {
+            throw new NotImplementedException();
+        }
+        
+        public virtual Task<bool> Send(ulong channel_id, string message, Stream resource, string filename)
+        {
+            throw new NotImplementedException();
+        }
+        
+        public virtual Task<bool> Send(ulong channel_id, Stream resource, string filename)
         {
             throw new NotImplementedException();
         }
@@ -42,7 +53,7 @@ namespace Solace.Modules.Discord.Core.Services.Providers
             throw new NotImplementedException();
         }
         
-        public virtual Task<bool> SetAvatar(string url)
+        public virtual Task<bool> SetAvatar(Stream file_stream)
         {
             throw new NotImplementedException();
         }
