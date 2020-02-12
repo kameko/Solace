@@ -9,12 +9,12 @@ namespace Solace.Modules.Discord.Tests.Core.Services.Providers
     
     public class PseudoDiscordCache
     {
-        public PseudoDiscordUser User { get; set; }
+        public SolaceDiscordUser User { get; set; }
         public IEnumerable<PseudoDiscordGuild> Guilds { get; set; }
         
         public PseudoDiscordCache()
         {
-            User   = new PseudoDiscordUser();
+            User   = new SolaceDiscordUser();
             Guilds = new List<PseudoDiscordGuild>();
         }
     }
@@ -23,14 +23,14 @@ namespace Solace.Modules.Discord.Tests.Core.Services.Providers
     {
         public string Nickname { get; set; }
         public string GuildName { get; set; }
-        public IEnumerable<PseudoDiscordUser> Users { get; set; }
+        public IEnumerable<SolaceDiscordUser> Users { get; set; }
         public IEnumerable<PseudoDiscordChannel> Channels { get; set; }
         
         public PseudoDiscordGuild()
         {
             Nickname  = string.Empty;
             GuildName = string.Empty;
-            Users     = new List<PseudoDiscordUser>();
+            Users     = new List<SolaceDiscordUser>();
             Channels  = new List<PseudoDiscordChannel>();
         }
     }
@@ -42,18 +42,6 @@ namespace Solace.Modules.Discord.Tests.Core.Services.Providers
         public PseudoDiscordChannel()
         {
             Messages = new List<SolaceDiscordMessage>();
-        }
-    }
-    
-    public class PseudoDiscordUser
-    {
-        public string Username { get; set; }
-        public int Discriminator { get; set; }
-        public ulong UserId { get; set; }
-        
-        public PseudoDiscordUser()
-        {
-            Username = string.Empty;
         }
     }
 }
