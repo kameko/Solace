@@ -12,13 +12,16 @@ namespace Solace.Modules.Discord.Tests.Core.Services.Providers
     
     public class MockDiscordProvider : BaseProvider, IDiscordProvider
     {
+        private PseudoDiscordCache Cache { get; set; }
+        
         public bool Connected { get; protected set; }
         public int MaxQueryLimit { get; protected set; }
         public event Func<Task> OnReady;
         public event Func<SolaceDiscordMessage, Task> OnReceiveMessage;
         
-        public MockDiscordProvider()
+        public MockDiscordProvider(PseudoDiscordCache cache)
         {
+            Cache            = cache;
             MaxQueryLimit    = 100;
             OnReady          = delegate { return Task.CompletedTask; };
             OnReceiveMessage = delegate { return Task.CompletedTask; };
@@ -81,6 +84,7 @@ namespace Solace.Modules.Discord.Tests.Core.Services.Providers
         
         public async Task<bool> Connect()
         {
+            await Task.Delay(1000); // Simulate logging in.
             await OnReady.Invoke();
             throw new NotImplementedException();
         }
