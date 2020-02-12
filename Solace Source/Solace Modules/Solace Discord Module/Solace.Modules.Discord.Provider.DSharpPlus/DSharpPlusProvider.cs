@@ -80,18 +80,46 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             }
         }
         
-        public async Task<IEnumerable<SolaceDiscordMessage>?> Query(ulong channel_id)
+        public override async Task<IEnumerable<SolaceDiscordMessage>?> QueryLatest(ulong channel_id, int limit)
         {
             CheckConfigured();
             try
             {
-                var initial = await QueryLatest(channel_id);
-                if (initial is null)
-                {
-                    return null;
-                }
-                
-                
+                var channel = await Client.GetChannelAsync(channel_id);
+                var latest = await channel.GetMessagesAsync(limit);
+                return latest.ToList() as IEnumerable<SolaceDiscordMessage>;
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, string.Empty);
+                return null;
+            }
+        }
+        
+        public override async Task<IEnumerable<SolaceDiscordMessage>?> QueryBefore(ulong channel_id, ulong before_message_id, int limit)
+        {
+            CheckConfigured();
+            try
+            {
+                var channel = await Client.GetChannelAsync(channel_id);
+                var messages = await channel.GetMessagesBeforeAsync(before_message_id, limit);
+                return messages.ToList() as IEnumerable<SolaceDiscordMessage>;
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, string.Empty);
+                return null;
+            }
+        }
+        
+        public override async Task<IEnumerable<SolaceDiscordMessage>?> QueryAfter(ulong channel_id, ulong before_message_id, int limit)
+        {
+            CheckConfigured();
+            try
+            {
+                var channel = await Client.GetChannelAsync(channel_id);
+                var messages = await channel.GetMessagesAfterAsync(before_message_id, limit);
+                return messages.ToList() as IEnumerable<SolaceDiscordMessage>;
             }
             catch (Exception e)
             {

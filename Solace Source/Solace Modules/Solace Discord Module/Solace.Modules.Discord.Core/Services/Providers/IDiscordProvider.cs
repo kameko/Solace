@@ -13,6 +13,9 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         event Func<SolaceDiscordMessage, Task> OnReceiveMessage;
         
         Task<SolaceDiscordMessage?> QueryLatest(ulong channel_id);
+        Task<IEnumerable<SolaceDiscordMessage>?> QueryLatest(ulong channel_id, int limit);
+        Task<IEnumerable<SolaceDiscordMessage>?> QueryBefore(ulong channel_id, ulong before_message_id, int limit);
+        Task<IEnumerable<SolaceDiscordMessage>?> QueryAfter(ulong channel_id, ulong before_message_id, int limit);
         Task<bool> Send(ulong channel, string message);
         Task<bool> Send(ulong channel_id, string message, Stream resource, string filename);
         Task<bool> Send(ulong channel_id, Stream resource, string filename);

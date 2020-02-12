@@ -28,6 +28,21 @@ namespace Solace.Modules.Discord.Core.Services.Providers
             throw new NotImplementedException();
         }
         
+        public virtual Task<IEnumerable<SolaceDiscordMessage>?> QueryLatest(ulong channel_id, int limit)
+        {
+            throw new NotImplementedException();
+        }
+        
+        public virtual Task<IEnumerable<SolaceDiscordMessage>?> QueryBefore(ulong channel_id, ulong before_message_id, int limit)
+        {
+            throw new NotImplementedException();
+        }
+        
+        public virtual Task<IEnumerable<SolaceDiscordMessage>?> QueryAfter(ulong channel_id, ulong before_message_id, int limit)
+        {
+            throw new NotImplementedException();
+        }
+        
         public virtual Task<bool> Send(ulong channel, string message)
         {
             throw new NotImplementedException();
