@@ -196,7 +196,7 @@ namespace Solace.Core
             }
         }
         
-        private static void Write(LogEventLevel level, string message, 
+        public static void Write(LogEventLevel level, string message, 
             [CallerFilePath] string sourceFilePath = "",
             [CallerMemberName] string callerName = "",
             [CallerLineNumber] int sourceLineNumber = 0)
@@ -204,7 +204,7 @@ namespace Solace.Core
             OnLog.Invoke(new LogToken(LogLevel.Write, sourceFilePath, callerName, sourceLineNumber, message));
         }
         
-        private static void Write(LogEventLevel level, Exception ex, string message, 
+        public static void Write(LogEventLevel level, Exception ex, string message, 
             [CallerFilePath] string sourceFilePath = "",
             [CallerMemberName] string callerName = "",
             [CallerLineNumber] int sourceLineNumber = 0)
@@ -212,7 +212,7 @@ namespace Solace.Core
             OnLog.Invoke(new LogToken(LogLevel.Write, sourceFilePath, callerName, sourceLineNumber, ex, message));
         }
         
-        private static void Write(LogEventLevel level, string message, object[] args,
+        public static void Write(LogEventLevel level, string message, object[] args,
             [CallerFilePath] string sourceFilePath = "",
             [CallerMemberName] string callerName = "",
             [CallerLineNumber] int sourceLineNumber = 0)
@@ -220,7 +220,7 @@ namespace Solace.Core
             OnLog.Invoke(new LogToken(LogLevel.Write, sourceFilePath, callerName, sourceLineNumber, message, args));
         }
         
-        private static void Write(LogEventLevel level, Exception ex, string message, object[] args,
+        public static void Write(LogEventLevel level, Exception ex, string message, object[] args,
             [CallerFilePath] string sourceFilePath = "",
             [CallerMemberName] string callerName = "",
             [CallerLineNumber] int sourceLineNumber = 0)
