@@ -17,7 +17,7 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         
         public BaseDiscordProvider() : base()
         {
-            OnReady = delegate { return Task.CompletedTask; };
+            OnReady          = delegate { return Task.CompletedTask; };
             OnReceiveMessage = delegate { return Task.CompletedTask; };
         }
         

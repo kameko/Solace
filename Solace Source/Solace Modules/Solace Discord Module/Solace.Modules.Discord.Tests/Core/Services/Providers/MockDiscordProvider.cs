@@ -7,7 +7,6 @@ namespace Solace.Modules.Discord.Tests.Core.Services.Providers
     using System.IO;
     using System.Threading;
     using System.Threading.Tasks;
-    using Solace.Core.Services.Communication;
     using Solace.Modules.Discord.Core;
     using Solace.Modules.Discord.Core.Services.Providers;
     
@@ -20,8 +19,14 @@ namespace Solace.Modules.Discord.Tests.Core.Services.Providers
         
         public MockDiscordProvider()
         {
-            OnReady = delegate { return Task.CompletedTask; };
+            MaxQueryLimit    = 100;
+            OnReady          = delegate { return Task.CompletedTask; };
             OnReceiveMessage = delegate { return Task.CompletedTask; };
+        }
+        
+        public async Task RaiseOnReceiveMessage(SolaceDiscordMessage message)
+        {
+            await OnReceiveMessage.Invoke(message);
         }
         
         public Task<DiscordChannelQueryToken?> QueryChannel(ulong channel_id, ulong starting_message_id)
@@ -74,8 +79,9 @@ namespace Solace.Modules.Discord.Tests.Core.Services.Providers
             throw new NotImplementedException();
         }
         
-        public Task<bool> Connect()
+        public async Task<bool> Connect()
         {
+            await OnReady.Invoke();
             throw new NotImplementedException();
         }
         
