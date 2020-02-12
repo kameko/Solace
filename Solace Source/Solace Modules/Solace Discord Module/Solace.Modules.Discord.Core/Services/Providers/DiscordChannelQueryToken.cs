@@ -23,7 +23,7 @@ namespace Solace.Modules.Discord.Core.Services.Providers
             InitialMessageId = message_id;
             CurrentMessageId = message_id;
             CurrentBatch     = null;
-            RequestDelay     = 100;
+            RequestDelay     = 1000;
         }
         
         public async Task<bool> Setup()
