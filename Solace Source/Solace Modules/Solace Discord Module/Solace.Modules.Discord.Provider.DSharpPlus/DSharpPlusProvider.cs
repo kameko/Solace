@@ -364,7 +364,6 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         
         private Task OnClientError(ClientErrorEventArgs e)
         {
-            // TODO: see if this is worth logging or if OnLogMessageReceived handles it for us.
             Log.Error(e.Exception, $"Event Error: {e.EventName}");
             return Task.CompletedTask;
         }

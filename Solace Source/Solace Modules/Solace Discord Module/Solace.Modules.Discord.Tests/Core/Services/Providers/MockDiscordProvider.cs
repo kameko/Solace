@@ -32,20 +32,55 @@ namespace Solace.Modules.Discord.Tests.Core.Services.Providers
             await OnReceiveMessage.Invoke(message);
         }
         
-        public Task<DiscordChannelQueryToken?> QueryChannel(ulong channel_id, ulong starting_message_id)
+        public async Task<DiscordChannelQueryToken?> QueryChannel(ulong channel_id, ulong starting_message_id)
         {
-            throw new NotImplementedException();
+            var guild = Cache.Guilds.Find(x => x.Channels.Exists(y => y.Id == channel_id));
+            if (!(guild is null))
+            {
+                var channel = guild.Channels.Find(x => x.Id == channel_id);
+                if (!(channel is null))
+                {
+                    var dcqt = new DiscordChannelQueryToken(this, channel_id, starting_message_id);
+                    await dcqt.Setup();
+                    return dcqt;
+                }
+            }
+            return null;
         }
         
-        public Task<DiscordChannelQueryToken?> QueryChannel(ulong channel_id)
+        public async Task<DiscordChannelQueryToken?> QueryChannel(ulong channel_id)
         {
-            throw new NotImplementedException();
+            var guild = Cache.Guilds.Find(x => x.Channels.Exists(y => y.Id == channel_id));
+            if (!(guild is null))
+            {
+                var channel = guild.Channels.Find(x => x.Id == channel_id);
+                if (!(channel is null))
+                {
+                    var first = channel.Messages.FirstOrDefault();
+                    if (!(first is null))
+                    {
+                        var dcqt = new DiscordChannelQueryToken(this, channel_id, first.MessageId);
+                        await dcqt.Setup();
+                        return dcqt;
+                    }
+                }
+            }
+            return null;
         }
         
         public Task<SolaceDiscordMessage?> GetMessage(ulong channel_id, ulong message_id)
         {
-            // TODO: for test
-            throw new NotImplementedException();
+            var guild = Cache.Guilds.Find(x => x.Channels.Exists(y => y.Id == channel_id));
+            if (!(guild is null))
+            {
+                var channel = guild.Channels.Find(x => x.Id == channel_id);
+                if (!(channel is null))
+                {
+                    var message = channel.Messages.Find(x => x.MessageId == message_id);
+                    return Task.FromResult(message);
+                }
+            }
+            return Task.FromResult<SolaceDiscordMessage?>(null);
         }
         
         public Task<SolaceDiscordMessage?> QueryLatest(ulong channel_id)
@@ -60,8 +95,31 @@ namespace Solace.Modules.Discord.Tests.Core.Services.Providers
         
         public Task<IEnumerable<SolaceDiscordMessage>?> QueryBefore(ulong channel_id, ulong before_message_id, int limit)
         {
-            // TODO: for test
-            throw new NotImplementedException();
+            var guild = Cache.Guilds.Find(x => x.Channels.Exists(y => y.Id == channel_id));
+            if (!(guild is null))
+            {
+                var channel = guild.Channels.Find(x => x.Id == channel_id);
+                if (!(channel is null))
+                {
+                    var message = channel.Messages.Find(x => x.MessageId == before_message_id);
+                    if (!(message is null))
+                    {
+                        var list = new List<SolaceDiscordMessage>(limit);
+                        
+                        int index = channel.Messages.IndexOf(message) + 1;
+                        while (limit > 0 && index < channel.Messages.Count)
+                        {
+                            var current = channel.Messages.ElementAt(index);
+                            limit--;
+                            index++;
+                            list.Add(current);
+                        }
+                        
+                        return Task.FromResult(list as IEnumerable<SolaceDiscordMessage?>)!;
+                    }
+                }
+            }
+            return Task.FromResult<IEnumerable<SolaceDiscordMessage>?>(null);
         }
         
         public Task<IEnumerable<SolaceDiscordMessage>?> QueryAfter(ulong channel_id, ulong before_message_id, int limit)

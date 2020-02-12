@@ -47,24 +47,40 @@ namespace Solace.Modules.Discord.Core.Services.Providers
             RequestDelay = milliseconds;
         }
         
-        private async Task SetNewBatch(ulong id)
+        private async Task<bool> SetNewBatch(ulong id)
         {
             var msgs = await Provider.QueryBefore(ChannelId, id, Provider.MaxQueryLimit);
-            CurrentBatch = new List<SolaceDiscordMessage>(msgs.OrderByDescending(x => x.Created));
-            CurrentBatch.Reverse();
+            if (!(msgs is null))
+            {
+                CurrentBatch = new List<SolaceDiscordMessage>(msgs.OrderByDescending(x => x.Created));
+                return true;
+            }
+            return false;
         }
         
         public async IAsyncEnumerator<SolaceDiscordMessage> GetAsyncEnumerator(CancellationToken token)
         {
             SolaceDiscordMessage current = CurrentBatch.First();
+            yield return current;
+            
+            var success = await SetNewBatch(current.MessageId);
+            if (!success)
+            {
+                yield break;
+            }
+            
             for (int i = CurrentBatch!.Count - 1; i >= 0; i--)
             {
                 current = CurrentBatch.ElementAt(i);
                 if (i == 0)
                 {
-                    await SetNewBatch(current.MessageId);
-                    i = CurrentBatch.Count; // Intentionally not Count - 1, for loop decrements for us.
+                    success = await SetNewBatch(current.MessageId);
+                    if (!success)
+                    {
+                        yield break;
+                    }
                     
+                    i = CurrentBatch.Count; // Intentionally not Count - 1, for loop decrements for us.
                     await Task.Delay(RequestDelay);
                 }
                 

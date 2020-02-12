@@ -37,6 +37,7 @@ namespace Solace.Modules.Discord.Tests.Core.Services.Providers
                     m.Created   = new DateTime(j + 1_000, 1, 1); // one message every year :)
                     m.Message   = $"Message number {j}";
                     // m.Sender    = new SolaceDiscordUser();
+                    c.Messages.Add(m);
                 }
             }
             
@@ -53,6 +54,30 @@ namespace Solace.Modules.Discord.Tests.Core.Services.Providers
             Assert.NotNull(query);
             
             var count = 3;
+            await foreach (var message in query!)
+            {
+                if (count <= 0)
+                {
+                    break;
+                }
+                
+                Write(message.Message);
+                
+                count--;
+            }
+        }
+        
+        [Fact]
+        public async Task TestChunkingFunctionality()
+        {
+            var cache = GenerateDefaultCache();
+            var provider = new MockDiscordProvider(cache);
+            
+            var query = await provider.QueryChannel(677026613363210000 + 1);
+            Assert.NotNull(query);
+            query!.SetRequestDelay(0);
+            
+            var count = 301;
             await foreach (var message in query!)
             {
                 if (count <= 0)
