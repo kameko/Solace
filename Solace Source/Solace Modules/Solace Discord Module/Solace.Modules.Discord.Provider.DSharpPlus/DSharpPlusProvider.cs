@@ -104,14 +104,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             try
             {
                 var channel = await Client.GetChannelAsync(channel_id);
-                var initial = await channel.GetMessagesAsync();
-                if (initial.Count > 0)
-                {
-                    var msg = initial.OrderByDescending(x => x.CreationTimestamp).First();
-                    var solmsg = await ConvertMessage(msg);
-                    return solmsg;
-                }
-                return null;
+                return await GetMessage(channel_id, channel.LastMessageId);
             }
             catch (Exception e)
             {
