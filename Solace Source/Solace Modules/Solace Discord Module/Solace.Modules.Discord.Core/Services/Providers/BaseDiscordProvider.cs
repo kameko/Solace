@@ -12,16 +12,23 @@ namespace Solace.Modules.Discord.Core.Services.Providers
     {
         public bool Connected { get; protected set; }
         public int MaxQueryLimit { get; protected set; }
+        public event Func<Task> OnReady;
         public event Func<SolaceDiscordMessage, Task> OnReceiveMessage;
         
         public BaseDiscordProvider() : base()
         {
+            OnReady = delegate { return Task.CompletedTask; };
             OnReceiveMessage = delegate { return Task.CompletedTask; };
         }
         
         protected async Task RaiseOnReceiveMessage(SolaceDiscordMessage message)
         {
             await OnReceiveMessage.Invoke(message);
+        }
+        
+        protected async Task RaiseOnReady()
+        {
+            await OnReady.Invoke();
         }
         
         public virtual Task<DiscordChannelQueryToken?> QueryChannel(ulong channel_id, ulong starting_message_id)

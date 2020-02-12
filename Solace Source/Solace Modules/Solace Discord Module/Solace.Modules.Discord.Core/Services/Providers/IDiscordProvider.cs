@@ -11,6 +11,7 @@ namespace Solace.Modules.Discord.Core.Services.Providers
     {
         bool Connected { get; }
         int MaxQueryLimit { get; }
+        event Func<Task> OnReady;
         event Func<SolaceDiscordMessage, Task> OnReceiveMessage;
         
         Task<DiscordChannelQueryToken?> QueryChannel(ulong channel_id, ulong starting_message_id);

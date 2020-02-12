@@ -52,10 +52,10 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
                 
                 Client.DebugLogger.LogMessageReceived += OnLogMessageReceived;
                 Client.ClientErrored                  += OnClientError;
-                Client.Ready                          += OnReady;
+                Client.Ready                          += OnClientReady;
                 Client.MessageCreated                 += OnMessageCreated;
                 
-                // TODO: log all of the client events
+                // TODO: log all of the client events and create events for them
             });
         }
         
@@ -361,10 +361,10 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             await RaiseOnReceiveMessage(message);
         }
         
-        private Task OnReady(ReadyEventArgs e)
+        private async Task OnClientReady(ReadyEventArgs e)
         {
             Ready = true;
-            return Task.CompletedTask;
+            await RaiseOnReady();
         }
         
         private Task OnClientError(ClientErrorEventArgs e)
