@@ -104,7 +104,9 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             try
             {
                 var channel = await Client.GetChannelAsync(channel_id);
-                return await GetMessage(channel_id, channel.LastMessageId);
+                var rawmsg  = await channel.GetMessageAsync(channel.LastMessageId);
+                var message = await ConvertMessage(rawmsg);
+                return message;
             }
             catch (Exception e)
             {
