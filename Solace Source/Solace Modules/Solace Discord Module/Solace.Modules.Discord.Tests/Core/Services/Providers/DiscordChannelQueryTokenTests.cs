@@ -13,6 +13,10 @@ namespace Solace.Modules.Discord.Tests.Core.Services.Providers
     {
         public DiscordChannelQueryTokenTests(ITestOutputHelper output) : base(output) { }
         
-        
+        [Fact]
+        public void Test1()
+        {
+            Solace.Core.Log.Info("Hello, world!");
+        }
     }
 }
