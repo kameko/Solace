@@ -28,6 +28,8 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             Config        = null!;
         }
         
+        // --- Setup --- //
+        
         public override Task Setup(IConfiguration config, ServiceProvider services)
         {
             if (config is ProviderConfig pc)
@@ -105,6 +107,8 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             
             return Task.CompletedTask;
         }
+        
+        // --- Public Methods --- //
         
         public override async Task<DiscordChannelQueryToken?> QueryChannel(ulong channel_id, ulong starting_message_id)
         {
@@ -373,11 +377,62 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             throw new NotImplementedException();
         }
         
-        private void CheckConfigured()
+        // --- Client Event Handlers --- //
+        
+        private void ClientOnLogMessageReceived(object? o, DebugLogMessageEventArgs e)
         {
-            if (!Configured)
+            if (!Config.DebugLog)
             {
-                throw new InvalidOperationException("Provider is not configured yet.");
+                return;
+            }
+            
+            if (e.Exception is null)
+            {
+                switch (e.Level)
+                {
+                    case LogLevel.Info:
+                        Log.Info(e.Message);
+                        break;
+                    case LogLevel.Warning:
+                        Log.Warning(e.Message);
+                        break;
+                    case LogLevel.Error:
+                        Log.Error(e.Message);
+                        break;
+                    case LogLevel.Critical:
+                        Log.Fatal(e.Message);
+                        break;
+                    case LogLevel.Debug:
+                        Log.Debug(e.Message);
+                        break;
+                    default:
+                        Log.Debug($"UNHANDLED LOG LEVEL \"{e.Level}\" Message: {e.Message}");
+                        break;
+                }
+            }
+            else
+            {
+                switch (e.Level)
+                {
+                    case LogLevel.Info:
+                        Log.Info(e.Exception, e.Message);
+                        break;
+                    case LogLevel.Warning:
+                        Log.Warning(e.Exception, e.Message);
+                        break;
+                    case LogLevel.Error:
+                        Log.Error(e.Exception, e.Message);
+                        break;
+                    case LogLevel.Critical:
+                        Log.Fatal(e.Exception, e.Message);
+                        break;
+                    case LogLevel.Debug:
+                        Log.Debug(e.Exception, e.Message);
+                        break;
+                    default:
+                        Log.Debug(e.Exception, $"UNHANDLED LOG LEVEL \"{e.Level}\" Message: {e.Message}");
+                        break;
+                }
             }
         }
         
@@ -632,67 +687,20 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             return Task.CompletedTask;
         }
         
+        // --- Private Methods --- //
+        
+        private void CheckConfigured()
+        {
+            if (!Configured)
+            {
+                throw new InvalidOperationException("Provider is not configured yet.");
+            }
+        }
+        
         private async Task ProcessOnTextMessageCreated(MessageCreateEventArgs discord_message)
         {
             var message = await ConvertMessage(discord_message.Message);
             await RaiseOnReceiveMessage(message);
-        }
-        
-        private void ClientOnLogMessageReceived(object? o, DebugLogMessageEventArgs e)
-        {
-            if (!Config.DebugLog)
-            {
-                return;
-            }
-            
-            if (e.Exception is null)
-            {
-                switch (e.Level)
-                {
-                    case LogLevel.Info:
-                        Log.Info(e.Message);
-                        break;
-                    case LogLevel.Warning:
-                        Log.Warning(e.Message);
-                        break;
-                    case LogLevel.Error:
-                        Log.Error(e.Message);
-                        break;
-                    case LogLevel.Critical:
-                        Log.Fatal(e.Message);
-                        break;
-                    case LogLevel.Debug:
-                        Log.Debug(e.Message);
-                        break;
-                    default:
-                        Log.Debug($"UNHANDLED LOG LEVEL \"{e.Level}\" Message: {e.Message}");
-                        break;
-                }
-            }
-            else
-            {
-                switch (e.Level)
-                {
-                    case LogLevel.Info:
-                        Log.Info(e.Exception, e.Message);
-                        break;
-                    case LogLevel.Warning:
-                        Log.Warning(e.Exception, e.Message);
-                        break;
-                    case LogLevel.Error:
-                        Log.Error(e.Exception, e.Message);
-                        break;
-                    case LogLevel.Critical:
-                        Log.Fatal(e.Exception, e.Message);
-                        break;
-                    case LogLevel.Debug:
-                        Log.Debug(e.Exception, e.Message);
-                        break;
-                    default:
-                        Log.Debug(e.Exception, $"UNHANDLED LOG LEVEL \"{e.Level}\" Message: {e.Message}");
-                        break;
-                }
-            }
         }
         
         private LogLevel ConvertLogLevel(Log.LogLevel sollevel)
