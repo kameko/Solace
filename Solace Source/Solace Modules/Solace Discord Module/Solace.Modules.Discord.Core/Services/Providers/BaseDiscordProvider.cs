@@ -111,6 +111,11 @@ namespace Solace.Modules.Discord.Core.Services.Providers
             throw new NotImplementedException();
         }
         
+        public virtual Task<bool> SetStatus(string status, SolaceDiscordActivity activity_kind)
+        {
+            throw new NotImplementedException();
+        }
+        
         public virtual Task PingLoop(CancellationToken token, int timeout, int tries)
         {
             throw new NotImplementedException();

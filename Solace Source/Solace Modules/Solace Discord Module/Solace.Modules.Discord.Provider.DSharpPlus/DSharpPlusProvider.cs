@@ -334,11 +334,22 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         
         public override async Task<bool> SetStatus(string status)
         {
-            // TODO: custom status type
+            return await SetStatus(status, SolaceDiscordActivity.Playing);
+        }
+        
+        public override async Task<bool> SetStatus(string status, SolaceDiscordActivity activity_kind)
+        {
             CheckConfigured();
             try
             {
-                var activity = new DiscordActivity(status);
+                ActivityType at = activity_kind switch
+                {
+                    SolaceDiscordActivity.Playing     => ActivityType.Playing,
+                    SolaceDiscordActivity.Watching    => ActivityType.Watching,
+                    SolaceDiscordActivity.ListeningTo => ActivityType.ListeningTo,
+                    _                                 => ActivityType.Playing
+                };
+                var activity = new DiscordActivity(status, at);
                 await Client.UpdateStatusAsync(activity);
                 return true;
             }
@@ -437,27 +448,27 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             return Task.CompletedTask;
         }
         
-        private async Task ClientOnMessageCreated(MessageCreateEventArgs discord_message)
+        private async Task ClientOnMessageCreated(MessageCreateEventArgs e)
         {
-            if (discord_message.Author.IsCurrent)
+            if (e.Author.IsCurrent)
             {
                 return;
             }
             
-            if (discord_message.Channel.Type.HasFlag(ChannelType.Text))
+            if (e.Channel.Type.HasFlag(ChannelType.Text))
             {
                 try
                 {
-                    await ProcessOnTextMessageCreated(discord_message);
+                    await ProcessOnTextMessageCreated(e);
                 }
-                catch (Exception e)
+                catch (Exception ex)
                 {
-                    Log.Error(e, string.Empty);
+                    Log.Error(ex, string.Empty);
                 }
             }
             else
             {
-                Log.Warning($"Unhandled Discord message type: {discord_message.Channel.Type}");
+                Log.Warning($"Unhandled Discord message type: {e.Channel.Type}");
             }
         }
         

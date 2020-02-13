@@ -30,6 +30,7 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         Task<bool> SetUsername(string name);
         Task<bool> SetNickname(ulong guild, string name);
         Task<bool> SetStatus(string status);
+        Task<bool> SetStatus(string status, SolaceDiscordActivity activity_kind);
         Task PingLoop(CancellationToken token, int timeout, int tries);
         
         // TODO: get all guilds and channels in a guild.
