@@ -55,25 +55,21 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             
             Client = new DiscordClient(dc);
             
-            Client.DebugLogger.LogMessageReceived += OnLogMessageReceived;
-            Client.ClientErrored                  += OnClientError;
-            Client.Ready                          += OnClientReady;
-            Client.MessageCreated                 += OnMessageCreated;
-            
-            // TODO: log all of the client events and create events for some of them
-            
-            Client.WebhooksUpdated                += (e) => Task.CompletedTask;
-            Client.VoiceStateUpdated              += (e) => Task.CompletedTask;
-            Client.VoiceServerUpdated             += (e) => Task.CompletedTask;
-            Client.UserUpdated                    += (e) => Task.CompletedTask;
-            Client.UserSettingsUpdated            += (e) => Task.CompletedTask;
-            Client.UnknownEvent                   += (e) => Task.CompletedTask;
-            Client.TypingStarted                  += (e) => Task.CompletedTask;
-            Client.SocketOpened                   += ( ) => Task.CompletedTask;
-            Client.SocketErrored                  += (e) => Task.CompletedTask;
-            Client.SocketClosed                   += (e) => Task.CompletedTask;
-            Client.Resumed                        += (e) => Task.CompletedTask;
-            Client.PresenceUpdated                += (e) => Task.CompletedTask;
+            Client.DebugLogger.LogMessageReceived += ClientOnLogMessageReceived;
+            Client.Ready                          += ClientOnReady;
+            Client.Resumed                        += ClientOnResume;
+            Client.ClientErrored                  += ClientOnClientError;
+            Client.WebhooksUpdated                += ClientOnWebhooksUpdated;
+            Client.VoiceStateUpdated              += ClientOnVoiceStateUpdated;
+            Client.VoiceServerUpdated             += ClientOnVoiceServerUpdated;
+            Client.UserUpdated                    += ClientOnUserUpdated;
+            Client.UserSettingsUpdated            += ClientOnUserSettingsUpdated;
+            Client.TypingStarted                  += ClientOnTypingStarted;
+            Client.SocketOpened                   += ClientOnSocketOpened;
+            Client.SocketErrored                  += ClientOnSocketError;
+            Client.SocketClosed                   += ClientOnSocketClosed;
+            Client.PresenceUpdated                += ClientOnPresenceUpdated;
+            Client.MessageCreated                 += ClientOnMessageCreated;
             Client.MessageUpdated                 += (e) => Task.CompletedTask;
             Client.MessagesBulkDeleted            += (e) => Task.CompletedTask;
             Client.MessageReactionsCleared        += (e) => Task.CompletedTask;
@@ -105,6 +101,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             Client.ChannelPinsUpdated             += (e) => Task.CompletedTask;
             Client.ChannelDeleted                 += (e) => Task.CompletedTask;
             Client.ChannelCreated                 += (e) => Task.CompletedTask;
+            Client.UnknownEvent                   += (e) => Task.CompletedTask;
             
             return Task.CompletedTask;
         }
@@ -373,52 +370,264 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             }
         }
         
-        private Task OnMessageCreated(MessageCreateEventArgs discord_message)
-        {
-            if (discord_message.Author.IsCurrent)
-            {
-                return Task.CompletedTask;
-            }
-            
-            return Task.Run(async () =>
-            {
-                if (discord_message.Channel.Type.HasFlag(ChannelType.Text))
-                {
-                    try
-                    {
-                        await OnTextMessageCreated(discord_message);
-                    }
-                    catch (Exception e)
-                    {
-                        Log.Error(e, string.Empty);
-                    }
-                }
-                else
-                {
-                    Log.Warning($"Unhandled Discord message type: {discord_message.Channel.Type}");
-                }
-            });
-        }
-        
-        private async Task OnTextMessageCreated(MessageCreateEventArgs discord_message)
-        {
-            var message = await ConvertMessage(discord_message.Message);
-            await RaiseOnReceiveMessage(message);
-        }
-        
-        private async Task OnClientReady(ReadyEventArgs e)
+        private async Task ClientOnReady(ReadyEventArgs e)
         {
             Ready = true;
             await RaiseOnReady();
         }
         
-        private Task OnClientError(ClientErrorEventArgs e)
+        private Task ClientOnResume(ReadyEventArgs e)
+        {
+            return Task.CompletedTask;
+        }
+        
+        private Task ClientOnClientError(ClientErrorEventArgs e)
         {
             Log.Error(e.Exception, $"Event Error: {e.EventName}");
             return Task.CompletedTask;
         }
         
-        private void OnLogMessageReceived(object? o, DebugLogMessageEventArgs e)
+        private Task ClientOnWebhooksUpdated(WebhooksUpdateEventArgs e)
+        {
+            return Task.CompletedTask;
+        }
+        
+        private Task ClientOnVoiceStateUpdated(VoiceStateUpdateEventArgs e)
+        {
+            return Task.CompletedTask;
+        }
+        
+        private Task ClientOnVoiceServerUpdated(VoiceServerUpdateEventArgs e)
+        {
+            return Task.CompletedTask;
+        }
+        
+        private Task ClientOnUserUpdated(UserUpdateEventArgs e)
+        {
+            return Task.CompletedTask;
+        }
+        
+        private Task ClientOnUserSettingsUpdated(UserSettingsUpdateEventArgs e)
+        {
+            return Task.CompletedTask;
+        }
+        
+        private Task ClientOnTypingStarted(TypingStartEventArgs e)
+        {
+            return Task.CompletedTask;
+        }
+        
+        private Task ClientOnSocketOpened()
+        {
+            return Task.CompletedTask;
+        }
+        
+        private Task ClientOnSocketError(SocketErrorEventArgs e)
+        {
+            return Task.CompletedTask;
+        }
+        
+        private Task ClientOnSocketClosed(SocketCloseEventArgs e)
+        {
+            return Task.CompletedTask;
+        }
+        
+        private Task ClientOnPresenceUpdated(PresenceUpdateEventArgs e)
+        {
+            return Task.CompletedTask;
+        }
+        
+        private async Task ClientOnMessageCreated(MessageCreateEventArgs discord_message)
+        {
+            if (discord_message.Author.IsCurrent)
+            {
+                return;
+            }
+            
+            if (discord_message.Channel.Type.HasFlag(ChannelType.Text))
+            {
+                try
+                {
+                    await ProcessOnTextMessageCreated(discord_message);
+                }
+                catch (Exception e)
+                {
+                    Log.Error(e, string.Empty);
+                }
+            }
+            else
+            {
+                Log.Warning($"Unhandled Discord message type: {discord_message.Channel.Type}");
+            }
+        }
+        
+        private Task FUTUREEVENT11()
+        {
+            return Task.CompletedTask;
+        }
+        
+        private Task FUTUREEVENT12()
+        {
+            return Task.CompletedTask;
+        }
+        
+        private Task FUTUREEVENT13()
+        {
+            return Task.CompletedTask;
+        }
+        
+        private Task FUTUREEVENT14()
+        {
+            return Task.CompletedTask;
+        }
+        
+        private Task FUTUREEVENT15()
+        {
+            return Task.CompletedTask;
+        }
+        
+        private Task FUTUREEVENT16()
+        {
+            return Task.CompletedTask;
+        }
+        
+        private Task FUTUREEVENT17()
+        {
+            return Task.CompletedTask;
+        }
+        
+        private Task FUTUREEVENT18()
+        {
+            return Task.CompletedTask;
+        }
+        
+        private Task FUTUREEVENT19()
+        {
+            return Task.CompletedTask;
+        }
+        
+        private Task FUTUREEVENT20()
+        {
+            return Task.CompletedTask;
+        }
+        
+        private Task FUTUREEVENT21()
+        {
+            return Task.CompletedTask;
+        }
+        
+        private Task FUTUREEVENT22()
+        {
+            return Task.CompletedTask;
+        }
+        
+        private Task FUTUREEVENT23()
+        {
+            return Task.CompletedTask;
+        }
+        
+        private Task FUTUREEVENT24()
+        {
+            return Task.CompletedTask;
+        }
+        
+        private Task FUTUREEVENT25()
+        {
+            return Task.CompletedTask;
+        }
+        
+        private Task FUTUREEVENT26()
+        {
+            return Task.CompletedTask;
+        }
+        
+        private Task FUTUREEVENT27()
+        {
+            return Task.CompletedTask;
+        }
+        
+        private Task FUTUREEVENT28()
+        {
+            return Task.CompletedTask;
+        }
+        
+        private Task FUTUREEVENT29()
+        {
+            return Task.CompletedTask;
+        }
+        
+        private Task FUTUREEVENT30()
+        {
+            return Task.CompletedTask;
+        }
+        
+        private Task FUTUREEVENT31()
+        {
+            return Task.CompletedTask;
+        }
+        
+        private Task FUTUREEVENT32()
+        {
+            return Task.CompletedTask;
+        }
+        
+        private Task FUTUREEVENT33()
+        {
+            return Task.CompletedTask;
+        }
+        
+        private Task FUTUREEVENT34()
+        {
+            return Task.CompletedTask;
+        }
+        
+        private Task FUTUREEVENT35()
+        {
+            return Task.CompletedTask;
+        }
+        
+        private Task FUTUREEVENT36()
+        {
+            return Task.CompletedTask;
+        }
+        
+        private Task FUTUREEVENT37()
+        {
+            return Task.CompletedTask;
+        }
+        
+        private Task FUTUREEVENT38()
+        {
+            return Task.CompletedTask;
+        }
+        
+        private Task FUTUREEVENT39()
+        {
+            return Task.CompletedTask;
+        }
+        
+        private Task FUTUREEVENT40()
+        {
+            return Task.CompletedTask;
+        }
+        
+        private Task FUTUREEVENT41()
+        {
+            return Task.CompletedTask;
+        }
+        
+        private Task FUTUREEVENT42()
+        {
+            return Task.CompletedTask;
+        }
+        
+        private async Task ProcessOnTextMessageCreated(MessageCreateEventArgs discord_message)
+        {
+            var message = await ConvertMessage(discord_message.Message);
+            await RaiseOnReceiveMessage(message);
+        }
+        
+        private void ClientOnLogMessageReceived(object? o, DebugLogMessageEventArgs e)
         {
             if (!Config.DebugLog)
             {
