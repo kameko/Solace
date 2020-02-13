@@ -64,44 +64,44 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             Client.VoiceServerUpdated             += ClientOnVoiceServerUpdated;
             Client.UserUpdated                    += ClientOnUserUpdated;
             Client.UserSettingsUpdated            += ClientOnUserSettingsUpdated;
+            Client.PresenceUpdated                += ClientOnPresenceUpdated;
             Client.TypingStarted                  += ClientOnTypingStarted;
             Client.SocketOpened                   += ClientOnSocketOpened;
             Client.SocketErrored                  += ClientOnSocketError;
             Client.SocketClosed                   += ClientOnSocketClosed;
-            Client.PresenceUpdated                += ClientOnPresenceUpdated;
+            Client.Heartbeated                    += ClientOnHeartbeat;
             Client.MessageCreated                 += ClientOnMessageCreated;
-            Client.MessageUpdated                 += (e) => Task.CompletedTask;
-            Client.MessagesBulkDeleted            += (e) => Task.CompletedTask;
-            Client.MessageReactionsCleared        += (e) => Task.CompletedTask;
-            Client.MessageReactionRemoved         += (e) => Task.CompletedTask;
-            Client.MessageReactionAdded           += (e) => Task.CompletedTask;
-            Client.MessageDeleted                 += (e) => Task.CompletedTask;
-            Client.MessageAcknowledged            += (e) => Task.CompletedTask;
-            Client.Heartbeated                    += (e) => Task.CompletedTask;
-            Client.GuildUpdated                   += (e) => Task.CompletedTask;
-            Client.GuildUnavailable               += (e) => Task.CompletedTask;
-            Client.GuildRoleUpdated               += (e) => Task.CompletedTask;
-            Client.GuildRoleDeleted               += (e) => Task.CompletedTask;
-            Client.GuildRoleCreated               += (e) => Task.CompletedTask;
-            Client.GuildMemberUpdated             += (e) => Task.CompletedTask;
-            Client.GuildMembersChunked            += (e) => Task.CompletedTask;
-            Client.GuildMemberRemoved             += (e) => Task.CompletedTask;
-            Client.GuildMemberAdded               += (e) => Task.CompletedTask;
-            Client.GuildIntegrationsUpdated       += (e) => Task.CompletedTask;
-            Client.GuildEmojisUpdated             += (e) => Task.CompletedTask;
-            Client.GuildDownloadCompleted         += (e) => Task.CompletedTask;
-            Client.GuildDeleted                   += (e) => Task.CompletedTask;
-            Client.GuildCreated                   += (e) => Task.CompletedTask;
-            Client.GuildBanRemoved                += (e) => Task.CompletedTask;
-            Client.GuildBanAdded                  += (e) => Task.CompletedTask;
-            Client.GuildAvailable                 += (e) => Task.CompletedTask;
-            Client.DmChannelDeleted               += (e) => Task.CompletedTask;
-            Client.DmChannelCreated               += (e) => Task.CompletedTask;
-            Client.ChannelUpdated                 += (e) => Task.CompletedTask;
-            Client.ChannelPinsUpdated             += (e) => Task.CompletedTask;
-            Client.ChannelDeleted                 += (e) => Task.CompletedTask;
-            Client.ChannelCreated                 += (e) => Task.CompletedTask;
-            Client.UnknownEvent                   += (e) => Task.CompletedTask;
+            Client.MessageUpdated                 += ClientOnMessageUpdated;
+            Client.MessageAcknowledged            += ClientOnMessageAcknowledged;
+            Client.MessageDeleted                 += ClientOnMessageDeleted;
+            Client.MessagesBulkDeleted            += ClientOnMessagesBulkDeleted;
+            Client.MessageReactionsCleared        += ClientOnMessageReactionsCleared;
+            Client.MessageReactionRemoved         += ClientOnMessageReactionRemoved;
+            Client.MessageReactionAdded           += ClientOnMessageReactionAdded;
+            Client.DmChannelCreated               += ClientOnDmChannelCreated;
+            Client.DmChannelDeleted               += ClientOnDmChannelDeleted;
+            Client.ChannelCreated                 += ClientOnChannelCreated;
+            Client.ChannelUpdated                 += ClientOnChannelUpdated;
+            Client.ChannelPinsUpdated             += ClientOnChannelPinsUpdated;
+            Client.ChannelDeleted                 += ClientOnChannelDeleted;
+            Client.GuildCreated                   += ClientOnGuildCreated;
+            Client.GuildUpdated                   += ClientOnGuildUpdated;
+            Client.GuildDeleted                   += ClientOnGuildDeleted;
+            Client.GuildAvailable                 += ClientOnGuildAvailable;
+            Client.GuildUnavailable               += ClientOnGuildUnavailable;
+            Client.GuildDownloadCompleted         += ClientOnGuildDownloadComplete;
+            Client.GuildRoleCreated               += ClientOnGuildRoleCreated;
+            Client.GuildRoleUpdated               += ClientOnGuildRoleUpdated;
+            Client.GuildRoleDeleted               += ClientOnGuildRoleDeleted;
+            Client.GuildMemberAdded               += ClientOnGuildMemberAdded;
+            Client.GuildMemberUpdated             += ClientOnGuildMemberUpdated;
+            Client.GuildMemberRemoved             += ClientOnGuildMemberRemoved;
+            Client.GuildMembersChunked            += ClientOnGuildMembersChunked;
+            Client.GuildBanAdded                  += ClientOnGuildBanAdded;
+            Client.GuildBanRemoved                += ClientOnGuildBanRemoved;
+            Client.GuildEmojisUpdated             += ClientOnGuildEmojisUpdated;
+            Client.GuildIntegrationsUpdated       += ClientOnGuildIntegrationsUpdated;
+            Client.UnknownEvent                   += ClientOnUnknownEvent;
             
             return Task.CompletedTask;
         }
@@ -423,6 +423,11 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             return Task.CompletedTask;
         }
         
+        private Task ClientOnPresenceUpdated(PresenceUpdateEventArgs e)
+        {
+            return Task.CompletedTask;
+        }
+        
         private Task ClientOnTypingStarted(TypingStartEventArgs e)
         {
             return Task.CompletedTask;
@@ -443,7 +448,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             return Task.CompletedTask;
         }
         
-        private Task ClientOnPresenceUpdated(PresenceUpdateEventArgs e)
+        private Task ClientOnHeartbeat(HeartbeatEventArgs e)
         {
             return Task.CompletedTask;
         }
@@ -472,162 +477,157 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             }
         }
         
-        private Task FUTUREEVENT11()
+        private Task ClientOnMessageUpdated(MessageUpdateEventArgs e)
         {
             return Task.CompletedTask;
         }
         
-        private Task FUTUREEVENT12()
+        private Task ClientOnMessageAcknowledged(MessageAcknowledgeEventArgs e)
         {
             return Task.CompletedTask;
         }
         
-        private Task FUTUREEVENT13()
+        private Task ClientOnMessageDeleted(MessageDeleteEventArgs e)
         {
             return Task.CompletedTask;
         }
         
-        private Task FUTUREEVENT14()
+        private Task ClientOnMessagesBulkDeleted(MessageBulkDeleteEventArgs e)
         {
             return Task.CompletedTask;
         }
         
-        private Task FUTUREEVENT15()
+        private Task ClientOnMessageReactionsCleared(MessageReactionsClearEventArgs e)
         {
             return Task.CompletedTask;
         }
         
-        private Task FUTUREEVENT16()
+        private Task ClientOnMessageReactionRemoved(MessageReactionRemoveEventArgs e)
         {
             return Task.CompletedTask;
         }
         
-        private Task FUTUREEVENT17()
+        private Task ClientOnMessageReactionAdded(MessageReactionAddEventArgs e)
         {
             return Task.CompletedTask;
         }
         
-        private Task FUTUREEVENT18()
+        private Task ClientOnDmChannelCreated(DmChannelCreateEventArgs e)
         {
             return Task.CompletedTask;
         }
         
-        private Task FUTUREEVENT19()
+        private Task ClientOnDmChannelDeleted(DmChannelDeleteEventArgs e)
         {
             return Task.CompletedTask;
         }
         
-        private Task FUTUREEVENT20()
+        private Task ClientOnChannelCreated(ChannelCreateEventArgs e)
         {
             return Task.CompletedTask;
         }
         
-        private Task FUTUREEVENT21()
+        private Task ClientOnChannelUpdated(ChannelUpdateEventArgs e)
         {
             return Task.CompletedTask;
         }
         
-        private Task FUTUREEVENT22()
+        private Task ClientOnChannelPinsUpdated(ChannelPinsUpdateEventArgs e)
         {
             return Task.CompletedTask;
         }
         
-        private Task FUTUREEVENT23()
+        private Task ClientOnChannelDeleted(ChannelDeleteEventArgs e)
         {
             return Task.CompletedTask;
         }
         
-        private Task FUTUREEVENT24()
+        private Task ClientOnGuildCreated(GuildCreateEventArgs e)
         {
             return Task.CompletedTask;
         }
         
-        private Task FUTUREEVENT25()
+        private Task ClientOnGuildUpdated(GuildUpdateEventArgs e)
         {
             return Task.CompletedTask;
         }
         
-        private Task FUTUREEVENT26()
+        private Task ClientOnGuildDeleted(GuildDeleteEventArgs e)
         {
             return Task.CompletedTask;
         }
         
-        private Task FUTUREEVENT27()
+        private Task ClientOnGuildAvailable(GuildCreateEventArgs e)
         {
             return Task.CompletedTask;
         }
         
-        private Task FUTUREEVENT28()
+        private Task ClientOnGuildUnavailable(GuildDeleteEventArgs e)
         {
             return Task.CompletedTask;
         }
         
-        private Task FUTUREEVENT29()
+        private Task ClientOnGuildDownloadComplete(GuildDownloadCompletedEventArgs e)
         {
             return Task.CompletedTask;
         }
         
-        private Task FUTUREEVENT30()
+        private Task ClientOnGuildRoleCreated(GuildRoleCreateEventArgs e)
         {
             return Task.CompletedTask;
         }
         
-        private Task FUTUREEVENT31()
+        private Task ClientOnGuildRoleUpdated(GuildRoleUpdateEventArgs e)
         {
             return Task.CompletedTask;
         }
         
-        private Task FUTUREEVENT32()
+        private Task ClientOnGuildRoleDeleted(GuildRoleDeleteEventArgs e)
         {
             return Task.CompletedTask;
         }
         
-        private Task FUTUREEVENT33()
+        private Task ClientOnGuildMemberAdded(GuildMemberAddEventArgs e)
         {
             return Task.CompletedTask;
         }
         
-        private Task FUTUREEVENT34()
+        private Task ClientOnGuildMemberUpdated(GuildMemberUpdateEventArgs e)
         {
             return Task.CompletedTask;
         }
         
-        private Task FUTUREEVENT35()
+        private Task ClientOnGuildMemberRemoved(GuildMemberRemoveEventArgs e)
         {
             return Task.CompletedTask;
         }
         
-        private Task FUTUREEVENT36()
+        private Task ClientOnGuildMembersChunked(GuildMembersChunkEventArgs e)
         {
             return Task.CompletedTask;
         }
         
-        private Task FUTUREEVENT37()
+        private Task ClientOnGuildBanAdded(GuildBanAddEventArgs e)
         {
             return Task.CompletedTask;
         }
         
-        private Task FUTUREEVENT38()
+        private Task ClientOnGuildBanRemoved(GuildBanRemoveEventArgs e)
         {
             return Task.CompletedTask;
         }
         
-        private Task FUTUREEVENT39()
+        private Task ClientOnGuildEmojisUpdated(GuildEmojisUpdateEventArgs e)
         {
             return Task.CompletedTask;
         }
         
-        private Task FUTUREEVENT40()
+        private Task ClientOnGuildIntegrationsUpdated(GuildIntegrationsUpdateEventArgs e)
         {
             return Task.CompletedTask;
         }
         
-        private Task FUTUREEVENT41()
-        {
-            return Task.CompletedTask;
-        }
-        
-        private Task FUTUREEVENT42()
+        private Task ClientOnUnknownEvent(UnknownEventArgs e)
         {
             return Task.CompletedTask;
         }
