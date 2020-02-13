@@ -5,6 +5,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
     using System.Collections.Generic;
     using System.Linq;
     using System.IO;
+    using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using Solace.Core;
@@ -438,73 +439,87 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         
         private async Task ClientOnReady(ReadyEventArgs e)
         {
+            Log.Info("Client ready");
             Ready = true;
             await RaiseOnReady();
         }
         
         private Task ClientOnResume(ReadyEventArgs e)
         {
+            Log.Info("Client resumed");
             return Task.CompletedTask;
         }
         
         private Task ClientOnClientError(ClientErrorEventArgs e)
         {
-            Log.Error(e.Exception, $"Event Error: {e.EventName}");
+            Log.Error(e.Exception, $"Client error: {e.EventName}");
             return Task.CompletedTask;
         }
         
         private Task ClientOnWebhooksUpdated(WebhooksUpdateEventArgs e)
         {
+            Log.Info($"Client webhooks updated for \"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id})");
             return Task.CompletedTask;
         }
         
         private Task ClientOnVoiceStateUpdated(VoiceStateUpdateEventArgs e)
         {
+            Log.Info($"Client voice state changed for \"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id})");
             return Task.CompletedTask;
         }
         
         private Task ClientOnVoiceServerUpdated(VoiceServerUpdateEventArgs e)
         {
+            Log.Info($"Client voice server changed for \"{e.Guild.Name}\" ({e.Guild.Id}) to {e.Endpoint}");
             return Task.CompletedTask;
         }
         
         private Task ClientOnUserUpdated(UserUpdateEventArgs e)
         {
+            // TODO: find a nice way to log this, find the difference in Before and After.
+            // TODO: event for this
             return Task.CompletedTask;
         }
         
         private Task ClientOnUserSettingsUpdated(UserSettingsUpdateEventArgs e)
         {
+            // TODO: figure out what this means and if/how to log it.
             return Task.CompletedTask;
         }
         
         private Task ClientOnPresenceUpdated(PresenceUpdateEventArgs e)
         {
+            // TODO: this is a lot to log, find a nice way to make it coherent
             return Task.CompletedTask;
         }
         
         private Task ClientOnTypingStarted(TypingStartEventArgs e)
         {
+            // TODO: event for this
             return Task.CompletedTask;
         }
         
         private Task ClientOnSocketOpened()
         {
+            Log.Debug("Client socket opened");
             return Task.CompletedTask;
         }
         
         private Task ClientOnSocketError(SocketErrorEventArgs e)
         {
+            Log.Error(e.Exception, "Client socket error");
             return Task.CompletedTask;
         }
         
         private Task ClientOnSocketClosed(SocketCloseEventArgs e)
         {
+            Log.Info($"Client socket closed. Reason: {e.CloseMessage} ({e.CloseCode})");
             return Task.CompletedTask;
         }
         
         private Task ClientOnHeartbeat(HeartbeatEventArgs e)
         {
+            // TODO: event for this
             return Task.CompletedTask;
         }
         
@@ -534,156 +549,218 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         
         private Task ClientOnMessageUpdated(MessageUpdateEventArgs e)
         {
+            // TODO: event for this
             return Task.CompletedTask;
         }
         
         private Task ClientOnMessageAcknowledged(MessageAcknowledgeEventArgs e)
         {
+            // TODO: event for this
             return Task.CompletedTask;
         }
         
         private Task ClientOnMessageDeleted(MessageDeleteEventArgs e)
         {
+            // TODO: event for this
             return Task.CompletedTask;
         }
         
         private Task ClientOnMessagesBulkDeleted(MessageBulkDeleteEventArgs e)
         {
+            // TODO: event for this
             return Task.CompletedTask;
         }
         
         private Task ClientOnMessageReactionsCleared(MessageReactionsClearEventArgs e)
         {
+            Log.Info(
+                $"Message reactions cleared for message {e.Message.Id} \"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id}). "
+              + (string.IsNullOrEmpty(e.Message.Content) ? string.Empty : $"Message Content: {e.Message.Content}")
+            );
+            // TODO: event for this
             return Task.CompletedTask;
         }
         
         private Task ClientOnMessageReactionRemoved(MessageReactionRemoveEventArgs e)
         {
+            Log.Info(
+                $"Message reaction {e.Emoji.GetDiscordName()} removed for message "
+              + $"{e.Message.Id} \"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id}). "
+              + (string.IsNullOrEmpty(e.Message.Content) ? string.Empty : $"Message Content: {e.Message.Content}")
+            );
+            // TODO: event for this
             return Task.CompletedTask;
         }
         
         private Task ClientOnMessageReactionAdded(MessageReactionAddEventArgs e)
         {
+            Log.Info(
+                $"Message reaction {e.Emoji.GetDiscordName()} added for message "
+              + $"{e.Message.Id} \"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id}). "
+              + (string.IsNullOrEmpty(e.Message.Content) ? string.Empty : $"Message Content: {e.Message.Content}")
+            );
+            // TODO: event for this
             return Task.CompletedTask;
         }
         
         private Task ClientOnDmChannelCreated(DmChannelCreateEventArgs e)
         {
+            Log.Info($"DM created with {ConcatMembers(e.Channel.Users)}");
+            // TODO: event for this
             return Task.CompletedTask;
         }
         
         private Task ClientOnDmChannelDeleted(DmChannelDeleteEventArgs e)
         {
+            Log.Info($"DM deleted with {ConcatMembers(e.Channel.Users)}");
+            // TODO: event for this
             return Task.CompletedTask;
         }
         
         private Task ClientOnChannelCreated(ChannelCreateEventArgs e)
         {
+            Log.Info($"Channel created \"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id})");
+            // TODO: event for this
             return Task.CompletedTask;
         }
         
         private Task ClientOnChannelUpdated(ChannelUpdateEventArgs e)
         {
+            // TODO: more logging coherency, difference between Before and After
+            // TODO: event for this
             return Task.CompletedTask;
         }
         
         private Task ClientOnChannelPinsUpdated(ChannelPinsUpdateEventArgs e)
         {
+            Log.Info($"Pins updated in \"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id})");
+            // TODO: maybe get the new pinned message? not sure how.
+            // TODO: event for this
             return Task.CompletedTask;
         }
         
         private Task ClientOnChannelDeleted(ChannelDeleteEventArgs e)
         {
+            Log.Info($"Channel deleted \"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id})");
+            // TODO: event for this
             return Task.CompletedTask;
         }
         
         private Task ClientOnGuildCreated(GuildCreateEventArgs e)
         {
+            Log.Info($"Guild created \"{e.Guild.Name}\" ({e.Guild.Id})");
+            // TODO: event for this
             return Task.CompletedTask;
         }
         
         private Task ClientOnGuildUpdated(GuildUpdateEventArgs e)
         {
+            // TODO: yeah, big Before and After difference checker...
+            // TODO: event for this
             return Task.CompletedTask;
         }
         
         private Task ClientOnGuildDeleted(GuildDeleteEventArgs e)
         {
+            Log.Info($"Guild deleted \"{e.Guild.Name}\" ({e.Guild.Id})");
+            // TODO: event for this
             return Task.CompletedTask;
         }
         
         private Task ClientOnGuildAvailable(GuildCreateEventArgs e)
         {
+            Log.Info($"Guild available \"{e.Guild.Name}\" ({e.Guild.Id})");
+            // TODO: event for this? or same event as Created
             return Task.CompletedTask;
         }
         
         private Task ClientOnGuildUnavailable(GuildDeleteEventArgs e)
         {
+            Log.Info($"Guild unavailable \"{e.Guild.Name}\" ({e.Guild.Id})");
+            // TODO: event for this? or same event as Deleted
             return Task.CompletedTask;
         }
         
         private Task ClientOnGuildDownloadComplete(GuildDownloadCompletedEventArgs e)
         {
+            // TODO: unsure
             return Task.CompletedTask;
         }
         
         private Task ClientOnGuildRoleCreated(GuildRoleCreateEventArgs e)
         {
+            Log.Info($"Role \"{e.Role.Name}\" ({e.Role.Id}) created in \"{e.Guild.Name}\" ({e.Guild.Id})");
             return Task.CompletedTask;
         }
         
         private Task ClientOnGuildRoleUpdated(GuildRoleUpdateEventArgs e)
         {
+            // TODO: check roles before and after, reuse for OnGuildMemberUpdated
             return Task.CompletedTask;
         }
         
         private Task ClientOnGuildRoleDeleted(GuildRoleDeleteEventArgs e)
         {
+            Log.Info($"Role \"{e.Role.Name}\" ({e.Role.Id}) deleted in \"{e.Guild.Name}\" ({e.Guild.Id})");
             return Task.CompletedTask;
         }
         
         private Task ClientOnGuildMemberAdded(GuildMemberAddEventArgs e)
         {
+            Log.Info($"User {e.Member.Username}#{e.Member.Discriminator} ({e.Member.Id}) added to \"{e.Guild.Name}\" ({e.Guild.Id})");
+            // TODO: event for this
             return Task.CompletedTask;
         }
         
         private Task ClientOnGuildMemberUpdated(GuildMemberUpdateEventArgs e)
         {
+            // TODO: check roles before/after, and log if nicknamed changes
             return Task.CompletedTask;
         }
         
         private Task ClientOnGuildMemberRemoved(GuildMemberRemoveEventArgs e)
         {
+            Log.Info($"User {e.Member.Username}#{e.Member.Discriminator} ({e.Member.Id}) removed from \"{e.Guild.Name}\" ({e.Guild.Id})");
+            // TODO: event for this
             return Task.CompletedTask;
         }
         
         private Task ClientOnGuildMembersChunked(GuildMembersChunkEventArgs e)
         {
+            // TODO: unsure
             return Task.CompletedTask;
         }
         
         private Task ClientOnGuildBanAdded(GuildBanAddEventArgs e)
         {
+            Log.Info($"User {e.Member.Username}#{e.Member.Discriminator} ({e.Member.Id}) banned from \"{e.Guild.Name}\" ({e.Guild.Id})");
+            // TODO: event for this
             return Task.CompletedTask;
         }
         
         private Task ClientOnGuildBanRemoved(GuildBanRemoveEventArgs e)
         {
+            Log.Info($"Ban on user {e.Member.Username}#{e.Member.Discriminator} ({e.Member.Id}) lifted from \"{e.Guild.Name}\" ({e.Guild.Id})");
+            // TODO: event for this
             return Task.CompletedTask;
         }
         
         private Task ClientOnGuildEmojisUpdated(GuildEmojisUpdateEventArgs e)
         {
+            // TODO: before/after
+            // TODO: event for this
             return Task.CompletedTask;
         }
         
         private Task ClientOnGuildIntegrationsUpdated(GuildIntegrationsUpdateEventArgs e)
         {
+            // TODO: unsure
             return Task.CompletedTask;
         }
         
         private Task ClientOnUnknownEvent(UnknownEventArgs e)
         {
+            Log.Warning($"Client unhandled event: {e.EventName}. JSON: {e.Json}");
             return Task.CompletedTask;
         }
         
@@ -701,6 +778,28 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         {
             var message = await ConvertMessage(discord_message.Message);
             await RaiseOnReceiveMessage(message);
+        }
+        
+        private string ConcatMembers(IEnumerable<DiscordMember> discord_users)
+        {
+            var users_sb = new StringBuilder(discord_users.Count() * 3);
+            var index = 0;
+            foreach (var user in discord_users)
+            {
+                if (!string.IsNullOrEmpty(user.Nickname) && user.Nickname != user.Username)
+                {
+                    users_sb.Append($"\"{user.Nickname}\"");
+                }
+                users_sb.Append($"{user.Username}#{user.Discriminator} ({user.Id})");
+                if (discord_users.Count() > 1 && index < discord_users.Count() - 1)
+                {
+                    users_sb.Append(", ");
+                }
+                
+                index++;
+            }
+            
+            return users_sb.ToString();
         }
         
         private LogLevel ConvertLogLevel(Log.LogLevel sollevel)
