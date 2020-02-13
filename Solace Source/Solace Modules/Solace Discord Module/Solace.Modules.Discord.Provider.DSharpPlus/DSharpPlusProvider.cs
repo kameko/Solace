@@ -32,80 +32,81 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         {
             if (config is ProviderConfig pc)
             {
-                return Setup(pc);
+                return Task.Run(() => Setup(pc));
             }
-            
-            return Task.CompletedTask;
+            else
+            {
+                throw new ArgumentException($"config is not of type {nameof(ProviderConfig)}");
+            }
         }
         
         public Task Setup(ProviderConfig config)
         {
             Config = config;
             
-            return Task.Run(() =>
+            var dc = new DiscordConfiguration
             {
-                var dc = new DiscordConfiguration
-                {
-                    Token                 = config.ConnectionToken,
-                    TokenType             = TokenType.Bot,
-                    AutoReconnect         = true,
-                    LogLevel              = ConvertLogLevel(config.LogLevel),
-                    UseInternalLogHandler = false,
-                };
-                
-                Client = new DiscordClient(dc);
-                
-                Client.DebugLogger.LogMessageReceived += OnLogMessageReceived;
-                Client.ClientErrored                  += OnClientError;
-                Client.Ready                          += OnClientReady;
-                Client.MessageCreated                 += OnMessageCreated;
-                
-                // TODO: log all of the client events and create events for some of them
-                
-                Client.WebhooksUpdated                += (e) => Task.CompletedTask;
-                Client.VoiceStateUpdated              += (e) => Task.CompletedTask;
-                Client.VoiceServerUpdated             += (e) => Task.CompletedTask;
-                Client.UserUpdated                    += (e) => Task.CompletedTask;
-                Client.UserSettingsUpdated            += (e) => Task.CompletedTask;
-                Client.UnknownEvent                   += (e) => Task.CompletedTask;
-                Client.TypingStarted                  += (e) => Task.CompletedTask;
-                Client.SocketOpened                   += ( ) => Task.CompletedTask;
-                Client.SocketErrored                  += (e) => Task.CompletedTask;
-                Client.SocketClosed                   += (e) => Task.CompletedTask;
-                Client.Resumed                        += (e) => Task.CompletedTask;
-                Client.PresenceUpdated                += (e) => Task.CompletedTask;
-                Client.MessageUpdated                 += (e) => Task.CompletedTask;
-                Client.MessagesBulkDeleted            += (e) => Task.CompletedTask;
-                Client.MessageReactionsCleared        += (e) => Task.CompletedTask;
-                Client.MessageReactionRemoved         += (e) => Task.CompletedTask;
-                Client.MessageReactionAdded           += (e) => Task.CompletedTask;
-                Client.MessageDeleted                 += (e) => Task.CompletedTask;
-                Client.MessageAcknowledged            += (e) => Task.CompletedTask;
-                Client.Heartbeated                    += (e) => Task.CompletedTask;
-                Client.GuildUpdated                   += (e) => Task.CompletedTask;
-                Client.GuildUnavailable               += (e) => Task.CompletedTask;
-                Client.GuildRoleUpdated               += (e) => Task.CompletedTask;
-                Client.GuildRoleDeleted               += (e) => Task.CompletedTask;
-                Client.GuildRoleCreated               += (e) => Task.CompletedTask;
-                Client.GuildMemberUpdated             += (e) => Task.CompletedTask;
-                Client.GuildMembersChunked            += (e) => Task.CompletedTask;
-                Client.GuildMemberRemoved             += (e) => Task.CompletedTask;
-                Client.GuildMemberAdded               += (e) => Task.CompletedTask;
-                Client.GuildIntegrationsUpdated       += (e) => Task.CompletedTask;
-                Client.GuildEmojisUpdated             += (e) => Task.CompletedTask;
-                Client.GuildDownloadCompleted         += (e) => Task.CompletedTask;
-                Client.GuildDeleted                   += (e) => Task.CompletedTask;
-                Client.GuildCreated                   += (e) => Task.CompletedTask;
-                Client.GuildBanRemoved                += (e) => Task.CompletedTask;
-                Client.GuildBanAdded                  += (e) => Task.CompletedTask;
-                Client.GuildAvailable                 += (e) => Task.CompletedTask;
-                Client.DmChannelDeleted               += (e) => Task.CompletedTask;
-                Client.DmChannelCreated               += (e) => Task.CompletedTask;
-                Client.ChannelUpdated                 += (e) => Task.CompletedTask;
-                Client.ChannelPinsUpdated             += (e) => Task.CompletedTask;
-                Client.ChannelDeleted                 += (e) => Task.CompletedTask;
-                Client.ChannelCreated                 += (e) => Task.CompletedTask;
-            });
+                Token                 = config.ConnectionToken,
+                TokenType             = TokenType.Bot,
+                AutoReconnect         = true,
+                LogLevel              = ConvertLogLevel(config.LogLevel),
+                UseInternalLogHandler = false,
+            };
+            
+            Client = new DiscordClient(dc);
+            
+            Client.DebugLogger.LogMessageReceived += OnLogMessageReceived;
+            Client.ClientErrored                  += OnClientError;
+            Client.Ready                          += OnClientReady;
+            Client.MessageCreated                 += OnMessageCreated;
+            
+            // TODO: log all of the client events and create events for some of them
+            
+            Client.WebhooksUpdated                += (e) => Task.CompletedTask;
+            Client.VoiceStateUpdated              += (e) => Task.CompletedTask;
+            Client.VoiceServerUpdated             += (e) => Task.CompletedTask;
+            Client.UserUpdated                    += (e) => Task.CompletedTask;
+            Client.UserSettingsUpdated            += (e) => Task.CompletedTask;
+            Client.UnknownEvent                   += (e) => Task.CompletedTask;
+            Client.TypingStarted                  += (e) => Task.CompletedTask;
+            Client.SocketOpened                   += ( ) => Task.CompletedTask;
+            Client.SocketErrored                  += (e) => Task.CompletedTask;
+            Client.SocketClosed                   += (e) => Task.CompletedTask;
+            Client.Resumed                        += (e) => Task.CompletedTask;
+            Client.PresenceUpdated                += (e) => Task.CompletedTask;
+            Client.MessageUpdated                 += (e) => Task.CompletedTask;
+            Client.MessagesBulkDeleted            += (e) => Task.CompletedTask;
+            Client.MessageReactionsCleared        += (e) => Task.CompletedTask;
+            Client.MessageReactionRemoved         += (e) => Task.CompletedTask;
+            Client.MessageReactionAdded           += (e) => Task.CompletedTask;
+            Client.MessageDeleted                 += (e) => Task.CompletedTask;
+            Client.MessageAcknowledged            += (e) => Task.CompletedTask;
+            Client.Heartbeated                    += (e) => Task.CompletedTask;
+            Client.GuildUpdated                   += (e) => Task.CompletedTask;
+            Client.GuildUnavailable               += (e) => Task.CompletedTask;
+            Client.GuildRoleUpdated               += (e) => Task.CompletedTask;
+            Client.GuildRoleDeleted               += (e) => Task.CompletedTask;
+            Client.GuildRoleCreated               += (e) => Task.CompletedTask;
+            Client.GuildMemberUpdated             += (e) => Task.CompletedTask;
+            Client.GuildMembersChunked            += (e) => Task.CompletedTask;
+            Client.GuildMemberRemoved             += (e) => Task.CompletedTask;
+            Client.GuildMemberAdded               += (e) => Task.CompletedTask;
+            Client.GuildIntegrationsUpdated       += (e) => Task.CompletedTask;
+            Client.GuildEmojisUpdated             += (e) => Task.CompletedTask;
+            Client.GuildDownloadCompleted         += (e) => Task.CompletedTask;
+            Client.GuildDeleted                   += (e) => Task.CompletedTask;
+            Client.GuildCreated                   += (e) => Task.CompletedTask;
+            Client.GuildBanRemoved                += (e) => Task.CompletedTask;
+            Client.GuildBanAdded                  += (e) => Task.CompletedTask;
+            Client.GuildAvailable                 += (e) => Task.CompletedTask;
+            Client.DmChannelDeleted               += (e) => Task.CompletedTask;
+            Client.DmChannelCreated               += (e) => Task.CompletedTask;
+            Client.ChannelUpdated                 += (e) => Task.CompletedTask;
+            Client.ChannelPinsUpdated             += (e) => Task.CompletedTask;
+            Client.ChannelDeleted                 += (e) => Task.CompletedTask;
+            Client.ChannelCreated                 += (e) => Task.CompletedTask;
+            
+            return Task.CompletedTask;
         }
         
         public override async Task<DiscordChannelQueryToken?> QueryChannel(ulong channel_id, ulong starting_message_id)
