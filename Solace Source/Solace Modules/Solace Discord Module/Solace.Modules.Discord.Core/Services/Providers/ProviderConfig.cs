@@ -13,6 +13,7 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         public bool DebugLog { get; set; }
         public int PingTimeoutMilliseconds { get; set; }
         public int PingTries { get; set; }
+        public Log.LogLevel LogLevel { get; set; }
         
         public ProviderConfig()
         {

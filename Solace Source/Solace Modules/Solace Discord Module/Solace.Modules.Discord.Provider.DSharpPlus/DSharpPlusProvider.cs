@@ -24,8 +24,8 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         public DSharpPlusProvider() : base()
         {
             MaxQueryLimit = 100;
-            Client = null!;
-            Config = null!;
+            Client        = null!;
+            Config        = null!;
         }
         
         public override Task Setup(IConfiguration config, ServiceProvider services)
@@ -44,18 +44,67 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             
             return Task.Run(() =>
             {
-                Client = new DiscordClient(new DiscordConfiguration
+                var dc = new DiscordConfiguration
                 {
-                    Token     = config.ConnectionToken,
-                    TokenType = TokenType.Bot,
-                });
+                    Token                 = config.ConnectionToken,
+                    TokenType             = TokenType.Bot,
+                    AutoReconnect         = true,
+                    LogLevel              = ConvertLogLevel(config.LogLevel),
+                    UseInternalLogHandler = false,
+                };
+                
+                Client = new DiscordClient(dc);
                 
                 Client.DebugLogger.LogMessageReceived += OnLogMessageReceived;
                 Client.ClientErrored                  += OnClientError;
                 Client.Ready                          += OnClientReady;
                 Client.MessageCreated                 += OnMessageCreated;
                 
-                // TODO: log all of the client events and create events for them
+                // TODO: log all of the client events and create events for some of them
+                
+                Client.WebhooksUpdated                += (e) => Task.CompletedTask;
+                Client.VoiceStateUpdated              += (e) => Task.CompletedTask;
+                Client.VoiceServerUpdated             += (e) => Task.CompletedTask;
+                Client.UserUpdated                    += (e) => Task.CompletedTask;
+                Client.UserSettingsUpdated            += (e) => Task.CompletedTask;
+                Client.UnknownEvent                   += (e) => Task.CompletedTask;
+                Client.TypingStarted                  += (e) => Task.CompletedTask;
+                Client.SocketOpened                   += ( ) => Task.CompletedTask;
+                Client.SocketErrored                  += (e) => Task.CompletedTask;
+                Client.SocketClosed                   += (e) => Task.CompletedTask;
+                Client.Resumed                        += (e) => Task.CompletedTask;
+                Client.PresenceUpdated                += (e) => Task.CompletedTask;
+                Client.MessageUpdated                 += (e) => Task.CompletedTask;
+                Client.MessagesBulkDeleted            += (e) => Task.CompletedTask;
+                Client.MessageReactionsCleared        += (e) => Task.CompletedTask;
+                Client.MessageReactionRemoved         += (e) => Task.CompletedTask;
+                Client.MessageReactionAdded           += (e) => Task.CompletedTask;
+                Client.MessageDeleted                 += (e) => Task.CompletedTask;
+                Client.MessageAcknowledged            += (e) => Task.CompletedTask;
+                Client.Heartbeated                    += (e) => Task.CompletedTask;
+                Client.GuildUpdated                   += (e) => Task.CompletedTask;
+                Client.GuildUnavailable               += (e) => Task.CompletedTask;
+                Client.GuildRoleUpdated               += (e) => Task.CompletedTask;
+                Client.GuildRoleDeleted               += (e) => Task.CompletedTask;
+                Client.GuildRoleCreated               += (e) => Task.CompletedTask;
+                Client.GuildMemberUpdated             += (e) => Task.CompletedTask;
+                Client.GuildMembersChunked            += (e) => Task.CompletedTask;
+                Client.GuildMemberRemoved             += (e) => Task.CompletedTask;
+                Client.GuildMemberAdded               += (e) => Task.CompletedTask;
+                Client.GuildIntegrationsUpdated       += (e) => Task.CompletedTask;
+                Client.GuildEmojisUpdated             += (e) => Task.CompletedTask;
+                Client.GuildDownloadCompleted         += (e) => Task.CompletedTask;
+                Client.GuildDeleted                   += (e) => Task.CompletedTask;
+                Client.GuildCreated                   += (e) => Task.CompletedTask;
+                Client.GuildBanRemoved                += (e) => Task.CompletedTask;
+                Client.GuildBanAdded                  += (e) => Task.CompletedTask;
+                Client.GuildAvailable                 += (e) => Task.CompletedTask;
+                Client.DmChannelDeleted               += (e) => Task.CompletedTask;
+                Client.DmChannelCreated               += (e) => Task.CompletedTask;
+                Client.ChannelUpdated                 += (e) => Task.CompletedTask;
+                Client.ChannelPinsUpdated             += (e) => Task.CompletedTask;
+                Client.ChannelDeleted                 += (e) => Task.CompletedTask;
+                Client.ChannelCreated                 += (e) => Task.CompletedTask;
             });
         }
         
@@ -422,6 +471,32 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
                         Log.Debug(e.Exception, $"UNHANDLED LOG LEVEL \"{e.Level}\" Message: {e.Message}");
                         break;
                 }
+            }
+        }
+        
+        private LogLevel ConvertLogLevel(Log.LogLevel sollevel)
+        {
+            switch (sollevel)
+            {
+                case Log.LogLevel.Info:    return LogLevel.Info;
+                case Log.LogLevel.Warning: return LogLevel.Warning;
+                case Log.LogLevel.Error:   return LogLevel.Error;
+                case Log.LogLevel.Fatal:   return LogLevel.Critical;
+                case Log.LogLevel.Debug:   return LogLevel.Debug;
+                default:                   return LogLevel.Debug;
+            }
+        }
+        
+        private Log.LogLevel ConvertLogLevel(LogLevel provlevel)
+        {
+            switch (provlevel)
+            {
+                case LogLevel.Info:     return Log.LogLevel.Info;
+                case LogLevel.Warning:  return Log.LogLevel.Warning;
+                case LogLevel.Error:    return Log.LogLevel.Error;
+                case LogLevel.Critical: return Log.LogLevel.Fatal;
+                case LogLevel.Debug:    return Log.LogLevel.Debug;
+                default:                return Log.LogLevel.Debug;
             }
         }
         
