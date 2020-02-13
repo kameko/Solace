@@ -532,18 +532,19 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             
             if (e.Channel.Type.HasFlag(ChannelType.Text))
             {
-                try
-                {
-                    await ProcessOnTextMessageCreated(e);
-                }
-                catch (Exception ex)
-                {
-                    Log.Error(ex, string.Empty);
-                }
+                var is_dm = e.Channel.Type.HasFlag(ChannelType.Private);
+                var source = is_dm ? $"DM {e.Channel.Id}" : $"\"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id}";
+                Log.Info(
+                    $"Message {e.Message.Id} received from {source} "
+                  + $"by user {e.Author.Username}#{e.Author.Discriminator} ({e.Author.Id}). "
+                  + $"Content: {SanitizeString(e.Message.Content)}"
+                );
+                
+                await ProcessOnTextMessageCreated(e);
             }
             else
             {
-                Log.Warning($"Unhandled Discord message type: {e.Channel.Type}");
+                Log.Warning($"Unhandled message type: {e.Channel.Type}");
             }
         }
         
@@ -575,7 +576,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         {
             Log.Info(
                 $"Message reactions cleared for message {e.Message.Id} \"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id}). "
-              + (string.IsNullOrEmpty(e.Message.Content) ? string.Empty : $"Message Content: {e.Message.Content}")
+              + (string.IsNullOrEmpty(e.Message.Content) ? string.Empty : $"Message Content: {SanitizeString(e.Message.Content)}")
             );
             // TODO: event for this
             return Task.CompletedTask;
@@ -586,7 +587,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             Log.Info(
                 $"Message reaction {e.Emoji.GetDiscordName()} removed for message "
               + $"{e.Message.Id} \"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id}). "
-              + (string.IsNullOrEmpty(e.Message.Content) ? string.Empty : $"Message Content: {e.Message.Content}")
+              + (string.IsNullOrEmpty(e.Message.Content) ? string.Empty : $"Message Content: {SanitizeString(e.Message.Content)}")
             );
             // TODO: event for this
             return Task.CompletedTask;
@@ -597,7 +598,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             Log.Info(
                 $"Message reaction {e.Emoji.GetDiscordName()} added for message "
               + $"{e.Message.Id} \"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id}). "
-              + (string.IsNullOrEmpty(e.Message.Content) ? string.Empty : $"Message Content: {e.Message.Content}")
+              + (string.IsNullOrEmpty(e.Message.Content) ? string.Empty : $"Message Content: {SanitizeString(e.Message.Content)}")
             );
             // TODO: event for this
             return Task.CompletedTask;
@@ -778,6 +779,13 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         {
             var message = await ConvertMessage(discord_message.Message);
             await RaiseOnReceiveMessage(message);
+        }
+        
+        private string SanitizeString(string input)
+        {
+            var output = input;
+            // TODO: remove the console bell
+            return output;
         }
         
         private string ConcatMembers(IEnumerable<DiscordMember> discord_users)
