@@ -499,7 +499,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         
         public override Task PingLoop(CancellationToken token, int timeout, int tries)
         {
-            // TODO: create a task to constantly ping and
+            // create a task to constantly ping and
             // try to connect if it doesn't get a response.
             // needs to be configurable, but should default
             // to around a ping every two seconds. If it doesn't
@@ -647,17 +647,12 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         
         private async Task<SolaceDiscordGuild> ConvertGuild(DiscordGuild discord_guild)
         {
-            // TODO: add more data
-            // discord_guild.GetDefaultChannel()
-            // discord_guild.GetEmojisAsync() / discord_guild.Emojis (???)
+            // Possibly add these as well:
             // discord_guild.GetInvitesAsync()
             // discord_guild.IconHash
             // discord_guild.IconUrl
-            // discord_guild.IsUnavailable
             // discord_guild.JoinedAt
-            // discord_guild.Members
             // discord_guild.Roles
-            // discord_guild.SystemChannel
             
             var channels = new List<SolaceDiscordChannel>(discord_guild.Channels.Count());
             foreach (var dchannel in discord_guild.Channels)
@@ -667,22 +662,41 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             }
             
             var dmembers = await discord_guild.GetAllMembersAsync();
-            var members = new List<SolaceDiscordUser>(dmembers.Count());
+            var members  = new List<SolaceDiscordUser>(dmembers.Count());
             foreach (var dmember in dmembers)
             {
                 var member = await ConvertUser(dmember);
                 members.Add(member);
             }
             
-            // (await discord_guild.GetBansAsync())[0].Reason
-            // (await discord_guild.GetBansAsync())[0].User
+            var demojis = await discord_guild.GetEmojisAsync();
+            var emojis  = new List<SolaceDiscordEmoji>(demojis.Count());
+            foreach (var demoji in demojis)
+            {
+                var emoji = await ConvertEmoji(demoji);
+                emojis.Add(emoji);
+            }
+            
+            var dbans = await discord_guild.GetBansAsync();
+            var bans  = new List<SolaceDiscordGuild.Ban>();
+            foreach (var dban in dbans)
+            {
+                var user = await ConvertUser(dban.User);
+                var ban  = new SolaceDiscordGuild.Ban(user, dban.Reason);
+                bans.Add(ban);
+            }
             
             var guild = new SolaceDiscordGuild()
             {
-                Name     = discord_guild.Name,
-                Id       = discord_guild.Id,
-                Channels = channels,
-                Owner    = await ConvertUser(discord_guild.Owner),
+                Name           = discord_guild.Name,
+                Id             = discord_guild.Id,
+                Available      = !discord_guild.IsUnavailable,
+                Channels       = channels,
+                DefaultChannel = await ConvertChannel(discord_guild.GetDefaultChannel()),
+                SystemChannel  = await ConvertChannel(discord_guild.SystemChannel),
+                Owner          = await ConvertUser(discord_guild.Owner),
+                Emojis         = emojis,
+                Bans           = bans,
             };
             
             return guild;
