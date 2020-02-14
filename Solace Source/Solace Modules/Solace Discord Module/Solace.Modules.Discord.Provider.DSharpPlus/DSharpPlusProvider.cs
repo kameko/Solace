@@ -564,11 +564,19 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             {
                 var is_dm = e.Channel.Type.HasFlag(ChannelType.Private);
                 var source = is_dm ? $"DM {e.Channel.Id}" : $"\"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id}";
-                Log.Info(
-                    $"Message {e.Message.Id} received from {source} "
+                var log_msg = $"Message {e.Message.Id} received from {source} "
                   + $"by user {e.Author.Username}#{e.Author.Discriminator} ({e.Author.Id}). "
-                  + $"Content: {SanitizeString(e.Message.Content)}"
-                );
+                  + $"Content: {SanitizeString(e.Message.Content)}. End Content";
+                if (e.Message.Attachments.Count() == 1)
+                {
+                    log_msg += ". One attachment included";
+                }
+                else if (e.Message.Attachments.Count() > 1)
+                {
+                    log_msg += $". Number of attachments: {e.Message.Attachments.Count()}";
+                }
+                
+                Log.Info(log_msg);
                 
                 var message = await ConvertMessage(e.Message);
                 await RaiseOnReceiveMessage(message);
@@ -627,6 +635,13 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         
         private async Task ClientOnMessageDeleted(MessageDeleteEventArgs e)
         {
+            var is_dm = e.Channel.Type.HasFlag(ChannelType.Private);
+            var source = is_dm ? $"DM {e.Channel.Id}" : $"\"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id}";
+            var user = $"{e.Message.Author.Username}#{e.Message.Author.Discriminator} ({e.Message.Author.Id})";
+            var log_msg = $"Message from user {user} in {source} deleted. Content: {SanitizeString(e.Message.Content)}. End Content";
+            
+            Log.Info(log_msg);
+            
             var message = await ConvertMessage(e.Message);
             await RaiseOnMessageDeleted(message);
         }
