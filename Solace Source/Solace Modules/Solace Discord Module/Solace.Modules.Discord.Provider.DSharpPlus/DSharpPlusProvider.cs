@@ -921,7 +921,10 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         private string SanitizeString(string input)
         {
             var output = input;
-            // TODO: remove the console bell
+            output = output.Replace('\a', '\0');
+            output = output.Replace('␇', '\0');
+            output = output.Replace('⍾', '\0');
+            output = output.Replace("\a", string.Empty);
             return output;
         }
         
