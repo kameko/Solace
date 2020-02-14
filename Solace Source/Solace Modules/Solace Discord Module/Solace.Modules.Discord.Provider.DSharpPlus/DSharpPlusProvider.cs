@@ -78,9 +78,9 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             Client.MessageAcknowledged            += ClientOnMessageAcknowledged;
             Client.MessageDeleted                 += ClientOnMessageDeleted;
             Client.MessagesBulkDeleted            += ClientOnMessagesBulkDeleted;
-            Client.MessageReactionsCleared        += ClientOnMessageReactionsCleared;
-            Client.MessageReactionRemoved         += ClientOnMessageReactionRemoved;
             Client.MessageReactionAdded           += ClientOnMessageReactionAdded;
+            Client.MessageReactionRemoved         += ClientOnMessageReactionRemoved;
+            Client.MessageReactionsCleared        += ClientOnMessageReactionsCleared;
             Client.DmChannelCreated               += ClientOnDmChannelCreated;
             Client.DmChannelDeleted               += ClientOnDmChannelDeleted;
             Client.ChannelCreated                 += ClientOnChannelCreated;
@@ -652,10 +652,11 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             });
         }
         
-        private Task ClientOnMessageReactionsCleared(MessageReactionsClearEventArgs e)
+        private Task ClientOnMessageReactionAdded(MessageReactionAddEventArgs e)
         {
             Log.Info(
-                $"Message reactions cleared for message {e.Message.Id} \"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id}). "
+                $"Message reaction {e.Emoji.GetDiscordName()} added for message "
+              + $"{e.Message.Id} \"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id}). "
               + (string.IsNullOrEmpty(e.Message.Content) ? string.Empty : $"Message Content: {SanitizeString(e.Message.Content)}")
             );
             // TODO: event for this
@@ -673,11 +674,10 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             return Task.CompletedTask;
         }
         
-        private Task ClientOnMessageReactionAdded(MessageReactionAddEventArgs e)
+        private Task ClientOnMessageReactionsCleared(MessageReactionsClearEventArgs e)
         {
             Log.Info(
-                $"Message reaction {e.Emoji.GetDiscordName()} added for message "
-              + $"{e.Message.Id} \"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id}). "
+                $"Message reactions cleared for message {e.Message.Id} \"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id}). "
               + (string.IsNullOrEmpty(e.Message.Content) ? string.Empty : $"Message Content: {SanitizeString(e.Message.Content)}")
             );
             // TODO: event for this
