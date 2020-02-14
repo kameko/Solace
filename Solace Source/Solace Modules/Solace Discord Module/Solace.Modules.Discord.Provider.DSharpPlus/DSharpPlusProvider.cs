@@ -1000,6 +1000,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
                 IsBot         = discord_user.IsBot,
                 AvatarHash    = discord_user.AvatarHash,
             };
+            user.TrySetUrl(discord_user.AvatarUrl);
             return user;
         }
         
@@ -1014,6 +1015,30 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
                 GuildId   = is_dm ? 0L : discord_channel.GuildId,
             };
             return channel;
+        }
+        
+        private SolaceDiscordEmoji ConvertEmoji(DiscordEmoji discord_emoji)
+        {
+            var emoji = new SolaceDiscordEmoji()
+            {
+                Name        = discord_emoji.Name,
+                DiscordName = discord_emoji.GetDiscordName(),
+                Id          = discord_emoji.Id,
+            };
+            emoji.TrySetUrl(discord_emoji.Url);
+            return emoji;
+        }
+        
+        private SolaceDiscordRole ConvertRole(DiscordRole discord_role, DiscordGuild guild)
+        {
+            var role = new SolaceDiscordRole()
+            {
+                GuildId   = guild.Id,
+                GuildName = guild.Name,
+                Name      = discord_role.Name,
+                Id        = discord_role.Id,
+            };
+            return role;
         }
         
         private Task<SolaceDiscordMessage> ConvertMessage(DiscordMessage discord_message)
@@ -1059,57 +1084,28 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             
             message.Sender.TrySetUrl(discord_message.Author.AvatarUrl);
             
-            foreach (var user in discord_message.MentionedUsers)
+            foreach (var duser in discord_message.MentionedUsers)
             {
                 _ = int.TryParse(discord_message.Author.Discriminator, out int user_discriminator);
-                
-                var nuser = new SolaceDiscordUser()
-                {
-                    Username      = user.Username,
-                    Discriminator = user_discriminator,
-                    Id            = user.Id,
-                    IsBot         = user.IsBot,
-                    AvatarHash    = user.AvatarHash,
-                };
-                
-                nuser.TrySetUrl(user.AvatarUrl);
-                
-                message.MentionedUsers.Add(nuser);
+                var user = ConvertUser(duser);
+                message.MentionedUsers.Add(user);
             }
             
-            foreach (var channel in discord_message.MentionedChannels)
+            foreach (var dchannel in discord_message.MentionedChannels)
             {
-                var nchannel = new SolaceDiscordChannel()
-                {
-                    Name    = channel.Name,
-                    Id      = channel.Id,
-                    GuildId = channel.GuildId,
-                };
-                
-                message.MentionedChannels.Add(nchannel);
+                var channel = ConvertChannel(dchannel);
+                message.MentionedChannels.Add(channel);
             }
             
-            foreach (var role in discord_message.MentionedRoles)
+            foreach (var drole in discord_message.MentionedRoles)
             {
-                var nrole = new SolaceDiscordRole()
-                {
-                    Name = role.Name,
-                    Id   = role.Id,
-                };
-                
-                message.MentionedRoles.Add(nrole);
+                var role = ConvertRole(drole, discord_message.Channel.Guild);
+                message.MentionedRoles.Add(role);
             }
             
             foreach (var reaction in discord_message.Reactions)
             {
-                var emoji = new SolaceDiscordEmoji()
-                {
-                    Name = reaction.Emoji.Name,
-                    Id   = reaction.Emoji.Id,
-                };
-                
-                emoji.TrySetUrl(reaction.Emoji.Url);
-                
+                var emoji = ConvertEmoji(reaction.Emoji);
                 message.Reactions.Add(emoji);
             }
             

@@ -9,13 +9,15 @@ namespace Solace.Modules.Discord.Core
     public class SolaceDiscordEmoji
     {
         public string Name { get; set; }
+        public string DiscordName { get; set; }
         public ulong Id { get; set; }
         public Uri Url { get; set; }
         
         public SolaceDiscordEmoji()
         {
-            Name = string.Empty;
-            Url  = new Uri("https://none.none/");
+            Name        = string.Empty;
+            DiscordName = string.Empty;
+            Url         = new Uri("https://none.none/");
         }
         
         public void TrySetUrl(string url)

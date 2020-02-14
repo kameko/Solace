@@ -8,12 +8,15 @@ namespace Solace.Modules.Discord.Core
     
     public class SolaceDiscordRole
     {
+        public ulong GuildId { get; set; }
+        public string GuildName { get; set; }
         public string Name { get; set; }
         public ulong Id { get; set; }
         
         public SolaceDiscordRole()
         {
-            Name = string.Empty;
+            GuildName = string.Empty;
+            Name      = string.Empty;
         }
         
         // TODO: override Equals
