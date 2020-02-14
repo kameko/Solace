@@ -570,7 +570,8 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
                   + $"Content: {SanitizeString(e.Message.Content)}"
                 );
                 
-                await ProcessOnTextMessageCreated(e);
+                var message = await ConvertMessage(e.Message);
+                await RaiseOnReceiveMessage(message);
             }
             else
             {
@@ -618,22 +619,38 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             await RaiseOnMessageUpdated(diff);
         }
         
-        private Task ClientOnMessageAcknowledged(MessageAcknowledgeEventArgs e)
+        private async Task ClientOnMessageAcknowledged(MessageAcknowledgeEventArgs e)
         {
-            // TODO: event for this
-            return Task.CompletedTask;
+            var message = await ConvertMessage(e.Message);
+            await RaiseOnMessageAcknowledged(message);
         }
         
-        private Task ClientOnMessageDeleted(MessageDeleteEventArgs e)
+        private async Task ClientOnMessageDeleted(MessageDeleteEventArgs e)
         {
-            // TODO: event for this
-            return Task.CompletedTask;
+            var message = await ConvertMessage(e.Message);
+            await RaiseOnMessageDeleted(message);
         }
         
         private Task ClientOnMessagesBulkDeleted(MessageBulkDeleteEventArgs e)
         {
-            // TODO: event for this
-            return Task.CompletedTask;
+            var is_dm = e.Channel.Type.HasFlag(ChannelType.Private);
+            var source = is_dm ? $"DM {e.Channel.Id}" : $"\"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id}";
+            
+            Log.Info($"Bulk message deletion in {source}. Deleted messages: {e.Messages.Count()}");
+            
+            return Task.Run(async () =>
+            {
+                var channel = ConvertChannel(e.Channel);
+                var messages = new List<SolaceDiscordMessage>(e.Messages.Count());
+                
+                foreach (var deleted in e.Messages)
+                {
+                    var message = await ConvertMessage(deleted);
+                    messages.Add(message);
+                }
+                
+                await RaiseOnBulkMessageDeletion(channel, messages);
+            });
         }
         
         private Task ClientOnMessageReactionsCleared(MessageReactionsClearEventArgs e)
@@ -837,12 +854,6 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             {
                 throw new InvalidOperationException("Provider is not configured yet.");
             }
-        }
-        
-        private async Task ProcessOnTextMessageCreated(MessageCreateEventArgs discord_message)
-        {
-            var message = await ConvertMessage(discord_message.Message);
-            await RaiseOnReceiveMessage(message);
         }
         
         private string SanitizeString(string input)

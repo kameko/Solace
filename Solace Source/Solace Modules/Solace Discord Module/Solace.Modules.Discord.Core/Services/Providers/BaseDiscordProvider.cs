@@ -20,6 +20,9 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         public event Func<SolaceDiscordUser, SolaceDiscordChannel, Task> OnUserTyping;
         public event Func<SolaceDiscordMessage, Task> OnReceiveMessage;
         public event Func<DifferenceTokens.MessageDifference, Task> OnMessageUpdated;
+        public event Func<SolaceDiscordMessage, Task> OnMessageAcknowledged;
+        public event Func<SolaceDiscordMessage, Task> OnMessageDeleted;
+        public event Func<SolaceDiscordChannel, IEnumerable<SolaceDiscordMessage>, Task> OnBulkMessageDeletion;
         public event Func<SolaceDiscordHeartbeat, Task> OnHeartbeat;
         
         public BaseDiscordProvider() : base()
@@ -32,6 +35,9 @@ namespace Solace.Modules.Discord.Core.Services.Providers
             OnUserTyping          = delegate { return Task.CompletedTask; };
             OnReceiveMessage      = delegate { return Task.CompletedTask; };
             OnMessageUpdated      = delegate { return Task.CompletedTask; };
+            OnMessageAcknowledged = delegate { return Task.CompletedTask; };
+            OnMessageDeleted      = delegate { return Task.CompletedTask; };
+            OnBulkMessageDeletion = delegate { return Task.CompletedTask; };
             
             OnHeartbeat           = delegate { return Task.CompletedTask; };
         }
@@ -75,6 +81,23 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         {
             await OnMessageUpdated.Invoke(difference);
         }
+        
+        protected async Task RaiseOnMessageAcknowledged(SolaceDiscordMessage message)
+        {
+            await OnMessageAcknowledged.Invoke(message);
+        }
+        
+        protected async Task RaiseOnMessageDeleted(SolaceDiscordMessage message)
+        {
+            await OnMessageDeleted.Invoke(message);
+        }
+        
+        protected async Task RaiseOnBulkMessageDeletion(SolaceDiscordChannel channel, IEnumerable<SolaceDiscordMessage> messages)
+        {
+            await OnBulkMessageDeletion.Invoke(channel, messages);
+        }
+        
+        
         
         protected async Task RaiseOnHeartbeat(SolaceDiscordHeartbeat heartbeat)
         {
