@@ -906,7 +906,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         
         private async Task ClientOnGuildMemberUpdated(GuildMemberUpdateEventArgs e)
         {
-            var duser          = await ConvertUser(e.Member);
+            var duser         = await ConvertUser(e.Member);
             var guild         = await ConvertGuild(e.Guild);
             
             var roles_before  = await ConvertRoles(e.RolesBefore);
@@ -924,7 +924,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             {
                 user += $" \"{e.Member.Nickname}\"";
             }
-            Log.Info($"User {user} updated in \"{e.Guild.Name}\" ({e.Guild.Id}). Diferences: {diff}");
+            Log.Info($"User {user} updated in \"{e.Guild.Name}\" ({e.Guild.Id}). Differences: {diff}");
             
             await RaiseOnGuildUserUpdated(diff);
         }
