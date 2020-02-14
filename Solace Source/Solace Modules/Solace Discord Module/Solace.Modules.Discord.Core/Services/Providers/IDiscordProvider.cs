@@ -37,7 +37,7 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         event Func<SolaceDiscordGuild, Task> OnGuildAvailable;
         event Func<SolaceDiscordGuild, Task> OnGuildUnavailable;
         event Func<SolaceDiscordGuild, SolaceDiscordUser, Task> OnGuildUserAdded;
-        // TODO: difference token
+        event Func<DifferenceTokens.GuildUserDifference, Task> OnGuildUserUpdated;
         event Func<SolaceDiscordGuild, SolaceDiscordUser, Task> OnGuildUserRemoved;
         event Func<SolaceDiscordHeartbeat, Task> OnHeartbeat;
         

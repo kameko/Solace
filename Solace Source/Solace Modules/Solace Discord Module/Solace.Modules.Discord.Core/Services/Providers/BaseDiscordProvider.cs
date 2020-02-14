@@ -38,7 +38,7 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         public event Func<SolaceDiscordGuild, Task> OnGuildAvailable;
         public event Func<SolaceDiscordGuild, Task> OnGuildUnavailable;
         public event Func<SolaceDiscordGuild, SolaceDiscordUser, Task> OnGuildUserAdded;
-        // TODO: difference token
+        public event Func<DifferenceTokens.GuildUserDifference, Task> OnGuildUserUpdated;
         public event Func<SolaceDiscordGuild, SolaceDiscordUser, Task> OnGuildUserRemoved;
         public event Func<SolaceDiscordHeartbeat, Task> OnHeartbeat;
         
@@ -70,7 +70,7 @@ namespace Solace.Modules.Discord.Core.Services.Providers
             OnGuildAvailable      = delegate { return Task.CompletedTask; };
             OnGuildUnavailable    = delegate { return Task.CompletedTask; };
             OnGuildUserAdded      = delegate { return Task.CompletedTask; };
-            //
+            OnGuildUserUpdated    = delegate { return Task.CompletedTask; };
             OnGuildUserRemoved    = delegate { return Task.CompletedTask; };
             
             OnHeartbeat           = delegate { return Task.CompletedTask; };
@@ -206,14 +206,17 @@ namespace Solace.Modules.Discord.Core.Services.Providers
             await OnGuildUserAdded.Invoke(guild, user);
         }
         
-        // TODO: difference token
+        public async Task RaiseOnGuildUserUpdated(DifferenceTokens.GuildUserDifference difference)
+        {
+            await OnGuildUserUpdated.Invoke(difference);
+        }
         
         public async Task RaiseOnGuildUserRemoved(SolaceDiscordGuild guild, SolaceDiscordUser user)
         {
             await OnGuildUserRemoved.Invoke(guild, user);
         }
         
-        
+        // TODO: events
         
         
         protected async Task RaiseOnHeartbeat(SolaceDiscordHeartbeat heartbeat)

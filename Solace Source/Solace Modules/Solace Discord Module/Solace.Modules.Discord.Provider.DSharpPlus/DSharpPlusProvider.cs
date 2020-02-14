@@ -904,9 +904,20 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             await RaiseOnGuildUserAdded(guild, suser);
         }
         
-        private Task ClientOnGuildMemberUpdated(GuildMemberUpdateEventArgs e)
+        private async Task ClientOnGuildMemberUpdated(GuildMemberUpdateEventArgs e)
         {
-            var diff = 0;
+            var duser          = await ConvertUser(e.Member);
+            var guild         = await ConvertGuild(e.Guild);
+            
+            var roles_before  = await ConvertRoles(e.RolesBefore);
+            var roles_after   = await ConvertRoles(e.RolesAfter);
+            
+            var added_roles   = roles_after.Except(roles_before);
+            var removed_roles = roles_before.Except(roles_after);
+            
+            var diff          = new DifferenceTokens.GuildUserDifference(
+                duser, guild, e.NicknameBefore, e.NicknameAfter, added_roles, removed_roles
+            );
             
             var user = $"{e.Member.Username}#{e.Member.Discriminator} ({e.Member.Id})";
             if (!string.IsNullOrEmpty(e.Member.Nickname) && e.Member.Nickname != e.Member.Username)
@@ -915,9 +926,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             }
             Log.Info($"User {user} updated in \"{e.Guild.Name}\" ({e.Guild.Id}). Diferences: {diff}");
             
-            // TODO: event
-            
-            return Task.CompletedTask;
+            await RaiseOnGuildUserUpdated(diff);
         }
         
         private async Task ClientOnGuildMemberRemoved(GuildMemberRemoveEventArgs e)
@@ -1059,7 +1068,28 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             return state;
         }
         
-        private Task<SolaceDiscordUser> ConvertUser(DiscordUser discord_user)
+        private Task<SolaceDiscordRole> ConvertRole(DiscordRole discord_role)
+        {
+            var role = new SolaceDiscordRole()
+            {
+                Name = discord_role.Name,
+                Id   = discord_role.Id,
+            };
+            return Task.FromResult(role);
+        }
+        
+        private async Task<IEnumerable<SolaceDiscordRole>> ConvertRoles(IEnumerable<DiscordRole> discord_roles)
+        {
+            var list = new List<SolaceDiscordRole>(discord_roles.Count());
+            foreach (var drole in discord_roles)
+            {
+                var roles = await ConvertRole(drole);
+                list.Add(roles);
+            }
+            return list;
+        }
+        
+        private async Task<SolaceDiscordUser> ConvertUser(DiscordUser discord_user)
         {
             _ = int.TryParse(discord_user.Discriminator, out var discriminator);
             var user = new SolaceDiscordUser()
@@ -1070,12 +1100,23 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
                 IsBot         = discord_user.IsBot,
                 AvatarHash    = discord_user.AvatarHash,
             };
-            if (discord_user is DiscordMember member && !string.IsNullOrEmpty(member.Nickname))
+            if (discord_user is DiscordMember member)
             {
-                user.Nickname = member.Nickname;
+                if (!string.IsNullOrEmpty(member.Nickname))
+                {
+                    user.Nickname = member.Nickname;
+                }
+                
+                var roles = new List<SolaceDiscordRole>(member.Roles.Count());
+                foreach (var drole in member.Roles)
+                {
+                    var role = await ConvertRole(drole);
+                    roles.Add(role);
+                }
+                user.Roles = roles;
             }
             user.TrySetUrl(discord_user.AvatarUrl);
-            return Task.FromResult(user);
+            return user;
         }
         
         private async Task<SolaceDiscordGuild> ConvertGuild(DiscordGuild discord_guild)
@@ -1167,17 +1208,6 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             return Task.FromResult(emoji);
         }
         
-        private async Task<SolaceDiscordRole> ConvertRole(DiscordRole discord_role, DiscordGuild guild)
-        {
-            var role = new SolaceDiscordRole()
-            {
-                Guild = await ConvertGuild(guild),
-                Name  = discord_role.Name,
-                Id    = discord_role.Id,
-            };
-            return role;
-        }
-        
         private async Task<SolaceDiscordMessage> ConvertMessage(DiscordMessage discord_message)
         {
             var discriminator = 0;
@@ -1232,7 +1262,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             
             foreach (var drole in discord_message.MentionedRoles)
             {
-                var role = await ConvertRole(drole, discord_message.Channel.Guild);
+                var role = await ConvertRole(drole);
                 message.MentionedRoles.Add(role);
             }
             

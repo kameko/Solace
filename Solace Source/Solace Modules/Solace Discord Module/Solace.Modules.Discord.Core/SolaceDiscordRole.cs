@@ -5,17 +5,21 @@ namespace Solace.Modules.Discord.Core
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using Solace.Core;
     
     public class SolaceDiscordRole
     {
-        public SolaceDiscordGuild Guild { get; set; }
         public string Name { get; set; }
         public ulong Id { get; set; }
         
         public SolaceDiscordRole()
         {
-            Guild = new SolaceDiscordGuild();
             Name  = string.Empty;
+        }
+        
+        public string GetRoleDifference(SolaceDiscordRole other)
+        {
+            return ObjectExtensions.GetShallowObjectDifferencesAsString(this, other);
         }
         
         // TODO: override Equals

@@ -5,6 +5,7 @@ namespace Solace.Modules.Discord.Core
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using System.Text;
     
     public static class DifferenceTokens
     {
@@ -140,6 +141,86 @@ namespace Solace.Modules.Discord.Core
             public override string GetDifferenceString()
             {
                 return Before.GetGuildDifference(After);
+            }
+        }
+        
+        public class GuildUserDifference : BaseDifference
+        {
+            public SolaceDiscordUser User { get; set; }
+            public SolaceDiscordGuild Guild { get; set; }
+            public string NicknameBefore { get; set; }
+            public string NicknameAfter { get; set; }
+            public IEnumerable<SolaceDiscordRole> RolesAdded { get; set; }
+            public IEnumerable<SolaceDiscordRole> RolesRemoved { get; set; }
+            
+            public GuildUserDifference(
+                SolaceDiscordUser user,
+                SolaceDiscordGuild guild,
+                string before_nick,
+                string after_nick,
+                IEnumerable<SolaceDiscordRole> roles_added,
+                IEnumerable<SolaceDiscordRole> roles_removed
+            )
+            {
+                User           = user;
+                Guild          = guild;
+                NicknameBefore = before_nick;
+                NicknameAfter  = after_nick;
+                RolesAdded     = roles_added;
+                RolesRemoved   = roles_removed;
+            }
+            
+            public override string GetDifferenceString()
+            {
+                var diff = new StringBuilder();
+                if (NicknameBefore != NicknameAfter)
+                {
+                    var before = string.IsNullOrEmpty(NicknameBefore) ? "[None]" : NicknameBefore;
+                    var after  = string.IsNullOrEmpty(NicknameAfter ) ? "[None]" : NicknameAfter;
+                    diff.Append($"Nickname: {before} -> {after}");
+                }
+                
+                var roles_added = false;
+                if (RolesAdded.Count() > 0)
+                {
+                    roles_added = true;
+                    if (diff.Length > 0)
+                    {
+                        diff.Append(". ");
+                    }
+                    diff.Append("Roles Added: ");
+                    foreach (var role in RolesAdded)
+                    {
+                        diff.Append($"\"{role.Name}\" ({role.Id}), ");
+                    }
+                }
+                var roles_removed = false;
+                if (RolesRemoved.Count() > 0)
+                {
+                    roles_removed = true;
+                    if (roles_added)
+                    {
+                        // remove trailing ", "
+                        diff.Remove(diff.Length - 2, 2);
+                    }
+                    if (roles_added || diff.Length > 0)
+                    {
+                        diff.Append(". ");
+                    }
+                    diff.Append("Roles Removed: ");
+                    foreach (var role in RolesRemoved)
+                    {
+                        diff.Append($"\"{role.Name}\" ({role.Id}), ");
+                    }
+                }
+                
+                if (roles_added || roles_removed)
+                {
+                    // remove trailing ", "
+                    diff.Remove(diff.Length - 2, 2);
+                }
+                
+                return diff.ToString();
             }
         }
     }

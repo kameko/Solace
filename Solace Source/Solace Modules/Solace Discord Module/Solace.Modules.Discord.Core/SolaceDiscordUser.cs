@@ -14,6 +14,7 @@ namespace Solace.Modules.Discord.Core
         public int Discriminator { get; set; }
         public string FullName => $"{Username}#{Discriminator}";
         public string Nickname { get; set; }
+        public IEnumerable<SolaceDiscordRole> Roles { get; set; }
         public ulong Id { get; set; }
         public bool IsBot { get; set; }
         public Uri AvatarUrl { get; set; }
@@ -23,6 +24,7 @@ namespace Solace.Modules.Discord.Core
         {
             Username   = string.Empty;
             Nickname   = string.Empty;
+            Roles      = new List<SolaceDiscordRole>();
             AvatarUrl  = new Uri("https://none.none/");
             AvatarHash = string.Empty;
         }
