@@ -441,13 +441,14 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         {
             Log.Info("Client ready");
             Ready = true;
-            await RaiseOnReady();
+            await RaiseOnReady(resuming: false);
         }
         
-        private Task ClientOnResume(ReadyEventArgs e)
+        private async Task ClientOnResume(ReadyEventArgs e)
         {
             Log.Info("Client resumed");
-            return Task.CompletedTask;
+            Ready = true;
+            await RaiseOnReady(resuming: true);
         }
         
         private Task ClientOnClientError(ClientErrorEventArgs e)
@@ -458,19 +459,24 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         
         private Task ClientOnWebhooksUpdated(WebhooksUpdateEventArgs e)
         {
-            Log.Info($"Client webhooks updated for \"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id})");
+            Log.Verbose($"Client webhooks updated for \"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id})");
             return Task.CompletedTask;
         }
         
-        private Task ClientOnVoiceStateUpdated(VoiceStateUpdateEventArgs e)
+        private async Task ClientOnVoiceStateUpdated(VoiceStateUpdateEventArgs e)
         {
-            Log.Info($"Client voice state changed for \"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id})");
-            return Task.CompletedTask;
+            var before = ConvertVoiceState(e.Before);
+            var after = ConvertVoiceState(e.After);
+            
+            var diff = SolaceDiscordVoiceState.GetDifferenceString(before, after);
+            Log.Info($"Client voice state changed for \"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id}): {diff}");
+            
+            await RaiseOnReceiveMessage(before, after);
         }
         
         private Task ClientOnVoiceServerUpdated(VoiceServerUpdateEventArgs e)
         {
-            Log.Info($"Client voice server changed for \"{e.Guild.Name}\" ({e.Guild.Id}) to {e.Endpoint}");
+            Log.Verbose($"Client voice server changed for \"{e.Guild.Name}\" ({e.Guild.Id}) to {e.Endpoint}");
             return Task.CompletedTask;
         }
         
@@ -517,10 +523,16 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             return Task.CompletedTask;
         }
         
-        private Task ClientOnHeartbeat(HeartbeatEventArgs e)
+        private async Task ClientOnHeartbeat(HeartbeatEventArgs e)
         {
-            // TODO: event for this
-            return Task.CompletedTask;
+            var heartbeat = new SolaceDiscordHeartbeat()
+            {
+                Timestamp         = e.Timestamp,
+                Ping              = e.Ping,
+                IntegrityChecksum = e.IntegrityChecksum
+            };
+            
+            await RaiseOnHeartbeat(heartbeat);
         }
         
         private async Task ClientOnMessageCreated(MessageCreateEventArgs e)
@@ -836,6 +848,36 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             }
         }
         
+        private SolaceDiscordVoiceState ConvertVoiceState(DiscordVoiceState discord_state)
+        {
+            var state = new SolaceDiscordVoiceState()
+            {
+                User          = ConvertUser(discord_state.User),
+                GuildId       = discord_state.Guild.Id,
+                GuildName     = discord_state.Guild.Name,
+                SelfDeafened  = discord_state.IsSelfDeafened,
+                SelfMuted     = discord_state.IsSelfMuted,
+                GuildDeafened = discord_state.IsServerDeafened,
+                GuildMuted    = discord_state.IsServerMuted,
+                Suppressed    = discord_state.IsSuppressed,
+            };
+            return state;
+        }
+        
+        private SolaceDiscordUser ConvertUser(DiscordUser discord_user)
+        {
+            _ = int.TryParse(discord_user.Discriminator, out var discriminator);
+            var user = new SolaceDiscordUser()
+            {
+                Username      = discord_user.Username,
+                Discriminator = discriminator,
+                Id            = discord_user.Id,
+                IsBot         = discord_user.IsBot,
+                AvatarHash    = discord_user.AvatarHash,
+            };
+            return user;
+        }
+        
         private Task<SolaceDiscordMessage> ConvertMessage(DiscordMessage discord_message)
         {
             var discriminator = 0;
@@ -864,14 +906,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             var message = new SolaceDiscordMessage()
             {
                 Created   = discord_message.CreationTimestamp,
-                Sender    = new SolaceDiscordUser()
-                {
-                    Username      = discord_message.Author.Username,
-                    Discriminator = discriminator,
-                    Id            = discord_message.Author.Id,
-                    IsBot         = discord_message.Author.IsBot,
-                    AvatarHash    = discord_message.Author.AvatarHash,
-                },
+                Sender    = ConvertUser(discord_message.Author),
                 IsDM      = is_dm,
                 Nickname  = is_dm ? string.Empty : nickname,
                 GuildName = is_dm ? string.Empty : discord_message.Channel.Guild.Name,

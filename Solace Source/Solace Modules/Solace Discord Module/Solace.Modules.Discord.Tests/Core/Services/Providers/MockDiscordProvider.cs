@@ -103,7 +103,7 @@ namespace Solace.Modules.Discord.Tests.Core.Services.Providers
         public override async Task<bool> Connect()
         {
             await Task.Delay(1000); // Simulate logging in.
-            await RaiseOnReady();
+            await RaiseOnReady(resuming: false);
             return true;
         }
     }

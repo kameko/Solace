@@ -11,8 +11,10 @@ namespace Solace.Modules.Discord.Core.Services.Providers
     {
         bool Connected { get; }
         int MaxQueryLimit { get; }
-        event Func<Task> OnReady;
+        event Func<bool, Task> OnReady;
         event Func<SolaceDiscordMessage, Task> OnReceiveMessage;
+        event Func<SolaceDiscordVoiceState, SolaceDiscordVoiceState, Task> OnVoiceStateChange;
+        event Func<SolaceDiscordHeartbeat, Task> OnHeartbeat;
         
         Task<DiscordChannelQueryToken?> QueryChannel(ulong channel_id, ulong starting_message_id);
         Task<DiscordChannelQueryToken?> QueryChannel(ulong channel_id);

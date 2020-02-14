@@ -12,13 +12,17 @@ namespace Solace.Modules.Discord.Core.Services.Providers
     {
         public bool Connected { get; protected set; }
         public int MaxQueryLimit { get; protected set; }
-        public event Func<Task> OnReady;
+        public event Func<bool, Task> OnReady;
         public event Func<SolaceDiscordMessage, Task> OnReceiveMessage;
+        public event Func<SolaceDiscordVoiceState, SolaceDiscordVoiceState, Task> OnVoiceStateChange;
+        public event Func<SolaceDiscordHeartbeat, Task> OnHeartbeat;
         
         public BaseDiscordProvider() : base()
         {
-            OnReady          = delegate { return Task.CompletedTask; };
-            OnReceiveMessage = delegate { return Task.CompletedTask; };
+            OnReady            = delegate { return Task.CompletedTask; };
+            OnReceiveMessage   = delegate { return Task.CompletedTask; };
+            OnHeartbeat        = delegate { return Task.CompletedTask; };
+            OnVoiceStateChange = delegate { return Task.CompletedTask; };
         }
         
         protected async Task RaiseOnReceiveMessage(SolaceDiscordMessage message)
@@ -26,9 +30,19 @@ namespace Solace.Modules.Discord.Core.Services.Providers
             await OnReceiveMessage.Invoke(message);
         }
         
-        protected async Task RaiseOnReady()
+        protected async Task RaiseOnReady(bool resuming)
         {
-            await OnReady.Invoke();
+            await OnReady.Invoke(resuming);
+        }
+        
+        protected async Task RaiseOnReceiveMessage(SolaceDiscordVoiceState before, SolaceDiscordVoiceState after)
+        {
+            await OnVoiceStateChange.Invoke(before, after);
+        }
+        
+        protected async Task RaiseOnHeartbeat(SolaceDiscordHeartbeat heartbeat)
+        {
+            await OnHeartbeat.Invoke(heartbeat);
         }
         
         public virtual Task<DiscordChannelQueryToken?> QueryChannel(ulong channel_id, ulong starting_message_id)
