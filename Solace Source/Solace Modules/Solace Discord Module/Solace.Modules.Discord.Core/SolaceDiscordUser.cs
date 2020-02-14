@@ -36,7 +36,7 @@ namespace Solace.Modules.Discord.Core
         
         public string GetUserDifference(SolaceDiscordUser other)
         {
-            return ObjectExtensions.GetObjectDifferencesAsString(this, other);
+            return ObjectExtensions.GetShallowObjectDifferencesAsString(this, other);
         }
         
         // TODO: override Equals

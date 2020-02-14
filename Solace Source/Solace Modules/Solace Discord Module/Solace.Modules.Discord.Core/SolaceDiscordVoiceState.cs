@@ -26,7 +26,7 @@ namespace Solace.Modules.Discord.Core
         
         public string GetDifferenceString(SolaceDiscordVoiceState other)
         {
-            return ObjectExtensions.GetObjectDifferencesAsString(this, other);
+            return ObjectExtensions.GetShallowObjectDifferencesAsString(this, other);
         }
         
         // TODO: override Equals
