@@ -1041,6 +1041,18 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         private SolaceDiscordGuild ConvertGuild(DiscordGuild discord_guild)
         {
             // TODO: add more data
+            // discord_guild.GetAllMembersAsync()
+            // discord_guild.GetBansAsync()
+            // discord_guild.GetDefaultChannel()
+            // discord_guild.GetEmojisAsync() / discord_guild.Emojis (???)
+            // discord_guild.GetInvitesAsync()
+            // discord_guild.IconHash
+            // discord_guild.IconUrl
+            // discord_guild.IsUnavailable
+            // discord_guild.JoinedAt
+            // discord_guild.Members
+            // discord_guild.Roles
+            // discord_guild.SystemChannel
             
             var channels = new List<SolaceDiscordChannel>(discord_guild.Channels.Count());
             foreach (var dchannel in discord_guild.Channels)
@@ -1054,6 +1066,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
                 Name     = discord_guild.Name,
                 Id       = discord_guild.Id,
                 Channels = channels,
+                Owner    = ConvertUser(discord_guild.Owner),
             };
             
             return guild;
@@ -1078,6 +1091,13 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         
         private SolaceDiscordChannel ConvertChannel(DiscordChannel discord_channel)
         {
+            // TODO: add more data
+            // discord_channel.CreationTimestamp
+            // discord_channel.Mention
+            // discord_channel.PerUserRateLimit
+            // discord_channel.Position
+            // discord_channel.Topic
+            
             var is_dm = discord_channel.Type.HasFlag(ChannelType.Private);
             var channel = new SolaceDiscordChannel()
             {
