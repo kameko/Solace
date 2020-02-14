@@ -468,8 +468,8 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         private async Task ClientOnVoiceStateUpdated(VoiceStateUpdateEventArgs e)
         {
             var before = ConvertVoiceState(e.Before);
-            var after = ConvertVoiceState(e.After);
-            var diff = new DifferenceTokens.VoiceStateDifference(before, after);
+            var after  = ConvertVoiceState(e.After);
+            var diff   = new DifferenceTokens.VoiceStateDifference(before, after);
             
             var source = $"\"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id})";
             
@@ -487,10 +487,10 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         private async Task ClientOnUserUpdated(UserUpdateEventArgs e)
         {
             var before = ConvertUser(e.UserBefore);
-            var after = ConvertUser(e.UserAfter);
-            var diff = new DifferenceTokens.UserDifference(before, after);
+            var after  = ConvertUser(e.UserAfter);
+            var diff   = new DifferenceTokens.UserDifference(before, after);
             
-            var user = $"{e.UserAfter.Username}#{e.UserAfter.Discriminator} ({e.UserAfter.Id})";
+            var user   = $"{e.UserAfter.Username}#{e.UserAfter.Discriminator} ({e.UserAfter.Id})";
             
             Log.Info($"User {user} updated. Differences: {diff}");
             
@@ -506,12 +506,12 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         
         private async Task ClientOnPresenceUpdated(PresenceUpdateEventArgs e)
         {
-            var before_user = ConvertUser(e.UserBefore);
-            var after_user = ConvertUser(e.UserAfter);
-            var user_diff = new DifferenceTokens.UserDifference(before_user, after_user);
+            var before_user   = ConvertUser(e.UserBefore);
+            var after_user    = ConvertUser(e.UserAfter);
+            var user_diff     = new DifferenceTokens.UserDifference(before_user, after_user);
             
             // TODO: finish the presence class
-            var user = ConvertUser(e.User);
+            var user          = ConvertUser(e.User);
             var presence_diff = new DifferenceTokens.PresenceDifference(user);
             
             var diff = new DifferenceTokens.PresenceUpdatedDifference(presence_diff, user_diff);
@@ -566,9 +566,9 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             
             if (e.Channel.Type.HasFlag(ChannelType.Text))
             {
-                var is_dm = e.Channel.Type.HasFlag(ChannelType.Private);
-                var source = is_dm ? $"DM {e.Channel.Id}" : $"\"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id}";
-                var user = $"{e.Author.Username}#{e.Author.Discriminator} ({e.Author.Id})";
+                var is_dm   = e.Channel.Type.HasFlag(ChannelType.Private);
+                var source  = is_dm ? $"DM {e.Channel.Id}" : $"\"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id}";
+                var user    = $"{e.Author.Username}#{e.Author.Discriminator} ({e.Author.Id})";
                 var log_msg = $"Message {e.Message.Id} received from {source} by user {user}";
                 
                 if (string.IsNullOrEmpty(e.Message.Content))
@@ -604,11 +604,11 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         private async Task ClientOnMessageUpdated(MessageUpdateEventArgs e)
         {
             SolaceDiscordMessage? before = e.MessageBefore is null ? null : await ConvertMessage(e.MessageBefore);
-            var after = await ConvertMessage(e.Message);
-            var diff = new DifferenceTokens.MessageDifference(before, after);
+            var after   = await ConvertMessage(e.Message);
+            var diff    = new DifferenceTokens.MessageDifference(before, after);
             
-            var is_dm = e.Channel.Type.HasFlag(ChannelType.Private);
-            var source = is_dm ? $"DM {e.Channel.Id}" : $"\"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id}";
+            var is_dm   = e.Channel.Type.HasFlag(ChannelType.Private);
+            var source  = is_dm ? $"DM {e.Channel.Id}" : $"\"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id}";
             var log_msg = $"Message from user {e.Author.Username}#{e.Author.Discriminator} ({e.Author.Id}) in {source} updated";
             
             if (before is null)
@@ -660,9 +660,9 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         
         private async Task ClientOnMessageDeleted(MessageDeleteEventArgs e)
         {
-            var is_dm = e.Channel.Type.HasFlag(ChannelType.Private);
-            var source = is_dm ? $"DM {e.Channel.Id}" : $"\"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id}";
-            var user = $"{e.Message.Author.Username}#{e.Message.Author.Discriminator} ({e.Message.Author.Id})";
+            var is_dm   = e.Channel.Type.HasFlag(ChannelType.Private);
+            var source  = is_dm ? $"DM {e.Channel.Id}" : $"\"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id}";
+            var user    = $"{e.Message.Author.Username}#{e.Message.Author.Discriminator} ({e.Message.Author.Id})";
             var log_msg = $"Message from user {user} in {source} deleted";
             
             if (string.IsNullOrEmpty(e.Message.Content))
@@ -692,7 +692,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         
         private Task ClientOnMessagesBulkDeleted(MessageBulkDeleteEventArgs e)
         {
-            var is_dm = e.Channel.Type.HasFlag(ChannelType.Private);
+            var is_dm  = e.Channel.Type.HasFlag(ChannelType.Private);
             var source = is_dm ? $"DM {e.Channel.Id}" : $"\"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id}";
             Log.Info($"Bulk message deletion in {source}. Number of deleted messages: {e.Messages.Count()}");
             
@@ -777,33 +777,42 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             await RaiseOnDmDeleted(channel, users);
         }
         
-        private Task ClientOnChannelCreated(ChannelCreateEventArgs e)
+        private async Task ClientOnChannelCreated(ChannelCreateEventArgs e)
         {
             Log.Info($"Channel {e.Channel.Name} ({e.Channel.Id}) created in \"{e.Guild.Name}\" ({e.Guild.Id})");
-            // TODO: event for this
-            return Task.CompletedTask;
+            
+            var channel = ConvertChannel(e.Channel);
+            await RaiseOnChannelCreated(channel);
         }
         
-        private Task ClientOnChannelUpdated(ChannelUpdateEventArgs e)
+        private async Task ClientOnChannelUpdated(ChannelUpdateEventArgs e)
         {
-            // TODO: more logging coherency, difference between Before and After
-            // TODO: event for this
-            return Task.CompletedTask;
+            var before = ConvertChannel(e.ChannelBefore);
+            var after  = ConvertChannel(e.ChannelAfter);
+            var diff   = new DifferenceTokens.ChannelDifference(before, after);
+            
+            Log.Info(
+                $"Channel \"{e.Guild.Name}\"\\{e.ChannelAfter.Name} ({e.Guild.Id}\\{e.ChannelAfter.Id})"
+              + $"updated. Differences: {diff}"
+            );
+            
+            await RaiseOnChannelUpdated(diff);
         }
         
-        private Task ClientOnChannelPinsUpdated(ChannelPinsUpdateEventArgs e)
+        private async Task ClientOnChannelPinsUpdated(ChannelPinsUpdateEventArgs e)
         {
             Log.Info($"Pins updated in \"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id})");
-            // TODO: maybe get the new pinned message? not sure how.
-            // TODO: event for this
-            return Task.CompletedTask;
+            
+            var channel = ConvertChannel(e.Channel);
+            await RaiseOnChannelPinsUpdated(channel, e.LastPinTimestamp);
         }
         
-        private Task ClientOnChannelDeleted(ChannelDeleteEventArgs e)
+        private async Task ClientOnChannelDeleted(ChannelDeleteEventArgs e)
         {
             Log.Info($"Channel {e.Channel.Name} ({e.Channel.Id}) deleted in \"{e.Guild.Name}\" ({e.Guild.Id})");
-            // TODO: event for this
-            return Task.CompletedTask;
+            
+            var channel = ConvertChannel(e.Channel);
+            await RaiseOnChannelDeleted(channel);
         }
         
         private Task ClientOnGuildCreated(GuildCreateEventArgs e)

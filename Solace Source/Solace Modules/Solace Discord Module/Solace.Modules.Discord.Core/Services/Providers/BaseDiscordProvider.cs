@@ -28,6 +28,10 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         public event Func<SolaceDiscordMessage, Task> OnAllReactionsRemoved;
         public event Func<SolaceDiscordChannel, IEnumerable<SolaceDiscordUser>, Task> OnDmCreated;
         public event Func<SolaceDiscordChannel, IEnumerable<SolaceDiscordUser>, Task> OnDmDeleted;
+        public event Func<SolaceDiscordChannel, Task> OnChannelCreated;
+        public event Func<DifferenceTokens.ChannelDifference, Task> OnChannelUpdated;
+        public event Func<SolaceDiscordChannel, DateTimeOffset?, Task> OnChannelPinsUpdated;
+        public event Func<SolaceDiscordChannel, Task> OnChannelDeleted;
         public event Func<SolaceDiscordHeartbeat, Task> OnHeartbeat;
         
         public BaseDiscordProvider() : base()
@@ -48,6 +52,10 @@ namespace Solace.Modules.Discord.Core.Services.Providers
             OnAllReactionsRemoved = delegate { return Task.CompletedTask; };
             OnDmCreated           = delegate { return Task.CompletedTask; };
             OnDmDeleted           = delegate { return Task.CompletedTask; };
+            OnChannelCreated      = delegate { return Task.CompletedTask; };
+            OnChannelUpdated      = delegate { return Task.CompletedTask; };
+            OnChannelDeleted      = delegate { return Task.CompletedTask; };
+            OnChannelPinsUpdated  = delegate { return Task.CompletedTask; };
             
             OnHeartbeat           = delegate { return Task.CompletedTask; };
         }
@@ -132,7 +140,25 @@ namespace Solace.Modules.Discord.Core.Services.Providers
             await OnDmDeleted.Invoke(channel, users);
         }
         
+        protected async Task RaiseOnChannelCreated(SolaceDiscordChannel channel)
+        {
+            await OnChannelCreated.Invoke(channel);
+        }
         
+        protected async Task RaiseOnChannelUpdated(DifferenceTokens.ChannelDifference difference)
+        {
+            await OnChannelUpdated.Invoke(difference);
+        }
+        
+        public async Task RaiseOnChannelPinsUpdated(SolaceDiscordChannel channel, DateTimeOffset? message_timestamp)
+        {
+            await OnChannelPinsUpdated.Invoke(channel, message_timestamp);
+        }
+        
+        public async Task RaiseOnChannelDeleted(SolaceDiscordChannel channel)
+        {
+            await OnChannelDeleted.Invoke(channel);
+        }
         
         
         

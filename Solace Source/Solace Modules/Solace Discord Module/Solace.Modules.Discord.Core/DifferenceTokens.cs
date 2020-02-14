@@ -116,5 +116,18 @@ namespace Solace.Modules.Discord.Core
                 return Before?.GetMessageDifference(After) ?? string.Empty;
             }
         }
+        
+        public class ChannelDifference : BaseDifference<SolaceDiscordChannel>
+        {
+            public ChannelDifference(SolaceDiscordChannel before, SolaceDiscordChannel after) : base(before, after)
+            {
+                
+            }
+            
+            public override string GetDifferenceString()
+            {
+                return Before.GetChannelDifference(After);
+            }
+        }
     }
 }
