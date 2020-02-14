@@ -1040,11 +1040,22 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         
         private SolaceDiscordGuild ConvertGuild(DiscordGuild discord_guild)
         {
+            // TODO: add more data
+            
+            var channels = new List<SolaceDiscordChannel>(discord_guild.Channels.Count());
+            foreach (var dchannel in discord_guild.Channels)
+            {
+                var channel = ConvertChannel(dchannel.Value);
+                channels.Add(channel);
+            }
+            
             var guild = new SolaceDiscordGuild()
             {
-                Name = discord_guild.Name,
-                Id   = discord_guild.Id,
+                Name     = discord_guild.Name,
+                Id       = discord_guild.Id,
+                Channels = channels,
             };
+            
             return guild;
         }
         

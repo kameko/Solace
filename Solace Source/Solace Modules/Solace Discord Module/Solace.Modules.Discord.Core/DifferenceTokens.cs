@@ -130,14 +130,12 @@ namespace Solace.Modules.Discord.Core
             }
         }
         
-        public class GuildDifference : BaseDifference
+        public class GuildDifference : BaseDifference<SolaceDiscordGuild>
         {
             // TODO: might need more stuff
-            public ChannelDifference ChannelDifference { get; set; }
-            
-            public GuildDifference(ChannelDifference channels)
+            public GuildDifference(SolaceDiscordGuild before, SolaceDiscordGuild after) : base(before, after)
             {
-                ChannelDifference = channels;
+                
             }
             
             public override string GetDifferenceString()
