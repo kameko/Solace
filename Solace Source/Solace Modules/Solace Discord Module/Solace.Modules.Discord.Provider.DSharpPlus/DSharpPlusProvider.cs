@@ -819,6 +819,8 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         {
             Log.Info($"Guild \"{e.Guild.Name}\" ({e.Guild.Id}) created");
             
+            e.Guild.RequestAllMembers();
+            
             await RaiseOnGuildCreated(e.Guild.Id);
         }
         
@@ -842,6 +844,9 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         private Task ClientOnGuildAvailable(GuildCreateEventArgs e)
         {
             Log.Info($"Guild \"{e.Guild.Name}\" ({e.Guild.Id}) is now available");
+            
+            e.Guild.RequestAllMembers();
+            
             // TODO: event for this? or same event as Created
             return Task.CompletedTask;
         }
