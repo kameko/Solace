@@ -37,5 +37,11 @@ namespace Solace.Core
             }
             return diff;
         }
+        
+        public static string GetDeepObjectDifferencesAsString(this object before, object after)
+        {
+            // TODO: implement deep object difference checking
+            throw new NotImplementedException();
+        }
     }
 }
