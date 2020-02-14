@@ -469,9 +469,11 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         {
             var before = ConvertVoiceState(e.Before);
             var after = ConvertVoiceState(e.After);
-            
             var diff = new DifferenceTokens.VoiceStateDifference(before, after);
-            Log.Info($"Client voice state changed for \"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id}): {diff}");
+            
+            var source = $"\"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id})";
+            
+            Log.Info($"Client voice state changed in {source}. Differences: {diff}");
             
             await RaiseOnReceiveMessage(diff);
         }
@@ -486,9 +488,11 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         {
             var before = ConvertUser(e.UserBefore);
             var after = ConvertUser(e.UserAfter);
-            
             var diff = new DifferenceTokens.UserDifference(before, after);
-            Log.Info($"User {e.UserAfter.Username}#{e.UserAfter.Discriminator} ({e.UserAfter.Id}) updated information: {diff}");
+            
+            var user = $"{e.UserAfter.Username}#{e.UserAfter.Discriminator} ({e.UserAfter.Id})";
+            
+            Log.Info($"User {user} updated. Differences: {diff}");
             
             await RaiseOnUserUpdated(diff);
         }
@@ -564,16 +568,26 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             {
                 var is_dm = e.Channel.Type.HasFlag(ChannelType.Private);
                 var source = is_dm ? $"DM {e.Channel.Id}" : $"\"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id}";
-                var log_msg = $"Message {e.Message.Id} received from {source} "
-                  + $"by user {e.Author.Username}#{e.Author.Discriminator} ({e.Author.Id}). "
-                  + $"Content: {SanitizeString(e.Message.Content)}. End Content";
-                if (e.Message.Attachments.Count() == 1)
+                var user = $"{e.Author.Username}#{e.Author.Discriminator} ({e.Author.Id})";
+                var log_msg = $"Message {e.Message.Id} received from {source} by user {user}";
+                
+                if (string.IsNullOrEmpty(e.Message.Content))
+                {
+                    log_msg += ". Content is empty";
+                }
+                else
+                {
+                    log_msg += $". Content: {SanitizeString(e.Message.Content)}. End Content";
+                }
+                
+                var attach_no = e.Message.Attachments.Count();
+                if (attach_no == 1)
                 {
                     log_msg += ". One attachment included";
                 }
-                else if (e.Message.Attachments.Count() > 1)
+                else if (attach_no > 1)
                 {
-                    log_msg += $". Number of attachments: {e.Message.Attachments.Count()}";
+                    log_msg += $". Number of attachments: {attach_no}";
                 }
                 
                 Log.Info(log_msg);
@@ -595,31 +609,42 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             
             var is_dm = e.Channel.Type.HasFlag(ChannelType.Private);
             var source = is_dm ? $"DM {e.Channel.Id}" : $"\"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id}";
-            var log_msg = $"Message from user {e.Author.Username}#{e.Author.Discriminator} ({e.Author.Id}) in {source} updated. ";
+            var log_msg = $"Message from user {e.Author.Username}#{e.Author.Discriminator} ({e.Author.Id}) in {source} updated";
             
             if (before is null)
             {
-                log_msg += "Previous message was not cached. ";
+                log_msg += ". Previous message was not cached";
+            }
+            else if (string.IsNullOrEmpty(before.Message))
+            {
+                log_msg += ". Previous message content was empty";
             }
             else if (before.Message == after.Message)
             {
-                log_msg += $"Content of cached message is the same. ";
+                log_msg += $". Content of previous message is the same";
             }
             else
             {
-                log_msg += $"Previous Content: {SanitizeString(e.MessageBefore!.Content)}. End Previous Content. Current ";
+                log_msg += $". Previous Content: {SanitizeString(e.MessageBefore!.Content)}. End Previous Content";
             }
             
-            log_msg += $"Content: {SanitizeString(e.Message.Content)}. End Current Content. ";
+            if (string.IsNullOrEmpty(e.Message.Content))
+            {
+                log_msg += ". Current content is empty";
+            }
+            else
+            {
+                log_msg += $". Current Content: {SanitizeString(e.Message.Content)}. End Current Content";
+            }
             
             var diff_str = diff.GetDifferenceString();
             if (string.IsNullOrEmpty(diff_str))
             {
-                log_msg += $"No other differences found";
+                log_msg += $". No other differences found";
             }
             else
             {
-                log_msg += $"Difference: {diff_str}";
+                log_msg += $". Differences: {diff_str}";
             }
             
             Log.Info(log_msg);
@@ -638,7 +663,26 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             var is_dm = e.Channel.Type.HasFlag(ChannelType.Private);
             var source = is_dm ? $"DM {e.Channel.Id}" : $"\"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id}";
             var user = $"{e.Message.Author.Username}#{e.Message.Author.Discriminator} ({e.Message.Author.Id})";
-            var log_msg = $"Message from user {user} in {source} deleted. Content: {SanitizeString(e.Message.Content)}. End Content";
+            var log_msg = $"Message from user {user} in {source} deleted";
+            
+            if (string.IsNullOrEmpty(e.Message.Content))
+            {
+                log_msg += ". Content was empty";
+            }
+            else
+            {
+                log_msg += $". Content: {SanitizeString(e.Message.Content)}. End Content";
+            }
+            
+            var attach_no = e.Message.Attachments.Count();
+            if (attach_no == 1)
+            {
+                log_msg += $". Message contained an attachment";
+            }
+            else if (attach_no > 1)
+            {
+                log_msg += $". Message {attach_no} attachments";
+            }
             
             Log.Info(log_msg);
             
