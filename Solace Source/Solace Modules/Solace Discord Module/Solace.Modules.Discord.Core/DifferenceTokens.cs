@@ -132,7 +132,6 @@ namespace Solace.Modules.Discord.Core
         
         public class GuildDifference : BaseDifference<SolaceDiscordGuild>
         {
-            // TODO: might need more stuff
             public GuildDifference(SolaceDiscordGuild before, SolaceDiscordGuild after) : base(before, after)
             {
                 
@@ -140,7 +139,7 @@ namespace Solace.Modules.Discord.Core
             
             public override string GetDifferenceString()
             {
-                throw new NotImplementedException();
+                return Before.GetGuildDifference(After);
             }
         }
     }

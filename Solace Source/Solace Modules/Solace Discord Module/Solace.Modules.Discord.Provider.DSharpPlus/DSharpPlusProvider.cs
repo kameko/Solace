@@ -821,14 +821,15 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             await RaiseOnGuildCreated(e.Guild.Id);
         }
         
-        private Task ClientOnGuildUpdated(GuildUpdateEventArgs e)
+        private async Task ClientOnGuildUpdated(GuildUpdateEventArgs e)
         {
+            // TODO: log this
             
-            // TODO: yeah, big Before and After difference checker...
-            // TODO: event for this
+            var before = await ConvertGuild(e.GuildBefore);
+            var after  = await ConvertGuild(e.GuildAfter);
+            var diff   = new DifferenceTokens.GuildDifference(before, after);
             
-            // RaiseOnGuildUpdated()
-            return Task.CompletedTask;
+            await RaiseOnGuildUpdated(diff);
         }
         
         private Task ClientOnGuildDeleted(GuildDeleteEventArgs e)
@@ -1043,8 +1044,6 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         private async Task<SolaceDiscordGuild> ConvertGuild(DiscordGuild discord_guild)
         {
             // TODO: add more data
-            // discord_guild.GetAllMembersAsync()
-            // discord_guild.GetBansAsync()
             // discord_guild.GetDefaultChannel()
             // discord_guild.GetEmojisAsync() / discord_guild.Emojis (???)
             // discord_guild.GetInvitesAsync()
@@ -1067,8 +1066,12 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             var members = new List<SolaceDiscordUser>(dmembers.Count());
             foreach (var dmember in dmembers)
             {
-                
+                var member = await ConvertUser(dmember);
+                members.Add(member);
             }
+            
+            // (await discord_guild.GetBansAsync())[0].Reason
+            // (await discord_guild.GetBansAsync())[0].User
             
             var guild = new SolaceDiscordGuild()
             {
