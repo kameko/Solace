@@ -6,18 +6,18 @@ namespace Solace.Modules.Discord.Core
     using System.Linq;
     using System.Threading.Tasks;
     
-    public class SolaceDiscordRole
+    // TODO: replace all instances of "ulong GuildId, string GuildName" with this
+    
+    public class SolaceDiscordGuild
     {
-        public SolaceDiscordGuild Guild { get; set; }
         public string Name { get; set; }
         public ulong Id { get; set; }
         
-        public SolaceDiscordRole()
+        public SolaceDiscordGuild()
         {
-            Guild = new SolaceDiscordGuild();
-            Name  = string.Empty;
+            Name = string.Empty;
         }
         
-        // TODO: override Equals
+        // TODO: Equals
     }
 }

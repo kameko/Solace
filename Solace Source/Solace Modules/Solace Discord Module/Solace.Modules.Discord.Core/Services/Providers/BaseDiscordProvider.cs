@@ -32,6 +32,8 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         public event Func<DifferenceTokens.ChannelDifference, Task> OnChannelUpdated;
         public event Func<SolaceDiscordChannel, DateTimeOffset?, Task> OnChannelPinsUpdated;
         public event Func<SolaceDiscordChannel, Task> OnChannelDeleted;
+        public event Func<ulong, Task> OnGuildCreated;
+        public event Func<DifferenceTokens.GuildDifference, Task> OnGuildUpdated;
         public event Func<SolaceDiscordHeartbeat, Task> OnHeartbeat;
         
         public BaseDiscordProvider() : base()
@@ -56,6 +58,8 @@ namespace Solace.Modules.Discord.Core.Services.Providers
             OnChannelUpdated      = delegate { return Task.CompletedTask; };
             OnChannelDeleted      = delegate { return Task.CompletedTask; };
             OnChannelPinsUpdated  = delegate { return Task.CompletedTask; };
+            OnGuildCreated        = delegate { return Task.CompletedTask; };
+            OnGuildUpdated        = delegate { return Task.CompletedTask; };
             
             OnHeartbeat           = delegate { return Task.CompletedTask; };
         }
@@ -159,6 +163,17 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         {
             await OnChannelDeleted.Invoke(channel);
         }
+        
+        public async Task RaiseOnGuildCreated(ulong guild)
+        {
+            await OnGuildCreated.Invoke(guild);
+        }
+        
+        public async Task RaiseOnGuildUpdated(DifferenceTokens.GuildDifference difference)
+        {
+            await OnGuildUpdated.Invoke(difference);
+        }
+        
         
         
         

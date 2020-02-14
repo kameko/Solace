@@ -10,8 +10,7 @@ namespace Solace.Modules.Discord.Core
     public class SolaceDiscordVoiceState
     {
         public SolaceDiscordUser User { get; set; }
-        public ulong GuildId { get; set; }
-        public string GuildName { get; set; }
+        public SolaceDiscordGuild Guild { get; set; }
         public bool SelfDeafened { get; set; }
         public bool SelfMuted { get; set; }
         public bool GuildDeafened { get; set; }
@@ -20,8 +19,8 @@ namespace Solace.Modules.Discord.Core
         
         public SolaceDiscordVoiceState()
         {
-            User = new SolaceDiscordUser();
-            GuildName = string.Empty;
+            User  = new SolaceDiscordUser();
+            Guild = new SolaceDiscordGuild();
         }
         
         public string GetDifferenceString(SolaceDiscordVoiceState other)

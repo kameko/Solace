@@ -129,5 +129,21 @@ namespace Solace.Modules.Discord.Core
                 return Before.GetChannelDifference(After);
             }
         }
+        
+        public class GuildDifference : BaseDifference
+        {
+            // TODO: might need more stuff
+            public ChannelDifference ChannelDifference { get; set; }
+            
+            public GuildDifference(ChannelDifference channels)
+            {
+                ChannelDifference = channels;
+            }
+            
+            public override string GetDifferenceString()
+            {
+                throw new NotImplementedException();
+            }
+        }
     }
 }

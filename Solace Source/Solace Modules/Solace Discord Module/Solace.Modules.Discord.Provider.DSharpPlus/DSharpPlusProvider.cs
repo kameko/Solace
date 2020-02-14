@@ -815,17 +815,20 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             await RaiseOnChannelDeleted(channel);
         }
         
-        private Task ClientOnGuildCreated(GuildCreateEventArgs e)
+        private async Task ClientOnGuildCreated(GuildCreateEventArgs e)
         {
             Log.Info($"Guild \"{e.Guild.Name}\" ({e.Guild.Id}) created");
-            // TODO: event for this
-            return Task.CompletedTask;
+            
+            await RaiseOnGuildCreated(e.Guild.Id);
         }
         
         private Task ClientOnGuildUpdated(GuildUpdateEventArgs e)
         {
+            
             // TODO: yeah, big Before and After difference checker...
             // TODO: event for this
+            
+            // RaiseOnGuildUpdated()
             return Task.CompletedTask;
         }
         
@@ -1010,8 +1013,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             var state = new SolaceDiscordVoiceState()
             {
                 User          = ConvertUser(discord_state.User),
-                GuildId       = discord_state.Guild.Id,
-                GuildName     = discord_state.Guild.Name,
+                Guild         = ConvertGuild(discord_state.Guild),
                 SelfDeafened  = discord_state.IsSelfDeafened,
                 SelfMuted     = discord_state.IsSelfMuted,
                 GuildDeafened = discord_state.IsServerDeafened,
@@ -1036,15 +1038,41 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             return user;
         }
         
+        private SolaceDiscordGuild ConvertGuild(DiscordGuild discord_guild)
+        {
+            var guild = new SolaceDiscordGuild()
+            {
+                Name = discord_guild.Name,
+                Id   = discord_guild.Id,
+            };
+            return guild;
+        }
+        
+        private SolaceDiscordGuild ConvertGuild(DiscordGuild discord_guild, bool is_dm)
+        {
+            if (is_dm)
+            {
+                var guild = new SolaceDiscordGuild()
+                {
+                    Name = string.Empty,
+                    Id   = 0UL,
+                };
+                return guild;
+            }
+            else
+            {
+                return ConvertGuild(discord_guild);
+            }
+        }
+        
         private SolaceDiscordChannel ConvertChannel(DiscordChannel discord_channel)
         {
             var is_dm = discord_channel.Type.HasFlag(ChannelType.Private);
             var channel = new SolaceDiscordChannel()
             {
-                Name      = discord_channel.Name,
-                Id        = discord_channel.Id,
-                GuildName = is_dm ? string.Empty : discord_channel.Guild.Name,
-                GuildId   = is_dm ? 0L : discord_channel.GuildId,
+                Name  = discord_channel.Name,
+                Id    = discord_channel.Id,
+                Guild = ConvertGuild(discord_channel.Guild, is_dm),
             };
             return channel;
         }
@@ -1065,10 +1093,9 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         {
             var role = new SolaceDiscordRole()
             {
-                GuildId   = guild.Id,
-                GuildName = guild.Name,
-                Name      = discord_role.Name,
-                Id        = discord_role.Id,
+                Guild = ConvertGuild(guild),
+                Name  = discord_role.Name,
+                Id    = discord_role.Id,
             };
             return role;
         }
@@ -1107,8 +1134,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
                 Sender    = ConvertUser(discord_message.Author),
                 IsDM      = is_dm,
                 Nickname  = is_dm ? string.Empty : nickname,
-                GuildName = is_dm ? string.Empty : discord_message.Channel.Guild.Name,
-                GuildId   = is_dm ? 0L : discord_message.Channel.Guild.Id,
+                Guild     = ConvertGuild(discord_message.Channel.Guild, is_dm),
                 Channel   = ConvertChannel(discord_message.Channel),
                 MessageId = discord_message.Id,
                 Message   = discord_message.Content,

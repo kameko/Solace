@@ -11,13 +11,12 @@ namespace Solace.Modules.Discord.Core
     {
         public string Name { get; set; }
         public ulong Id { get; set; }
-        public string GuildName { get; set; }
-        public ulong GuildId { get; set; }
+        public SolaceDiscordGuild Guild { get; set; }
         
         public SolaceDiscordChannel()
         {
-            Name      = string.Empty;
-            GuildName = string.Empty;
+            Name  = string.Empty;
+            Guild = new SolaceDiscordGuild();
         }
         
         public string GetChannelDifference(SolaceDiscordChannel other)

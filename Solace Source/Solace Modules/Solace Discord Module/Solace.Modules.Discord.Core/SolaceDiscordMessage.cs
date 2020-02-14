@@ -17,8 +17,7 @@ namespace Solace.Modules.Discord.Core
         public SolaceDiscordUser Sender { get; set; }
         public bool IsDM { get; set; }
         public string Nickname { get; set; }
-        public string GuildName { get; set; }
-        public ulong GuildId { get; set; }
+        public SolaceDiscordGuild Guild { get; set; }
         public SolaceDiscordChannel Channel { get; set; }
         public ulong MessageId { get; set; }
         public string Message { get; set; }
@@ -31,12 +30,12 @@ namespace Solace.Modules.Discord.Core
         
         public SolaceDiscordMessage()
         {
-            Received    = DateTime.UtcNow;
-            Sender      = new SolaceDiscordUser();
-            Nickname    = string.Empty;
-            GuildName   = string.Empty;
-            Channel     = new SolaceDiscordChannel();
-            Message     = string.Empty;
+            Received = DateTime.UtcNow;
+            Sender   = new SolaceDiscordUser();
+            Nickname = string.Empty;
+            Guild    = new SolaceDiscordGuild();
+            Channel  = new SolaceDiscordChannel();
+            Message  = string.Empty;
             
             MentionedUsers    = new List<SolaceDiscordUser>();
             MentionedChannels = new List<SolaceDiscordChannel>();
