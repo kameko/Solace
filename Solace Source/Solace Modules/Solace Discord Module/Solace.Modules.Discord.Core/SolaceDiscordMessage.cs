@@ -7,11 +7,9 @@ namespace Solace.Modules.Discord.Core
     using System.Threading.Tasks;
     using Solace.Core;
     using Solace.Core.Services.Communication;
-    using Services;
     
     public class SolaceDiscordMessage
     {
-        internal DiscordService? DiscordService { get; set; }
         public DateTimeOffset Created { get; set; }
         public DateTimeOffset Received { get; set; }
         public SolaceDiscordUser Sender { get; set; }
