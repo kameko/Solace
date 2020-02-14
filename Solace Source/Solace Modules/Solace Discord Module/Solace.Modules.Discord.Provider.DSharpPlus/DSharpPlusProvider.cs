@@ -715,8 +715,8 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         {
             Log.Info(
                 $"Message reaction {e.Emoji.GetDiscordName()} added for message "
-              + $"{e.Message.Id} \"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id}). "
-              + (string.IsNullOrEmpty(e.Message.Content) ? string.Empty : $"Message Content: {SanitizeString(e.Message.Content)}")
+              + $"{e.Message.Id} \"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id})"
+              + (string.IsNullOrEmpty(e.Message.Content) ? string.Empty : $". Content: {SanitizeString(e.Message.Content)}. End Content")
             );
             // TODO: event for this
             return Task.CompletedTask;
@@ -726,8 +726,8 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         {
             Log.Info(
                 $"Message reaction {e.Emoji.GetDiscordName()} removed for message "
-              + $"{e.Message.Id} \"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id}). "
-              + (string.IsNullOrEmpty(e.Message.Content) ? string.Empty : $"Message Content: {SanitizeString(e.Message.Content)}")
+              + $"{e.Message.Id} \"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id})"
+              + (string.IsNullOrEmpty(e.Message.Content) ? string.Empty : $". Content: {SanitizeString(e.Message.Content)}. End Content")
             );
             // TODO: event for this
             return Task.CompletedTask;
@@ -736,8 +736,8 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         private Task ClientOnMessageReactionsCleared(MessageReactionsClearEventArgs e)
         {
             Log.Info(
-                $"Message reactions cleared for message {e.Message.Id} \"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id}). "
-              + (string.IsNullOrEmpty(e.Message.Content) ? string.Empty : $"Message Content: {SanitizeString(e.Message.Content)}")
+                $"Message reactions cleared for message {e.Message.Id} \"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id})"
+              + (string.IsNullOrEmpty(e.Message.Content) ? string.Empty : $". Content: {SanitizeString(e.Message.Content)}. End Content")
             );
             // TODO: event for this
             return Task.CompletedTask;
@@ -745,21 +745,21 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         
         private Task ClientOnDmChannelCreated(DmChannelCreateEventArgs e)
         {
-            Log.Info($"DM created with {ConcatMembers(e.Channel.Users)}");
+            Log.Info($"DM ({e.Channel.Id}) with {ConcatMembers(e.Channel.Users)} created");
             // TODO: event for this
             return Task.CompletedTask;
         }
         
         private Task ClientOnDmChannelDeleted(DmChannelDeleteEventArgs e)
         {
-            Log.Info($"DM deleted with {ConcatMembers(e.Channel.Users)}");
+            Log.Info($"DM ({e.Channel.Id}) with {ConcatMembers(e.Channel.Users)} deleted");
             // TODO: event for this
             return Task.CompletedTask;
         }
         
         private Task ClientOnChannelCreated(ChannelCreateEventArgs e)
         {
-            Log.Info($"Channel created \"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id})");
+            Log.Info($"Channel {e.Channel.Name} ({e.Channel.Id}) created in \"{e.Guild.Name}\" ({e.Guild.Id})");
             // TODO: event for this
             return Task.CompletedTask;
         }
@@ -781,14 +781,14 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         
         private Task ClientOnChannelDeleted(ChannelDeleteEventArgs e)
         {
-            Log.Info($"Channel deleted \"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id})");
+            Log.Info($"Channel {e.Channel.Name} ({e.Channel.Id}) deleted in \"{e.Guild.Name}\" ({e.Guild.Id})");
             // TODO: event for this
             return Task.CompletedTask;
         }
         
         private Task ClientOnGuildCreated(GuildCreateEventArgs e)
         {
-            Log.Info($"Guild created \"{e.Guild.Name}\" ({e.Guild.Id})");
+            Log.Info($"Guild \"{e.Guild.Name}\" ({e.Guild.Id}) created");
             // TODO: event for this
             return Task.CompletedTask;
         }
@@ -802,21 +802,21 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         
         private Task ClientOnGuildDeleted(GuildDeleteEventArgs e)
         {
-            Log.Info($"Guild deleted \"{e.Guild.Name}\" ({e.Guild.Id})");
+            Log.Info($"Guild \"{e.Guild.Name}\" ({e.Guild.Id}) deleted");
             // TODO: event for this
             return Task.CompletedTask;
         }
         
         private Task ClientOnGuildAvailable(GuildCreateEventArgs e)
         {
-            Log.Info($"Guild available \"{e.Guild.Name}\" ({e.Guild.Id})");
+            Log.Info($"Guild \"{e.Guild.Name}\" ({e.Guild.Id}) is now available");
             // TODO: event for this? or same event as Created
             return Task.CompletedTask;
         }
         
         private Task ClientOnGuildUnavailable(GuildDeleteEventArgs e)
         {
-            Log.Info($"Guild unavailable \"{e.Guild.Name}\" ({e.Guild.Id})");
+            Log.Info($"Guild \"{e.Guild.Name}\" ({e.Guild.Id}) is now unavailable");
             // TODO: event for this? or same event as Deleted
             return Task.CompletedTask;
         }
@@ -847,7 +847,8 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         
         private Task ClientOnGuildMemberAdded(GuildMemberAddEventArgs e)
         {
-            Log.Info($"User {e.Member.Username}#{e.Member.Discriminator} ({e.Member.Id}) added to \"{e.Guild.Name}\" ({e.Guild.Id})");
+            var user = $"{e.Member.Username}#{e.Member.Discriminator} ({e.Member.Id})";
+            Log.Info($"User {user} added to \"{e.Guild.Name}\" ({e.Guild.Id})");
             // TODO: event for this
             return Task.CompletedTask;
         }
@@ -860,7 +861,8 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         
         private Task ClientOnGuildMemberRemoved(GuildMemberRemoveEventArgs e)
         {
-            Log.Info($"User {e.Member.Username}#{e.Member.Discriminator} ({e.Member.Id}) removed from \"{e.Guild.Name}\" ({e.Guild.Id})");
+            var user = $"{e.Member.Username}#{e.Member.Discriminator} ({e.Member.Id})";
+            Log.Info($"User {user} removed from \"{e.Guild.Name}\" ({e.Guild.Id})");
             // TODO: event for this
             return Task.CompletedTask;
         }
@@ -873,14 +875,16 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         
         private Task ClientOnGuildBanAdded(GuildBanAddEventArgs e)
         {
-            Log.Info($"User {e.Member.Username}#{e.Member.Discriminator} ({e.Member.Id}) banned from \"{e.Guild.Name}\" ({e.Guild.Id})");
+            var user = $"{e.Member.Username}#{e.Member.Discriminator} ({e.Member.Id})";
+            Log.Info($"User {user} banned from \"{e.Guild.Name}\" ({e.Guild.Id})");
             // TODO: event for this
             return Task.CompletedTask;
         }
         
         private Task ClientOnGuildBanRemoved(GuildBanRemoveEventArgs e)
         {
-            Log.Info($"Ban on user {e.Member.Username}#{e.Member.Discriminator} ({e.Member.Id}) lifted from \"{e.Guild.Name}\" ({e.Guild.Id})");
+            var user = $"{e.Member.Username}#{e.Member.Discriminator} ({e.Member.Id})";
+            Log.Info($"Ban on user {user} lifted from \"{e.Guild.Name}\" ({e.Guild.Id})");
             // TODO: event for this
             return Task.CompletedTask;
         }
@@ -900,7 +904,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         
         private Task ClientOnUnknownEvent(UnknownEventArgs e)
         {
-            Log.Warning($"Client unhandled event: {e.EventName}. JSON: {e.Json}");
+            Log.Warning($"Client encountered an unhandled event: {e.EventName}. JSON: {e.Json}");
             return Task.CompletedTask;
         }
         
