@@ -818,7 +818,9 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             
             e.Guild.RequestAllMembers();
             
-            await RaiseOnGuildCreated(e.Guild.Id);
+            var guild = await ConvertGuild(e.Guild);
+            
+            await RaiseOnGuildCreated(guild);
         }
         
         private async Task ClientOnGuildUpdated(GuildUpdateEventArgs e)
@@ -832,28 +834,33 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             await RaiseOnGuildUpdated(diff);
         }
         
-        private Task ClientOnGuildDeleted(GuildDeleteEventArgs e)
+        private async Task ClientOnGuildDeleted(GuildDeleteEventArgs e)
         {
             Log.Info($"Guild \"{e.Guild.Name}\" ({e.Guild.Id}) deleted");
-            // TODO: event for this
-            return Task.CompletedTask;
+            
+            var guild = await ConvertGuild(e.Guild);
+            
+            await RaiseOnGuildDeleted(guild);
         }
         
-        private Task ClientOnGuildAvailable(GuildCreateEventArgs e)
+        private async Task ClientOnGuildAvailable(GuildCreateEventArgs e)
         {
             Log.Info($"Guild \"{e.Guild.Name}\" ({e.Guild.Id}) is now available");
             
             e.Guild.RequestAllMembers();
             
-            // TODO: event for this? or same event as Created
-            return Task.CompletedTask;
+            var guild = await ConvertGuild(e.Guild);
+            
+            await RaiseOnGuildAvailable(guild);
         }
         
-        private Task ClientOnGuildUnavailable(GuildDeleteEventArgs e)
+        private async Task ClientOnGuildUnavailable(GuildDeleteEventArgs e)
         {
             Log.Info($"Guild \"{e.Guild.Name}\" ({e.Guild.Id}) is now unavailable");
-            // TODO: event for this? or same event as Deleted
-            return Task.CompletedTask;
+            
+            var guild = await ConvertGuild(e.Guild);
+            
+            await RaiseOnGuildUnavailable(guild);
         }
         
         private Task ClientOnGuildDownloadComplete(GuildDownloadCompletedEventArgs e)
@@ -865,41 +872,67 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         private Task ClientOnGuildRoleCreated(GuildRoleCreateEventArgs e)
         {
             Log.Info($"Role \"{e.Role.Name}\" ({e.Role.Id}) created in \"{e.Guild.Name}\" ({e.Guild.Id})");
+            // TODO: unsure
             return Task.CompletedTask;
         }
         
         private Task ClientOnGuildRoleUpdated(GuildRoleUpdateEventArgs e)
         {
-            // TODO: check roles before and after, reuse for OnGuildMemberUpdated
+            // TODO: unsure
             return Task.CompletedTask;
         }
         
         private Task ClientOnGuildRoleDeleted(GuildRoleDeleteEventArgs e)
         {
             Log.Info($"Role \"{e.Role.Name}\" ({e.Role.Id}) deleted in \"{e.Guild.Name}\" ({e.Guild.Id})");
+            // TODO: unsure
             return Task.CompletedTask;
         }
         
-        private Task ClientOnGuildMemberAdded(GuildMemberAddEventArgs e)
+        private async Task ClientOnGuildMemberAdded(GuildMemberAddEventArgs e)
         {
             var user = $"{e.Member.Username}#{e.Member.Discriminator} ({e.Member.Id})";
+            if (!string.IsNullOrEmpty(e.Member.Nickname) && e.Member.Nickname != e.Member.Username)
+            {
+                user += $" \"{e.Member.Nickname}\"";
+            }
             Log.Info($"User {user} added to \"{e.Guild.Name}\" ({e.Guild.Id})");
-            // TODO: event for this
-            return Task.CompletedTask;
+            
+            var guild = await ConvertGuild(e.Guild);
+            var suser = await ConvertUser(e.Member);
+            
+            await RaiseOnGuildUserAdded(guild, suser);
         }
         
         private Task ClientOnGuildMemberUpdated(GuildMemberUpdateEventArgs e)
         {
-            // TODO: check roles before/after, and log if nicknamed changes
+            var diff = 0;
+            
+            var user = $"{e.Member.Username}#{e.Member.Discriminator} ({e.Member.Id})";
+            if (!string.IsNullOrEmpty(e.Member.Nickname) && e.Member.Nickname != e.Member.Username)
+            {
+                user += $" \"{e.Member.Nickname}\"";
+            }
+            Log.Info($"User {user} updated in \"{e.Guild.Name}\" ({e.Guild.Id}). Diferences: {diff}");
+            
+            // TODO: event
+            
             return Task.CompletedTask;
         }
         
-        private Task ClientOnGuildMemberRemoved(GuildMemberRemoveEventArgs e)
+        private async Task ClientOnGuildMemberRemoved(GuildMemberRemoveEventArgs e)
         {
             var user = $"{e.Member.Username}#{e.Member.Discriminator} ({e.Member.Id})";
+            if (!string.IsNullOrEmpty(e.Member.Nickname) && e.Member.Nickname != e.Member.Username)
+            {
+                user += $" \"{e.Member.Nickname}\"";
+            }
             Log.Info($"User {user} removed from \"{e.Guild.Name}\" ({e.Guild.Id})");
-            // TODO: event for this
-            return Task.CompletedTask;
+            
+            var guild = await ConvertGuild(e.Guild);
+            var suser = await ConvertUser(e.Member);
+            
+            await RaiseOnGuildUserRemoved(guild, suser);
         }
         
         private Task ClientOnGuildMembersChunked(GuildMembersChunkEventArgs e)
@@ -1037,6 +1070,10 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
                 IsBot         = discord_user.IsBot,
                 AvatarHash    = discord_user.AvatarHash,
             };
+            if (discord_user is DiscordMember member && !string.IsNullOrEmpty(member.Nickname))
+            {
+                user.Nickname = member.Nickname;
+            }
             user.TrySetUrl(discord_user.AvatarUrl);
             return Task.FromResult(user);
         }

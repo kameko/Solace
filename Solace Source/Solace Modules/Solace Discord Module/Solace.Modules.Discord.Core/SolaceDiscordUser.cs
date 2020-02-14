@@ -13,6 +13,7 @@ namespace Solace.Modules.Discord.Core
         public string Username { get; set; }
         public int Discriminator { get; set; }
         public string FullName => $"{Username}#{Discriminator}";
+        public string Nickname { get; set; }
         public ulong Id { get; set; }
         public bool IsBot { get; set; }
         public Uri AvatarUrl { get; set; }
@@ -21,6 +22,7 @@ namespace Solace.Modules.Discord.Core
         public SolaceDiscordUser()
         {
             Username   = string.Empty;
+            Nickname   = string.Empty;
             AvatarUrl  = new Uri("https://none.none/");
             AvatarHash = string.Empty;
         }

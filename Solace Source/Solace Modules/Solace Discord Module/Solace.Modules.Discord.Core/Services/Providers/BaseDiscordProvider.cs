@@ -32,8 +32,14 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         public event Func<DifferenceTokens.ChannelDifference, Task> OnChannelUpdated;
         public event Func<SolaceDiscordChannel, DateTimeOffset?, Task> OnChannelPinsUpdated;
         public event Func<SolaceDiscordChannel, Task> OnChannelDeleted;
-        public event Func<ulong, Task> OnGuildCreated;
+        public event Func<SolaceDiscordGuild, Task> OnGuildCreated;
         public event Func<DifferenceTokens.GuildDifference, Task> OnGuildUpdated;
+        public event Func<SolaceDiscordGuild, Task> OnGuildDeleted;
+        public event Func<SolaceDiscordGuild, Task> OnGuildAvailable;
+        public event Func<SolaceDiscordGuild, Task> OnGuildUnavailable;
+        public event Func<SolaceDiscordGuild, SolaceDiscordUser, Task> OnGuildUserAdded;
+        // TODO: difference token
+        public event Func<SolaceDiscordGuild, SolaceDiscordUser, Task> OnGuildUserRemoved;
         public event Func<SolaceDiscordHeartbeat, Task> OnHeartbeat;
         
         public BaseDiscordProvider() : base()
@@ -60,6 +66,12 @@ namespace Solace.Modules.Discord.Core.Services.Providers
             OnChannelPinsUpdated  = delegate { return Task.CompletedTask; };
             OnGuildCreated        = delegate { return Task.CompletedTask; };
             OnGuildUpdated        = delegate { return Task.CompletedTask; };
+            OnGuildDeleted        = delegate { return Task.CompletedTask; };
+            OnGuildAvailable      = delegate { return Task.CompletedTask; };
+            OnGuildUnavailable    = delegate { return Task.CompletedTask; };
+            OnGuildUserAdded      = delegate { return Task.CompletedTask; };
+            //
+            OnGuildUserRemoved    = delegate { return Task.CompletedTask; };
             
             OnHeartbeat           = delegate { return Task.CompletedTask; };
         }
@@ -164,7 +176,7 @@ namespace Solace.Modules.Discord.Core.Services.Providers
             await OnChannelDeleted.Invoke(channel);
         }
         
-        public async Task RaiseOnGuildCreated(ulong guild)
+        public async Task RaiseOnGuildCreated(SolaceDiscordGuild guild)
         {
             await OnGuildCreated.Invoke(guild);
         }
@@ -172,6 +184,33 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         public async Task RaiseOnGuildUpdated(DifferenceTokens.GuildDifference difference)
         {
             await OnGuildUpdated.Invoke(difference);
+        }
+        
+        public async Task RaiseOnGuildDeleted(SolaceDiscordGuild guild)
+        {
+            await OnGuildDeleted.Invoke(guild);
+        }
+        
+        public async Task RaiseOnGuildAvailable(SolaceDiscordGuild guild)
+        {
+            await OnGuildAvailable.Invoke(guild);
+        }
+        
+        public async Task RaiseOnGuildUnavailable(SolaceDiscordGuild guild)
+        {
+            await OnGuildUnavailable.Invoke(guild);
+        }
+        
+        public async Task RaiseOnGuildUserAdded(SolaceDiscordGuild guild, SolaceDiscordUser user)
+        {
+            await OnGuildUserAdded.Invoke(guild, user);
+        }
+        
+        // TODO: difference token
+        
+        public async Task RaiseOnGuildUserRemoved(SolaceDiscordGuild guild, SolaceDiscordUser user)
+        {
+            await OnGuildUserRemoved.Invoke(guild, user);
         }
         
         
