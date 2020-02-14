@@ -14,17 +14,20 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         public int MaxQueryLimit { get; protected set; }
         public event Func<bool, Task> OnReady;
         public event Func<SolaceDiscordMessage, Task> OnReceiveMessage;
-        public event Func<SolaceDiscordVoiceState, SolaceDiscordVoiceState, Task> OnVoiceStateChange;
-        public event Func<SolaceDiscordUser, SolaceDiscordUser, Task> OnUserUpdated;
+        public event Func<DifferenceTokens.VoiceStateDifference, Task> OnVoiceStateChange;
+        public event Func<DifferenceTokens.UserUpdatedDifference, Task> OnUserUpdated;
+        public event Func<SolaceDiscordUser, Task> OnUserSettingsUpdated;
         public event Func<SolaceDiscordHeartbeat, Task> OnHeartbeat;
         
         public BaseDiscordProvider() : base()
         {
-            OnReady            = delegate { return Task.CompletedTask; };
-            OnReceiveMessage   = delegate { return Task.CompletedTask; };
-            OnVoiceStateChange = delegate { return Task.CompletedTask; };
-            OnUserUpdated      = delegate { return Task.CompletedTask; };
-            OnHeartbeat        = delegate { return Task.CompletedTask; };
+            OnReady               = delegate { return Task.CompletedTask; };
+            OnReceiveMessage      = delegate { return Task.CompletedTask; };
+            OnVoiceStateChange    = delegate { return Task.CompletedTask; };
+            OnUserUpdated         = delegate { return Task.CompletedTask; };
+            OnUserSettingsUpdated = delegate { return Task.CompletedTask; };
+            
+            OnHeartbeat           = delegate { return Task.CompletedTask; };
         }
         
         protected async Task RaiseOnReceiveMessage(SolaceDiscordMessage message)
@@ -37,14 +40,19 @@ namespace Solace.Modules.Discord.Core.Services.Providers
             await OnReady.Invoke(resuming);
         }
         
-        protected async Task RaiseOnUserUpdated(SolaceDiscordUser before, SolaceDiscordUser after)
+        protected async Task RaiseOnReceiveMessage(DifferenceTokens.VoiceStateDifference difference)
         {
-            await OnUserUpdated.Invoke(before, after);
+            await OnVoiceStateChange.Invoke(difference);
         }
         
-        protected async Task RaiseOnReceiveMessage(SolaceDiscordVoiceState before, SolaceDiscordVoiceState after)
+        protected async Task RaiseOnUserUpdated(DifferenceTokens.UserUpdatedDifference difference)
         {
-            await OnVoiceStateChange.Invoke(before, after);
+            await OnUserUpdated.Invoke(difference);
+        }
+        
+        protected async Task RaiseOnUserSettingsUpdated(SolaceDiscordUser user)
+        {
+            await OnUserSettingsUpdated.Invoke(user);
         }
         
         protected async Task RaiseOnHeartbeat(SolaceDiscordHeartbeat heartbeat)

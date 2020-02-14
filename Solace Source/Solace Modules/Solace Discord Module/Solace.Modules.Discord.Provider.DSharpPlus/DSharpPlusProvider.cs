@@ -468,10 +468,10 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             var before = ConvertVoiceState(e.Before);
             var after = ConvertVoiceState(e.After);
             
-            var diff = before.GetDifferenceString(after);
+            var diff = new DifferenceTokens.VoiceStateDifference(before, after);
             Log.Info($"Client voice state changed for \"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id}): {diff}");
             
-            await RaiseOnReceiveMessage(before, after);
+            await RaiseOnReceiveMessage(diff);
         }
         
         private Task ClientOnVoiceServerUpdated(VoiceServerUpdateEventArgs e)
@@ -485,20 +485,25 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             var before = ConvertUser(e.UserBefore);
             var after = ConvertUser(e.UserAfter);
             
-            var diff = before.GetUserDifference(after);
+            var diff = new DifferenceTokens.UserUpdatedDifference(before, after);
             Log.Info($"User {e.UserAfter.Username}#{e.UserAfter.Discriminator} ({e.UserAfter.Id}) updated information: {diff}");
             
-            await RaiseOnUserUpdated(before, after);
+            await RaiseOnUserUpdated(diff);
         }
         
-        private Task ClientOnUserSettingsUpdated(UserSettingsUpdateEventArgs e)
+        private async Task ClientOnUserSettingsUpdated(UserSettingsUpdateEventArgs e)
         {
-            // TODO: figure out what this means and if/how to log it.
-            return Task.CompletedTask;
+            var user = ConvertUser(e.User);
+            await RaiseOnUserSettingsUpdated(user);
         }
         
         private Task ClientOnPresenceUpdated(PresenceUpdateEventArgs e)
         {
+            var diff = new DifferenceTokens.PresenceUpdatedDifference()
+            {
+                
+            };
+            
             // TODO: this is a lot to log, find a nice way to make it coherent
             return Task.CompletedTask;
         }
