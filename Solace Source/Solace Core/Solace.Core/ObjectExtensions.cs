@@ -22,6 +22,8 @@ namespace Solace.Core
                 
                 if (before_prop.GetIndexParameters().Count() > 0)
                 {
+                    // Property is indexable, aka an IEnumerable.
+                    // We don't care about that, so just skip it.
                     continue;
                 }
                 
@@ -31,7 +33,7 @@ namespace Solace.Core
                 }
             }
             
-            return diff.Substring(0, diff.Length - 2);
+            return diff.Substring(0, diff.Length - 2); // remove the trailing ", "
         }
         
         public static string GetDeepObjectDifferencesAsString(this object before, object after)
