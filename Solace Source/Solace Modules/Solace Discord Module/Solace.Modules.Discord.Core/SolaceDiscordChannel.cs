@@ -30,6 +30,34 @@ namespace Solace.Modules.Discord.Core
             return ObjectExtensions.GetShallowObjectDifferencesAsString(this, other);
         }
         
-        // TODO: override Equals
+        public override bool Equals(object? obj)
+        {
+            if (obj is SolaceDiscordChannel other)
+            {
+                return Name             == other.Name
+                    && Id               == other.Id
+                    && MentionString    == other.MentionString
+                    && PerUserRateLimit == other.PerUserRateLimit
+                    && Position         == other.Position
+                    && Topic            == other.Topic
+                    && Guild.Equals(other.Guild);
+            }
+            return false;
+        }
+        
+        public override int GetHashCode()
+        {
+            return new
+            {
+                Name,
+                Id,
+                MentionString,
+                PerUserRateLimit,
+                Position,
+                Topic,
+                Guild
+            }
+            .GetHashCode();
+        }
     }
 }

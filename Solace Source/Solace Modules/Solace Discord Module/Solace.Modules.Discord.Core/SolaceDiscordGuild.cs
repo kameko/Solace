@@ -35,7 +35,31 @@ namespace Solace.Modules.Discord.Core
             return ObjectExtensions.GetShallowObjectDifferencesAsString(this, other);
         }
         
-        // TODO: override Equals
+        public override bool Equals(object? obj)
+        {
+            if (obj is SolaceDiscordGuild other)
+            {
+                return Name == other.Name
+                    && Id == other.Id
+                    && DefaultChannel.Equals(other.DefaultChannel)
+                    && SystemChannel.Equals(other.DefaultChannel)
+                    && Owner.Equals(other.Owner);
+            }
+            return false;
+        }
+        
+        public override int GetHashCode()
+        {
+            return new
+            {
+                Name,
+                Id,
+                DefaultChannel,
+                SystemChannel,
+                Owner,
+            }
+            .GetHashCode();
+        }
         
         public class Ban
         {

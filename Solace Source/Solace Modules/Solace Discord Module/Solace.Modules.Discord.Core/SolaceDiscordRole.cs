@@ -22,6 +22,23 @@ namespace Solace.Modules.Discord.Core
             return ObjectExtensions.GetShallowObjectDifferencesAsString(this, other);
         }
         
-        // TODO: override Equals
+        public override bool Equals(object? obj)
+        {
+            if (obj is SolaceDiscordRole other)
+            {
+                return Name == other.Name && Id == other.Id;
+            }
+            return false;
+        }
+        
+        public override int GetHashCode()
+        {
+            return new
+            {
+                Name,
+                Id
+            }
+            .GetHashCode();
+        }
     }
 }

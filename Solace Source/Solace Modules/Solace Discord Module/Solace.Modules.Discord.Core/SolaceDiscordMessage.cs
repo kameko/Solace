@@ -54,6 +54,38 @@ namespace Solace.Modules.Discord.Core
             return this.GetMessageDifference(other);
         }
         
-        // TODO: override Equals
+        public override bool Equals(object? obj)
+        {
+            if (obj is SolaceDiscordMessage other)
+            {
+                return Created   == other.Created
+                    && Received  == other.Received
+                    && Sender.Equals(other.Sender)
+                    && IsDM      == other.IsDM
+                    && Nickname  == other.Nickname
+                    && Guild.Equals(other.Guild)
+                    && Channel.Equals(other.Channel)
+                    && MessageId == other.MessageId
+                    && Message   == other.Message;
+            }
+            return false;
+        }
+        
+        public override int GetHashCode()
+        {
+            return new
+            {
+                Created,
+                Received,
+                Sender,
+                IsDM,
+                Nickname,
+                Guild,
+                Channel,
+                MessageId,
+                Message
+            }
+            .GetHashCode();
+        }
     }
 }

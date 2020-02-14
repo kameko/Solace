@@ -28,6 +28,34 @@ namespace Solace.Modules.Discord.Core
             return ObjectExtensions.GetShallowObjectDifferencesAsString(this, other);
         }
         
-        // TODO: override Equals
+        public override bool Equals(object? obj)
+        {
+            if (obj is SolaceDiscordVoiceState other)
+            {
+                return User.Equals(other.User)
+                    && Guild.Equals(other.Guild)
+                    && SelfDeafened  == other.SelfDeafened
+                    && SelfMuted     == other.SelfMuted
+                    && GuildDeafened == other.GuildDeafened
+                    && GuildMuted    == other.GuildMuted
+                    && Suppressed    == other.Suppressed;
+            }
+            return false;
+        }
+        
+        public override int GetHashCode()
+        {
+            return new
+            {
+                User,
+                Guild,
+                SelfDeafened,
+                SelfMuted,
+                GuildDeafened,
+                GuildMuted,
+                Suppressed
+            }
+            .GetHashCode();
+        }
     }
 }

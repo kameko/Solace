@@ -17,9 +17,10 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         
         public ProviderConfig()
         {
-            ConnectionToken = string.Empty;
+            ConnectionToken         = string.Empty;
             PingTimeoutMilliseconds = 5000;
-            PingTries = 3;
+            PingTries               = 3;
+            LogLevel                = Log.LogLevel.Debug;
         }
         
         public string? GetValue(string key)

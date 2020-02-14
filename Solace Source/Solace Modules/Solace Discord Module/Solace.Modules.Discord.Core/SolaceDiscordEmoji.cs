@@ -30,6 +30,26 @@ namespace Solace.Modules.Discord.Core
             }
         }
         
-        // TODO: override Equals
+        public override bool Equals(object? obj)
+        {
+            if (obj is SolaceDiscordEmoji other)
+            {
+                return Name        == other.Name
+                    && DiscordName == other.DiscordName
+                    && Id          == other.Id;
+            }
+            return false;
+        }
+        
+        public override int GetHashCode()
+        {
+            return new
+            {
+                Name,
+                DiscordName,
+                Id
+            }
+            .GetHashCode();
+        }
     }
 }
