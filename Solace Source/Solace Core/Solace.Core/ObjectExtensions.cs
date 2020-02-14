@@ -15,6 +15,11 @@ namespace Solace.Core
             var after_props = before.GetType().GetProperties();
             for (var i = 0; i < before_props.Count(); i++)
             {
+                // TODO: handle indexable properties.
+                // I'm thinking it should be a bool to handle them
+                // or just an entire different method (or both),
+                // because some methods just might not care.
+                
                 var before_prop = before_props.ElementAt(i);
                 var before_prop_value = before_prop.GetValue(before, before_prop.GetIndexParameters());
                 var after_prop = after_props.ElementAt(i);

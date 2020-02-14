@@ -38,5 +38,7 @@ namespace Solace.Modules.Discord.Core
         {
             return ObjectExtensions.GetObjectDifferencesAsString(this, other);
         }
+        
+        // TODO: override Equals
     }
 }

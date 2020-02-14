@@ -26,5 +26,7 @@ namespace Solace.Modules.Discord.Core
                 Url = uri!;
             }
         }
+        
+        // TODO: override Equals
     }
 }

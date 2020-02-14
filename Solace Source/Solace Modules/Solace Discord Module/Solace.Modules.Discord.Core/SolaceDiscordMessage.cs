@@ -48,5 +48,7 @@ namespace Solace.Modules.Discord.Core
         {
             throw new NotImplementedException();
         }
+        
+        // TODO: override Equals
     }
 }

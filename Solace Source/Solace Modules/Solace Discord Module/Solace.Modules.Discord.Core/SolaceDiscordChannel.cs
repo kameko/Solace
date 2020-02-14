@@ -18,5 +18,7 @@ namespace Solace.Modules.Discord.Core
             Name      = string.Empty;
             GuildName = string.Empty;
         }
+        
+        // TODO: override Equals
     }
 }

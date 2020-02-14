@@ -15,5 +15,7 @@ namespace Solace.Modules.Discord.Core
         {
             Name = string.Empty;
         }
+        
+        // TODO: override Equals
     }
 }
