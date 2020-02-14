@@ -27,14 +27,15 @@ namespace Solace.Core
                 
                 if (!before_prop_value!.Equals(after_prop_value))
                 {
-                    var prop_name = before_prop.Name;
-                    if (!string.IsNullOrEmpty(diff))
-                    {
-                        diff += ", ";
-                    }
-                    diff += $"{prop_name}: {before_prop_value} -> {after_prop_value}";
+                    diff += $"{before_prop.Name}: {before_prop_value} -> {after_prop_value}, ";
                 }
             }
+            
+            if (diff.EndsWith(", "))
+            {
+                diff = diff.Substring(0, diff.Length - 2);
+            }
+            
             return diff;
         }
         
