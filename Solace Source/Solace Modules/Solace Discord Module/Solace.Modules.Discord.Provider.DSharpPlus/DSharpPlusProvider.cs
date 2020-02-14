@@ -751,14 +751,14 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         
         private Task ClientOnDmChannelCreated(DmChannelCreateEventArgs e)
         {
-            Log.Info($"DM ({e.Channel.Id}) with {ConcatMembers(e.Channel.Users)} created");
+            Log.Info($"DM {e.Channel.Id} with {ConcatMembers(e.Channel.Users)} created");
             // TODO: event for this
             return Task.CompletedTask;
         }
         
         private Task ClientOnDmChannelDeleted(DmChannelDeleteEventArgs e)
         {
-            Log.Info($"DM ({e.Channel.Id}) with {ConcatMembers(e.Channel.Users)} deleted");
+            Log.Info($"DM {e.Channel.Id} with {ConcatMembers(e.Channel.Users)} deleted");
             // TODO: event for this
             return Task.CompletedTask;
         }
