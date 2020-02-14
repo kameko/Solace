@@ -823,11 +823,11 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         
         private async Task ClientOnGuildUpdated(GuildUpdateEventArgs e)
         {
-            // TODO: log this
-            
             var before = await ConvertGuild(e.GuildBefore);
             var after  = await ConvertGuild(e.GuildAfter);
             var diff   = new DifferenceTokens.GuildDifference(before, after);
+            
+            Log.Info($"Guild \"{e.GuildAfter.Name}\" ({e.GuildAfter.Id}) updated. Differences: {diff}");
             
             await RaiseOnGuildUpdated(diff);
         }
