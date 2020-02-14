@@ -706,11 +706,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         {
             if (is_dm)
             {
-                var guild = new SolaceDiscordGuild()
-                {
-                    Name = string.Empty,
-                    Id   = 0UL,
-                };
+                var guild = new SolaceDiscordGuild();
                 return guild;
             }
             else
@@ -719,7 +715,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             }
         }
         
-        private async Task<SolaceDiscordChannel> ConvertChannel(DiscordChannel discord_channel)
+        private Task<SolaceDiscordChannel> ConvertChannel(DiscordChannel discord_channel)
         {
             var is_dm = discord_channel.Type.HasFlag(ChannelType.Private);
             var channel = new SolaceDiscordChannel()
@@ -730,9 +726,9 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
                 PerUserRateLimit = discord_channel.PerUserRateLimit ?? 0,
                 Position         = discord_channel.Position,
                 Topic            = discord_channel.Topic,
-                Guild            = await ConvertGuild(discord_channel.Guild, is_dm),
+                Guild            = discord_channel.Guild.Id
             };
-            return channel;
+            return Task.FromResult(channel);
         }
         
         private Task<SolaceDiscordEmoji> ConvertEmoji(DiscordEmoji discord_emoji)

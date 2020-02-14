@@ -90,5 +90,29 @@ namespace Solace.Modules.Discord.Tests.Core.Services.Providers
                 count--;
             }
         }
+        
+        [Fact]
+        public async Task TestGettingAllMessages()
+        {
+            var cache = GenerateDefaultCache();
+            var provider = new MockDiscordProvider(cache);
+            
+            var query = await provider.QueryChannel(677026613363210000 + 1);
+            Assert.NotNull(query);
+            query!.SetRequestDelay(0);
+            
+            var count = 1_101;
+            await foreach (var message in query!)
+            {
+                if (count <= 0)
+                {
+                    break;
+                }
+                
+                Write(message.Message);
+                
+                count--;
+            }
+        }
     }
 }

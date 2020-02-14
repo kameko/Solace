@@ -40,7 +40,7 @@ namespace Solace.Modules.Discord.Core
             if (obj is SolaceDiscordGuild other)
             {
                 return Name == other.Name
-                    && Id == other.Id
+                    && Id   == other.Id
                     && DefaultChannel.Equals(other.DefaultChannel)
                     && SystemChannel.Equals(other.DefaultChannel)
                     && Owner.Equals(other.Owner);
