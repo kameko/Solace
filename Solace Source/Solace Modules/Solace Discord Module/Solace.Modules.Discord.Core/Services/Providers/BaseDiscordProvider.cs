@@ -17,6 +17,8 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         public event Func<DifferenceTokens.VoiceStateDifference, Task> OnVoiceStateChange;
         public event Func<DifferenceTokens.UserUpdatedDifference, Task> OnUserUpdated;
         public event Func<SolaceDiscordUser, Task> OnUserSettingsUpdated;
+        public event Func<DifferenceTokens.PresenceUpdatedDifference, Task> OnPresenceUpdated;
+        public event Func<SolaceDiscordUser, SolaceDiscordChannel, Task> OnUserTyping;
         public event Func<SolaceDiscordHeartbeat, Task> OnHeartbeat;
         
         public BaseDiscordProvider() : base()
@@ -26,6 +28,8 @@ namespace Solace.Modules.Discord.Core.Services.Providers
             OnVoiceStateChange    = delegate { return Task.CompletedTask; };
             OnUserUpdated         = delegate { return Task.CompletedTask; };
             OnUserSettingsUpdated = delegate { return Task.CompletedTask; };
+            OnPresenceUpdated     = delegate { return Task.CompletedTask; };
+            OnUserTyping          = delegate { return Task.CompletedTask; };
             
             OnHeartbeat           = delegate { return Task.CompletedTask; };
         }
@@ -53,6 +57,16 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         protected async Task RaiseOnUserSettingsUpdated(SolaceDiscordUser user)
         {
             await OnUserSettingsUpdated.Invoke(user);
+        }
+        
+        protected async Task RaiseOnPresenceUpdated(DifferenceTokens.PresenceUpdatedDifference difference)
+        {
+            await OnPresenceUpdated.Invoke(difference);
+        }
+        
+        protected async Task RaiseOnUserTyping(SolaceDiscordUser user, SolaceDiscordChannel channel)
+        {
+            await OnUserTyping.Invoke(user, channel);
         }
         
         protected async Task RaiseOnHeartbeat(SolaceDiscordHeartbeat heartbeat)

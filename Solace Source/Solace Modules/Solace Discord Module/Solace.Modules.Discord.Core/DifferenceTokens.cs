@@ -57,13 +57,46 @@ namespace Solace.Modules.Discord.Core
             }
         }
         
-        public class PresenceUpdatedDifference : BaseDifference
+        public class PresenceDifference : BaseDifference
         {
+            // TODO: SolaceDiscordPresence class, I guess
+            public SolaceDiscordUser User { get; set; }
             
+            public PresenceDifference(SolaceDiscordUser user)
+            {
+                User = user;
+            }
             
             public override string GetDifferenceString()
             {
                 return string.Empty;
+            }
+        }
+        
+        public class PresenceUpdatedDifference : BaseDifference
+        {
+            public PresenceDifference PresenceDifference { get; set; }
+            public UserUpdatedDifference UserDifference { get; set; }
+            
+            public PresenceUpdatedDifference(PresenceDifference presence_diff, UserUpdatedDifference user_diff)
+            {
+                PresenceDifference = presence_diff;
+                UserDifference     = user_diff;
+            }
+            
+            public override string GetDifferenceString()
+            {
+                var diff = PresenceDifference.GetDifferenceString();
+                if (!string.IsNullOrEmpty(diff))
+                {
+                    diff = $"Presence: {diff}";
+                    var udiff = UserDifference.GetDifferenceString();
+                    if (!string.IsNullOrEmpty(udiff))
+                    {
+                        diff += $"User: {udiff}";
+                    }
+                }
+                return diff;
             }
         }
     }

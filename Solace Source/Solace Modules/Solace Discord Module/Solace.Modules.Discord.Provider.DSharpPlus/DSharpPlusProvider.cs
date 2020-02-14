@@ -441,6 +441,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         {
             Log.Info("Client ready");
             Ready = true;
+            
             await RaiseOnReady(resuming: false);
         }
         
@@ -448,6 +449,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         {
             Log.Info("Client resumed");
             Ready = true;
+            
             await RaiseOnReady(resuming: true);
         }
         
@@ -494,24 +496,31 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         private async Task ClientOnUserSettingsUpdated(UserSettingsUpdateEventArgs e)
         {
             var user = ConvertUser(e.User);
+            
             await RaiseOnUserSettingsUpdated(user);
         }
         
-        private Task ClientOnPresenceUpdated(PresenceUpdateEventArgs e)
+        private async Task ClientOnPresenceUpdated(PresenceUpdateEventArgs e)
         {
-            var diff = new DifferenceTokens.PresenceUpdatedDifference()
-            {
-                
-            };
+            var before_user = ConvertUser(e.UserBefore);
+            var after_user = ConvertUser(e.UserAfter);
+            var user_diff = new DifferenceTokens.UserUpdatedDifference(before_user, after_user);
             
-            // TODO: this is a lot to log, find a nice way to make it coherent
-            return Task.CompletedTask;
+            // TODO: finish the presence class
+            var user = ConvertUser(e.User);
+            var presence_diff = new DifferenceTokens.PresenceDifference(user);
+            
+            var diff = new DifferenceTokens.PresenceUpdatedDifference(presence_diff, user_diff);
+            
+            await RaiseOnPresenceUpdated(diff);
         }
         
-        private Task ClientOnTypingStarted(TypingStartEventArgs e)
+        private async Task ClientOnTypingStarted(TypingStartEventArgs e)
         {
-            // TODO: event for this
-            return Task.CompletedTask;
+            var user = ConvertUser(e.User);
+            var channel = ConvertChannel(e.Channel);
+            
+            await RaiseOnUserTyping(user, channel);
         }
         
         private Task ClientOnSocketOpened()
@@ -887,6 +896,19 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             return user;
         }
         
+        private SolaceDiscordChannel ConvertChannel(DiscordChannel discord_channel)
+        {
+            var is_dm = discord_channel.Type.HasFlag(ChannelType.Private);
+            var channel = new SolaceDiscordChannel()
+            {
+                Name      = discord_channel.Name,
+                Id        = discord_channel.Id,
+                GuildName = is_dm ? string.Empty : discord_channel.Guild.Name,
+                GuildId   = is_dm ? 0L : discord_channel.GuildId,
+            };
+            return channel;
+        }
+        
         private Task<SolaceDiscordMessage> ConvertMessage(DiscordMessage discord_message)
         {
             var discriminator = 0;
@@ -920,13 +942,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
                 Nickname  = is_dm ? string.Empty : nickname,
                 GuildName = is_dm ? string.Empty : discord_message.Channel.Guild.Name,
                 GuildId   = is_dm ? 0L : discord_message.Channel.Guild.Id,
-                Channel   = new SolaceDiscordChannel()
-                {
-                    Name      = discord_message.Channel.Name,
-                    Id        = discord_message.Channel.Id,
-                    GuildName = is_dm ? string.Empty : discord_message.Channel.Guild.Name,
-                    GuildId   = is_dm ? 0L : discord_message.Channel.GuildId,
-                },
+                Channel   = ConvertChannel(discord_message.Channel),
                 MessageId = discord_message.Id,
                 Message   = discord_message.Content,
             };
