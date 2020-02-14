@@ -23,6 +23,9 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         public event Func<SolaceDiscordMessage, Task> OnMessageAcknowledged;
         public event Func<SolaceDiscordMessage, Task> OnMessageDeleted;
         public event Func<SolaceDiscordChannel, IEnumerable<SolaceDiscordMessage>, Task> OnBulkMessageDeletion;
+        public event Func<SolaceDiscordMessage, SolaceDiscordUser, SolaceDiscordEmoji, Task> OnReactionAdded;
+        public event Func<SolaceDiscordMessage, SolaceDiscordEmoji, Task> OnReactionRemoved;
+        public event Func<SolaceDiscordMessage, Task> OnAllReactionsRemoved;
         public event Func<SolaceDiscordHeartbeat, Task> OnHeartbeat;
         
         public BaseDiscordProvider() : base()
@@ -38,6 +41,9 @@ namespace Solace.Modules.Discord.Core.Services.Providers
             OnMessageAcknowledged = delegate { return Task.CompletedTask; };
             OnMessageDeleted      = delegate { return Task.CompletedTask; };
             OnBulkMessageDeletion = delegate { return Task.CompletedTask; };
+            OnReactionAdded       = delegate { return Task.CompletedTask; };
+            OnReactionRemoved     = delegate { return Task.CompletedTask; };
+            OnAllReactionsRemoved = delegate { return Task.CompletedTask; };
             
             OnHeartbeat           = delegate { return Task.CompletedTask; };
         }
@@ -95,6 +101,21 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         protected async Task RaiseOnBulkMessageDeletion(SolaceDiscordChannel channel, IEnumerable<SolaceDiscordMessage> messages)
         {
             await OnBulkMessageDeletion.Invoke(channel, messages);
+        }
+        
+        protected async Task RaiseOnReactionAdded(SolaceDiscordMessage message, SolaceDiscordUser user, SolaceDiscordEmoji emoji)
+        {
+            await OnReactionAdded.Invoke(message, user, emoji);
+        }
+        
+        protected async Task RaiseOnReactionRemoved(SolaceDiscordMessage message, SolaceDiscordEmoji emoji)
+        {
+            await OnReactionRemoved.Invoke(message, emoji);
+        }
+        
+        protected async Task RaiseOnAllReactionsRemoved(SolaceDiscordMessage message)
+        {
+            await OnAllReactionsRemoved.Invoke(message);
         }
         
         

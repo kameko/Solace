@@ -711,36 +711,42 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             });
         }
         
-        private Task ClientOnMessageReactionAdded(MessageReactionAddEventArgs e)
+        private async Task ClientOnMessageReactionAdded(MessageReactionAddEventArgs e)
         {
             Log.Info(
                 $"Message reaction {e.Emoji.GetDiscordName()} added for message "
               + $"{e.Message.Id} \"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id})"
               + (string.IsNullOrEmpty(e.Message.Content) ? string.Empty : $". Content: {SanitizeString(e.Message.Content)}. End Content")
             );
-            // TODO: event for this
-            return Task.CompletedTask;
+            
+            var message = await ConvertMessage(e.Message);
+            var user    = ConvertUser(e.User);
+            var emoji   = ConvertEmoji(e.Emoji);
+            await RaiseOnReactionAdded(message, user, emoji);
         }
         
-        private Task ClientOnMessageReactionRemoved(MessageReactionRemoveEventArgs e)
+        private async Task ClientOnMessageReactionRemoved(MessageReactionRemoveEventArgs e)
         {
             Log.Info(
                 $"Message reaction {e.Emoji.GetDiscordName()} removed for message "
               + $"{e.Message.Id} \"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id})"
               + (string.IsNullOrEmpty(e.Message.Content) ? string.Empty : $". Content: {SanitizeString(e.Message.Content)}. End Content")
             );
-            // TODO: event for this
-            return Task.CompletedTask;
+            
+            var message = await ConvertMessage(e.Message);
+            var emoji   = ConvertEmoji(e.Emoji);
+            await RaiseOnReactionRemoved(message, emoji);
         }
         
-        private Task ClientOnMessageReactionsCleared(MessageReactionsClearEventArgs e)
+        private async Task ClientOnMessageReactionsCleared(MessageReactionsClearEventArgs e)
         {
             Log.Info(
                 $"Message reactions cleared for message {e.Message.Id} \"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id})"
               + (string.IsNullOrEmpty(e.Message.Content) ? string.Empty : $". Content: {SanitizeString(e.Message.Content)}. End Content")
             );
-            // TODO: event for this
-            return Task.CompletedTask;
+            
+            var message = await ConvertMessage(e.Message);
+            await RaiseOnAllReactionsRemoved(message);
         }
         
         private Task ClientOnDmChannelCreated(DmChannelCreateEventArgs e)

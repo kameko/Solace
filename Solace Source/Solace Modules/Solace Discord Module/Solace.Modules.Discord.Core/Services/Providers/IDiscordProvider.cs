@@ -22,6 +22,9 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         event Func<SolaceDiscordMessage, Task> OnMessageAcknowledged;
         event Func<SolaceDiscordMessage, Task> OnMessageDeleted;
         event Func<SolaceDiscordChannel, IEnumerable<SolaceDiscordMessage>, Task> OnBulkMessageDeletion;
+        event Func<SolaceDiscordMessage, SolaceDiscordUser, SolaceDiscordEmoji, Task> OnReactionAdded;
+        event Func<SolaceDiscordMessage, SolaceDiscordEmoji, Task> OnReactionRemoved;
+        event Func<SolaceDiscordMessage, Task> OnAllReactionsRemoved;
         event Func<SolaceDiscordHeartbeat, Task> OnHeartbeat;
         
         Task<DiscordChannelQueryToken?> QueryChannel(ulong channel_id, ulong starting_message_id);
