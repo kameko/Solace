@@ -635,8 +635,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         {
             var is_dm = e.Channel.Type.HasFlag(ChannelType.Private);
             var source = is_dm ? $"DM {e.Channel.Id}" : $"\"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id}";
-            
-            Log.Info($"Bulk message deletion in {source}. Deleted messages: {e.Messages.Count()}");
+            Log.Info($"Bulk message deletion in {source}. Number of deleted messages: {e.Messages.Count()}");
             
             return Task.Run(async () =>
             {
