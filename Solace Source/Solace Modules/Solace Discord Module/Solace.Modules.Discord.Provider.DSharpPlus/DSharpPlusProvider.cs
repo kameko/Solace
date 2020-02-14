@@ -467,8 +467,8 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         
         private async Task ClientOnVoiceStateUpdated(VoiceStateUpdateEventArgs e)
         {
-            var before = ConvertVoiceState(e.Before);
-            var after  = ConvertVoiceState(e.After);
+            var before = await ConvertVoiceState(e.Before);
+            var after  = await ConvertVoiceState(e.After);
             var diff   = new DifferenceTokens.VoiceStateDifference(before, after);
             
             var source = $"\"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id})";
@@ -486,8 +486,8 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         
         private async Task ClientOnUserUpdated(UserUpdateEventArgs e)
         {
-            var before = ConvertUser(e.UserBefore);
-            var after  = ConvertUser(e.UserAfter);
+            var before = await ConvertUser(e.UserBefore);
+            var after  = await ConvertUser(e.UserAfter);
             var diff   = new DifferenceTokens.UserDifference(before, after);
             
             var user   = $"{e.UserAfter.Username}#{e.UserAfter.Discriminator} ({e.UserAfter.Id})";
@@ -499,19 +499,19 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         
         private async Task ClientOnUserSettingsUpdated(UserSettingsUpdateEventArgs e)
         {
-            var user = ConvertUser(e.User);
+            var user = await ConvertUser(e.User);
             
             await RaiseOnUserSettingsUpdated(user);
         }
         
         private async Task ClientOnPresenceUpdated(PresenceUpdateEventArgs e)
         {
-            var before_user   = ConvertUser(e.UserBefore);
-            var after_user    = ConvertUser(e.UserAfter);
+            var before_user   = await ConvertUser(e.UserBefore);
+            var after_user    = await ConvertUser(e.UserAfter);
             var user_diff     = new DifferenceTokens.UserDifference(before_user, after_user);
             
             // TODO: finish the presence class
-            var user          = ConvertUser(e.User);
+            var user          = await ConvertUser(e.User);
             var presence_diff = new DifferenceTokens.PresenceDifference(user);
             
             var diff = new DifferenceTokens.PresenceUpdatedDifference(presence_diff, user_diff);
@@ -521,8 +521,8 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         
         private async Task ClientOnTypingStarted(TypingStartEventArgs e)
         {
-            var user = ConvertUser(e.User);
-            var channel = ConvertChannel(e.Channel);
+            var user    = await ConvertUser(e.User);
+            var channel = await ConvertChannel(e.Channel);
             
             await RaiseOnUserTyping(user, channel);
         }
@@ -690,25 +690,22 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             await RaiseOnMessageDeleted(message);
         }
         
-        private Task ClientOnMessagesBulkDeleted(MessageBulkDeleteEventArgs e)
+        private async Task ClientOnMessagesBulkDeleted(MessageBulkDeleteEventArgs e)
         {
             var is_dm  = e.Channel.Type.HasFlag(ChannelType.Private);
             var source = is_dm ? $"DM {e.Channel.Id}" : $"\"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id}";
             Log.Info($"Bulk message deletion in {source}. Number of deleted messages: {e.Messages.Count()}");
             
-            return Task.Run(async () =>
+            var channel = await ConvertChannel(e.Channel);
+            var messages = new List<SolaceDiscordMessage>(e.Messages.Count());
+            
+            foreach (var deleted in e.Messages)
             {
-                var channel = ConvertChannel(e.Channel);
-                var messages = new List<SolaceDiscordMessage>(e.Messages.Count());
-                
-                foreach (var deleted in e.Messages)
-                {
-                    var message = await ConvertMessage(deleted);
-                    messages.Add(message);
-                }
-                
-                await RaiseOnBulkMessageDeletion(channel, messages);
-            });
+                var message = await ConvertMessage(deleted);
+                messages.Add(message);
+            }
+            
+            await RaiseOnBulkMessageDeletion(channel, messages);
         }
         
         private async Task ClientOnMessageReactionAdded(MessageReactionAddEventArgs e)
@@ -720,8 +717,8 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             );
             
             var message = await ConvertMessage(e.Message);
-            var user    = ConvertUser(e.User);
-            var emoji   = ConvertEmoji(e.Emoji);
+            var user    = await ConvertUser(e.User);
+            var emoji   = await ConvertEmoji(e.Emoji);
             await RaiseOnReactionAdded(message, user, emoji);
         }
         
@@ -734,7 +731,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             );
             
             var message = await ConvertMessage(e.Message);
-            var emoji   = ConvertEmoji(e.Emoji);
+            var emoji   = await ConvertEmoji(e.Emoji);
             await RaiseOnReactionRemoved(message, emoji);
         }
         
@@ -753,11 +750,11 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         {
             Log.Info($"DM {e.Channel.Id} with {ConcatMembers(e.Channel.Users)} created");
             
-            var channel = ConvertChannel(e.Channel);
+            var channel = await ConvertChannel(e.Channel);
             var users   = new List<SolaceDiscordUser>(e.Channel.Users.Count());
             foreach (var duser in e.Channel.Users)
             {
-                var user = ConvertUser(duser);
+                var user = await ConvertUser(duser);
                 users.Add(user);
             }
             await RaiseOnDmCreated(channel, users);
@@ -767,11 +764,11 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         {
             Log.Info($"DM {e.Channel.Id} with {ConcatMembers(e.Channel.Users)} deleted");
             
-            var channel = ConvertChannel(e.Channel);
+            var channel = await ConvertChannel(e.Channel);
             var users   = new List<SolaceDiscordUser>(e.Channel.Users.Count());
             foreach (var duser in e.Channel.Users)
             {
-                var user = ConvertUser(duser);
+                var user = await ConvertUser(duser);
                 users.Add(user);
             }
             await RaiseOnDmDeleted(channel, users);
@@ -781,14 +778,14 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         {
             Log.Info($"Channel {e.Channel.Name} ({e.Channel.Id}) created in \"{e.Guild.Name}\" ({e.Guild.Id})");
             
-            var channel = ConvertChannel(e.Channel);
+            var channel = await ConvertChannel(e.Channel);
             await RaiseOnChannelCreated(channel);
         }
         
         private async Task ClientOnChannelUpdated(ChannelUpdateEventArgs e)
         {
-            var before = ConvertChannel(e.ChannelBefore);
-            var after  = ConvertChannel(e.ChannelAfter);
+            var before = await ConvertChannel(e.ChannelBefore);
+            var after  = await ConvertChannel(e.ChannelAfter);
             var diff   = new DifferenceTokens.ChannelDifference(before, after);
             
             Log.Info(
@@ -803,7 +800,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         {
             Log.Info($"Pins updated in \"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id})");
             
-            var channel = ConvertChannel(e.Channel);
+            var channel = await ConvertChannel(e.Channel);
             await RaiseOnChannelPinsUpdated(channel, e.LastPinTimestamp);
         }
         
@@ -811,7 +808,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         {
             Log.Info($"Channel {e.Channel.Name} ({e.Channel.Id}) deleted in \"{e.Guild.Name}\" ({e.Guild.Id})");
             
-            var channel = ConvertChannel(e.Channel);
+            var channel = await ConvertChannel(e.Channel);
             await RaiseOnChannelDeleted(channel);
         }
         
@@ -1013,12 +1010,12 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             }
         }
         
-        private SolaceDiscordVoiceState ConvertVoiceState(DiscordVoiceState discord_state)
+        private async Task<SolaceDiscordVoiceState> ConvertVoiceState(DiscordVoiceState discord_state)
         {
             var state = new SolaceDiscordVoiceState()
             {
-                User          = ConvertUser(discord_state.User),
-                Guild         = ConvertGuild(discord_state.Guild),
+                User          = await ConvertUser(discord_state.User),
+                Guild         = await ConvertGuild(discord_state.Guild),
                 SelfDeafened  = discord_state.IsSelfDeafened,
                 SelfMuted     = discord_state.IsSelfMuted,
                 GuildDeafened = discord_state.IsServerDeafened,
@@ -1028,7 +1025,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             return state;
         }
         
-        private SolaceDiscordUser ConvertUser(DiscordUser discord_user)
+        private Task<SolaceDiscordUser> ConvertUser(DiscordUser discord_user)
         {
             _ = int.TryParse(discord_user.Discriminator, out var discriminator);
             var user = new SolaceDiscordUser()
@@ -1040,10 +1037,10 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
                 AvatarHash    = discord_user.AvatarHash,
             };
             user.TrySetUrl(discord_user.AvatarUrl);
-            return user;
+            return Task.FromResult(user);
         }
         
-        private SolaceDiscordGuild ConvertGuild(DiscordGuild discord_guild)
+        private async Task<SolaceDiscordGuild> ConvertGuild(DiscordGuild discord_guild)
         {
             // TODO: add more data
             // discord_guild.GetAllMembersAsync()
@@ -1062,8 +1059,15 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             var channels = new List<SolaceDiscordChannel>(discord_guild.Channels.Count());
             foreach (var dchannel in discord_guild.Channels)
             {
-                var channel = ConvertChannel(dchannel.Value);
+                var channel = await ConvertChannel(dchannel.Value);
                 channels.Add(channel);
+            }
+            
+            var dmembers = await discord_guild.GetAllMembersAsync();
+            var members = new List<SolaceDiscordUser>(dmembers.Count());
+            foreach (var dmember in dmembers)
+            {
+                
             }
             
             var guild = new SolaceDiscordGuild()
@@ -1071,13 +1075,13 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
                 Name     = discord_guild.Name,
                 Id       = discord_guild.Id,
                 Channels = channels,
-                Owner    = ConvertUser(discord_guild.Owner),
+                Owner    = await ConvertUser(discord_guild.Owner),
             };
             
             return guild;
         }
         
-        private SolaceDiscordGuild ConvertGuild(DiscordGuild discord_guild, bool is_dm)
+        private async Task<SolaceDiscordGuild> ConvertGuild(DiscordGuild discord_guild, bool is_dm)
         {
             if (is_dm)
             {
@@ -1090,11 +1094,11 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             }
             else
             {
-                return ConvertGuild(discord_guild);
+                return await ConvertGuild(discord_guild);
             }
         }
         
-        private SolaceDiscordChannel ConvertChannel(DiscordChannel discord_channel)
+        private async Task<SolaceDiscordChannel> ConvertChannel(DiscordChannel discord_channel)
         {
             var is_dm = discord_channel.Type.HasFlag(ChannelType.Private);
             var channel = new SolaceDiscordChannel()
@@ -1105,12 +1109,12 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
                 PerUserRateLimit = discord_channel.PerUserRateLimit ?? 0,
                 Position         = discord_channel.Position,
                 Topic            = discord_channel.Topic,
-                Guild            = ConvertGuild(discord_channel.Guild, is_dm),
+                Guild            = await ConvertGuild(discord_channel.Guild, is_dm),
             };
             return channel;
         }
         
-        private SolaceDiscordEmoji ConvertEmoji(DiscordEmoji discord_emoji)
+        private Task<SolaceDiscordEmoji> ConvertEmoji(DiscordEmoji discord_emoji)
         {
             var emoji = new SolaceDiscordEmoji()
             {
@@ -1120,25 +1124,22 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
                 RequiresColons = discord_emoji.RequiresColons,
             };
             emoji.TrySetUrl(discord_emoji.Url);
-            return emoji;
+            return Task.FromResult(emoji);
         }
         
-        private SolaceDiscordRole ConvertRole(DiscordRole discord_role, DiscordGuild guild)
+        private async Task<SolaceDiscordRole> ConvertRole(DiscordRole discord_role, DiscordGuild guild)
         {
             var role = new SolaceDiscordRole()
             {
-                Guild = ConvertGuild(guild),
+                Guild = await ConvertGuild(guild),
                 Name  = discord_role.Name,
                 Id    = discord_role.Id,
             };
             return role;
         }
         
-        private Task<SolaceDiscordMessage> ConvertMessage(DiscordMessage discord_message)
+        private async Task<SolaceDiscordMessage> ConvertMessage(DiscordMessage discord_message)
         {
-            // this method is not async yet, but I'd like to have the opprotunity
-            // in the future to do async calls in here, so it returns Task.
-            
             var discriminator = 0;
             var is_dm         = false;
             var nickname      = string.Empty;
@@ -1165,11 +1166,11 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             var message = new SolaceDiscordMessage()
             {
                 Created   = discord_message.CreationTimestamp,
-                Sender    = ConvertUser(discord_message.Author),
+                Sender    = await ConvertUser(discord_message.Author),
                 IsDM      = is_dm,
                 Nickname  = is_dm ? string.Empty : nickname,
-                Guild     = ConvertGuild(discord_message.Channel.Guild, is_dm),
-                Channel   = ConvertChannel(discord_message.Channel),
+                Guild     = await ConvertGuild(discord_message.Channel.Guild, is_dm),
+                Channel   = await ConvertChannel(discord_message.Channel),
                 MessageId = discord_message.Id,
                 Message   = discord_message.Content,
             };
@@ -1179,25 +1180,25 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             foreach (var duser in discord_message.MentionedUsers)
             {
                 _ = int.TryParse(discord_message.Author.Discriminator, out int user_discriminator);
-                var user = ConvertUser(duser);
+                var user = await ConvertUser(duser);
                 message.MentionedUsers.Add(user);
             }
             
             foreach (var dchannel in discord_message.MentionedChannels)
             {
-                var channel = ConvertChannel(dchannel);
+                var channel = await ConvertChannel(dchannel);
                 message.MentionedChannels.Add(channel);
             }
             
             foreach (var drole in discord_message.MentionedRoles)
             {
-                var role = ConvertRole(drole, discord_message.Channel.Guild);
+                var role = await ConvertRole(drole, discord_message.Channel.Guild);
                 message.MentionedRoles.Add(role);
             }
             
             foreach (var reaction in discord_message.Reactions)
             {
-                var emoji = ConvertEmoji(reaction.Emoji);
+                var emoji = await ConvertEmoji(reaction.Emoji);
                 message.Reactions.Add(emoji);
             }
             
@@ -1216,7 +1217,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
                 message.Attachments.Add(token);
             }
             
-            return Task.FromResult(message);
+            return message;
         }
         
         public override async ValueTask DisposeAsync()
