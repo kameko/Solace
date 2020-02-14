@@ -749,18 +749,32 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             await RaiseOnAllReactionsRemoved(message);
         }
         
-        private Task ClientOnDmChannelCreated(DmChannelCreateEventArgs e)
+        private async Task ClientOnDmChannelCreated(DmChannelCreateEventArgs e)
         {
             Log.Info($"DM {e.Channel.Id} with {ConcatMembers(e.Channel.Users)} created");
-            // TODO: event for this
-            return Task.CompletedTask;
+            
+            var channel = ConvertChannel(e.Channel);
+            var users   = new List<SolaceDiscordUser>(e.Channel.Users.Count());
+            foreach (var duser in e.Channel.Users)
+            {
+                var user = ConvertUser(duser);
+                users.Add(user);
+            }
+            await RaiseOnDmCreated(channel, users);
         }
         
-        private Task ClientOnDmChannelDeleted(DmChannelDeleteEventArgs e)
+        private async Task ClientOnDmChannelDeleted(DmChannelDeleteEventArgs e)
         {
             Log.Info($"DM {e.Channel.Id} with {ConcatMembers(e.Channel.Users)} deleted");
-            // TODO: event for this
-            return Task.CompletedTask;
+            
+            var channel = ConvertChannel(e.Channel);
+            var users   = new List<SolaceDiscordUser>(e.Channel.Users.Count());
+            foreach (var duser in e.Channel.Users)
+            {
+                var user = ConvertUser(duser);
+                users.Add(user);
+            }
+            await RaiseOnDmDeleted(channel, users);
         }
         
         private Task ClientOnChannelCreated(ChannelCreateEventArgs e)

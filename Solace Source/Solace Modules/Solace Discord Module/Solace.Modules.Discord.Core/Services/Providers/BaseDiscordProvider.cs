@@ -26,6 +26,8 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         public event Func<SolaceDiscordMessage, SolaceDiscordUser, SolaceDiscordEmoji, Task> OnReactionAdded;
         public event Func<SolaceDiscordMessage, SolaceDiscordEmoji, Task> OnReactionRemoved;
         public event Func<SolaceDiscordMessage, Task> OnAllReactionsRemoved;
+        public event Func<SolaceDiscordChannel, IEnumerable<SolaceDiscordUser>, Task> OnDmCreated;
+        public event Func<SolaceDiscordChannel, IEnumerable<SolaceDiscordUser>, Task> OnDmDeleted;
         public event Func<SolaceDiscordHeartbeat, Task> OnHeartbeat;
         
         public BaseDiscordProvider() : base()
@@ -44,6 +46,8 @@ namespace Solace.Modules.Discord.Core.Services.Providers
             OnReactionAdded       = delegate { return Task.CompletedTask; };
             OnReactionRemoved     = delegate { return Task.CompletedTask; };
             OnAllReactionsRemoved = delegate { return Task.CompletedTask; };
+            OnDmCreated           = delegate { return Task.CompletedTask; };
+            OnDmDeleted           = delegate { return Task.CompletedTask; };
             
             OnHeartbeat           = delegate { return Task.CompletedTask; };
         }
@@ -117,6 +121,18 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         {
             await OnAllReactionsRemoved.Invoke(message);
         }
+        
+        protected async Task RaiseOnDmCreated(SolaceDiscordChannel channel, IEnumerable<SolaceDiscordUser> users)
+        {
+            await OnDmCreated.Invoke(channel, users);
+        }
+        
+        protected async Task RaiseOnDmDeleted(SolaceDiscordChannel channel, IEnumerable<SolaceDiscordUser> users)
+        {
+            await OnDmDeleted.Invoke(channel, users);
+        }
+        
+        
         
         
         
