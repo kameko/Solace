@@ -50,6 +50,7 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         Task<IEnumerable<SolaceDiscordMessage>?> QueryLatest(ulong channel_id, int limit);
         Task<IEnumerable<SolaceDiscordMessage>?> QueryBefore(ulong channel_id, ulong before_message_id, int limit);
         Task<IEnumerable<SolaceDiscordMessage>?> QueryAfter(ulong channel_id, ulong before_message_id, int limit);
+        Task StartTyping(ulong channel_id);
         Task<bool> Send(ulong channel, string message);
         Task<bool> Send(ulong channel_id, string message, Stream resource, string filename);
         Task<bool> Send(ulong channel_id, Stream resource, string filename);

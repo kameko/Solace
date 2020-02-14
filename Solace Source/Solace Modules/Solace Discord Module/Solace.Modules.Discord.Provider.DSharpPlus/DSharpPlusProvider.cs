@@ -217,6 +217,20 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             }
         }
         
+        public override async Task StartTyping(ulong channel_id)
+        {
+            CheckConfigured();
+            try
+            {
+                var channel = await Client.GetChannelAsync(channel_id);
+                await channel.TriggerTypingAsync();
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, string.Empty);
+            }
+        }
+        
         public override async Task<bool> Send(ulong channel, string message)
         {
             CheckConfigured();
