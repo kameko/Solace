@@ -1091,19 +1091,16 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         
         private SolaceDiscordChannel ConvertChannel(DiscordChannel discord_channel)
         {
-            // TODO: add more data
-            // discord_channel.CreationTimestamp
-            // discord_channel.Mention
-            // discord_channel.PerUserRateLimit
-            // discord_channel.Position
-            // discord_channel.Topic
-            
             var is_dm = discord_channel.Type.HasFlag(ChannelType.Private);
             var channel = new SolaceDiscordChannel()
             {
-                Name  = discord_channel.Name,
-                Id    = discord_channel.Id,
-                Guild = ConvertGuild(discord_channel.Guild, is_dm),
+                Name             = discord_channel.Name,
+                Id               = discord_channel.Id,
+                MentionString    = discord_channel.Mention,
+                PerUserRateLimit = discord_channel.PerUserRateLimit ?? 0,
+                Position         = discord_channel.Position,
+                Topic            = discord_channel.Topic,
+                Guild            = ConvertGuild(discord_channel.Guild, is_dm),
             };
             return channel;
         }
@@ -1112,9 +1109,10 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         {
             var emoji = new SolaceDiscordEmoji()
             {
-                Name        = discord_emoji.Name,
-                DiscordName = discord_emoji.GetDiscordName(),
-                Id          = discord_emoji.Id,
+                Name           = discord_emoji.Name,
+                DiscordName    = discord_emoji.GetDiscordName(),
+                Id             = discord_emoji.Id,
+                RequiresColons = discord_emoji.RequiresColons,
             };
             emoji.TrySetUrl(discord_emoji.Url);
             return emoji;

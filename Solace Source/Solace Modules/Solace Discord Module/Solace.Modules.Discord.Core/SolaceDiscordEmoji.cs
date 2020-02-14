@@ -11,6 +11,7 @@ namespace Solace.Modules.Discord.Core
         public string Name { get; set; }
         public string DiscordName { get; set; }
         public ulong Id { get; set; }
+        public bool RequiresColons { get; set; }
         public Uri Url { get; set; }
         
         public SolaceDiscordEmoji()
