@@ -5,6 +5,7 @@ namespace Solace.Modules.Discord.Core
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using Solace.Core;
     using Solace.Core.Services.Communication;
     using Services;
     
@@ -47,6 +48,11 @@ namespace Solace.Modules.Discord.Core
         public CommunicationMessage ToCommunicationMessage()
         {
             throw new NotImplementedException();
+        }
+        
+        public string GetMessageDifference(SolaceDiscordMessage other)
+        {
+            return this.GetMessageDifference(other);
         }
         
         // TODO: override Equals

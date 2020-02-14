@@ -487,7 +487,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             var before = ConvertUser(e.UserBefore);
             var after = ConvertUser(e.UserAfter);
             
-            var diff = new DifferenceTokens.UserUpdatedDifference(before, after);
+            var diff = new DifferenceTokens.UserDifference(before, after);
             Log.Info($"User {e.UserAfter.Username}#{e.UserAfter.Discriminator} ({e.UserAfter.Id}) updated information: {diff}");
             
             await RaiseOnUserUpdated(diff);
@@ -504,7 +504,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         {
             var before_user = ConvertUser(e.UserBefore);
             var after_user = ConvertUser(e.UserAfter);
-            var user_diff = new DifferenceTokens.UserUpdatedDifference(before_user, after_user);
+            var user_diff = new DifferenceTokens.UserDifference(before_user, after_user);
             
             // TODO: finish the presence class
             var user = ConvertUser(e.User);
@@ -578,10 +578,35 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             }
         }
         
-        private Task ClientOnMessageUpdated(MessageUpdateEventArgs e)
+        private async Task ClientOnMessageUpdated(MessageUpdateEventArgs e)
         {
-            // TODO: event for this
-            return Task.CompletedTask;
+            SolaceDiscordMessage? before = e.MessageBefore is null ? null : await ConvertMessage(e.MessageBefore);
+            var after = await ConvertMessage(e.Message);
+            var diff = new DifferenceTokens.MessageDifference(before, after);
+            
+            var is_dm = e.Channel.Type.HasFlag(ChannelType.Private);
+            var source = is_dm ? $"DM {e.Channel.Id}" : $"\"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id}";
+            var log_msg = $"Message from user {e.Author.Username}#{e.Author.Discriminator} ({e.Author.Id}) in {source} updated. ";
+            if (before is null)
+            {
+                log_msg += "Previous message was not cached. ";
+            }
+            else
+            {
+                log_msg += $"Previous Content: {SanitizeString(e.MessageBefore!.Content)}. End Previous Content. Current ";
+            }
+            
+            log_msg += $"Content: {SanitizeString(e.Message.Content)}";
+            
+            var diff_str = diff.GetDifferenceString();
+            if (!string.IsNullOrEmpty(diff_str))
+            {
+                log_msg += $". End Content. Difference: {diff_str}";
+            }
+            
+            Log.Info(log_msg);
+            
+            await RaiseOnMessageUpdated(diff);
         }
         
         private Task ClientOnMessageAcknowledged(MessageAcknowledgeEventArgs e)
@@ -911,6 +936,9 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         
         private Task<SolaceDiscordMessage> ConvertMessage(DiscordMessage discord_message)
         {
+            // this method is not async yet, but I'd like to have the opprotunity
+            // in the future to do async calls in here, so it returns Task.
+            
             var discriminator = 0;
             var is_dm         = false;
             var nickname      = string.Empty;

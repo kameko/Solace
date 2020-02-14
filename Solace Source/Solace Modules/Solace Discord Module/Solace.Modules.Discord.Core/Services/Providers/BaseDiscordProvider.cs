@@ -13,30 +13,27 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         public bool Connected { get; protected set; }
         public int MaxQueryLimit { get; protected set; }
         public event Func<bool, Task> OnReady;
-        public event Func<SolaceDiscordMessage, Task> OnReceiveMessage;
         public event Func<DifferenceTokens.VoiceStateDifference, Task> OnVoiceStateChange;
-        public event Func<DifferenceTokens.UserUpdatedDifference, Task> OnUserUpdated;
+        public event Func<DifferenceTokens.UserDifference, Task> OnUserUpdated;
         public event Func<SolaceDiscordUser, Task> OnUserSettingsUpdated;
         public event Func<DifferenceTokens.PresenceUpdatedDifference, Task> OnPresenceUpdated;
         public event Func<SolaceDiscordUser, SolaceDiscordChannel, Task> OnUserTyping;
+        public event Func<SolaceDiscordMessage, Task> OnReceiveMessage;
+        public event Func<DifferenceTokens.MessageDifference, Task> OnMessageUpdated;
         public event Func<SolaceDiscordHeartbeat, Task> OnHeartbeat;
         
         public BaseDiscordProvider() : base()
         {
             OnReady               = delegate { return Task.CompletedTask; };
-            OnReceiveMessage      = delegate { return Task.CompletedTask; };
             OnVoiceStateChange    = delegate { return Task.CompletedTask; };
             OnUserUpdated         = delegate { return Task.CompletedTask; };
             OnUserSettingsUpdated = delegate { return Task.CompletedTask; };
             OnPresenceUpdated     = delegate { return Task.CompletedTask; };
             OnUserTyping          = delegate { return Task.CompletedTask; };
+            OnReceiveMessage      = delegate { return Task.CompletedTask; };
+            OnMessageUpdated      = delegate { return Task.CompletedTask; };
             
             OnHeartbeat           = delegate { return Task.CompletedTask; };
-        }
-        
-        protected async Task RaiseOnReceiveMessage(SolaceDiscordMessage message)
-        {
-            await OnReceiveMessage.Invoke(message);
         }
         
         protected async Task RaiseOnReady(bool resuming)
@@ -49,7 +46,7 @@ namespace Solace.Modules.Discord.Core.Services.Providers
             await OnVoiceStateChange.Invoke(difference);
         }
         
-        protected async Task RaiseOnUserUpdated(DifferenceTokens.UserUpdatedDifference difference)
+        protected async Task RaiseOnUserUpdated(DifferenceTokens.UserDifference difference)
         {
             await OnUserUpdated.Invoke(difference);
         }
@@ -67,6 +64,16 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         protected async Task RaiseOnUserTyping(SolaceDiscordUser user, SolaceDiscordChannel channel)
         {
             await OnUserTyping.Invoke(user, channel);
+        }
+        
+        protected async Task RaiseOnReceiveMessage(SolaceDiscordMessage message)
+        {
+            await OnReceiveMessage.Invoke(message);
+        }
+        
+        protected async Task RaiseOnMessageUpdated(DifferenceTokens.MessageDifference difference)
+        {
+            await OnMessageUpdated.Invoke(difference);
         }
         
         protected async Task RaiseOnHeartbeat(SolaceDiscordHeartbeat heartbeat)

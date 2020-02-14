@@ -23,15 +23,23 @@ namespace Solace.Modules.Discord.Core
             }
         }
         
-        public class VoiceStateDifference : BaseDifference
+        public abstract class BaseDifference<T> : BaseDifference
         {
-            public SolaceDiscordVoiceState Before { get; set; }
-            public SolaceDiscordVoiceState After { get; set; }
+            public T Before { get; set; }
+            public T After { get; set; }
             
-            public VoiceStateDifference(SolaceDiscordVoiceState before, SolaceDiscordVoiceState after)
+            public BaseDifference(T before, T after)
             {
                 Before = before;
                 After  = after;
+            }
+        }
+        
+        public class VoiceStateDifference : BaseDifference<SolaceDiscordVoiceState>
+        {
+            public VoiceStateDifference(SolaceDiscordVoiceState before, SolaceDiscordVoiceState after) : base(before, after)
+            {
+                
             }
             
             public override string GetDifferenceString()
@@ -40,15 +48,11 @@ namespace Solace.Modules.Discord.Core
             }
         }
         
-        public class UserUpdatedDifference : BaseDifference
+        public class UserDifference : BaseDifference<SolaceDiscordUser>
         {
-            public SolaceDiscordUser Before { get; set; }
-            public SolaceDiscordUser After { get; set; }
-            
-            public UserUpdatedDifference(SolaceDiscordUser before, SolaceDiscordUser after)
+            public UserDifference(SolaceDiscordUser before, SolaceDiscordUser after) : base(before, after)
             {
-                Before = before;
-                After  = after;
+                
             }
             
             public override string GetDifferenceString()
@@ -76,9 +80,9 @@ namespace Solace.Modules.Discord.Core
         public class PresenceUpdatedDifference : BaseDifference
         {
             public PresenceDifference PresenceDifference { get; set; }
-            public UserUpdatedDifference UserDifference { get; set; }
+            public UserDifference UserDifference { get; set; }
             
-            public PresenceUpdatedDifference(PresenceDifference presence_diff, UserUpdatedDifference user_diff)
+            public PresenceUpdatedDifference(PresenceDifference presence_diff, UserDifference user_diff)
             {
                 PresenceDifference = presence_diff;
                 UserDifference     = user_diff;
@@ -97,6 +101,19 @@ namespace Solace.Modules.Discord.Core
                     }
                 }
                 return diff;
+            }
+        }
+        
+        public class MessageDifference : BaseDifference<SolaceDiscordMessage>
+        {
+            public MessageDifference(SolaceDiscordMessage? before, SolaceDiscordMessage after) : base(before!, after)
+            {
+                
+            }
+            
+            public override string GetDifferenceString()
+            {
+                return Before?.GetMessageDifference(After) ?? string.Empty;
             }
         }
     }
