@@ -587,21 +587,30 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             var is_dm = e.Channel.Type.HasFlag(ChannelType.Private);
             var source = is_dm ? $"DM {e.Channel.Id}" : $"\"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id}";
             var log_msg = $"Message from user {e.Author.Username}#{e.Author.Discriminator} ({e.Author.Id}) in {source} updated. ";
+            
             if (before is null)
             {
                 log_msg += "Previous message was not cached. ";
+            }
+            else if (before.Message == after.Message)
+            {
+                log_msg += $"Content of cached message is the same. ";
             }
             else
             {
                 log_msg += $"Previous Content: {SanitizeString(e.MessageBefore!.Content)}. End Previous Content. Current ";
             }
             
-            log_msg += $"Content: {SanitizeString(e.Message.Content)}";
+            log_msg += $"Content: {SanitizeString(e.Message.Content)}. End Current Content. ";
             
             var diff_str = diff.GetDifferenceString();
-            if (!string.IsNullOrEmpty(diff_str))
+            if (string.IsNullOrEmpty(diff_str))
             {
-                log_msg += $". End Content. Difference: {diff_str}";
+                log_msg += $"No other differences found";
+            }
+            else
+            {
+                log_msg += $"Difference: {diff_str}";
             }
             
             Log.Info(log_msg);
