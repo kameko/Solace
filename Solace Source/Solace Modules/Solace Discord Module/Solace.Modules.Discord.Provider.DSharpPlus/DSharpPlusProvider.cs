@@ -290,6 +290,116 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             }
         }
         
+        public override async Task<SolaceDiscordGuild?> GetGuild(ulong guild_id)
+        {
+            CheckConfigured();
+            try
+            {
+                var dguild = await Client.GetGuildAsync(guild_id);
+                var guild  = await ConvertGuild(dguild);
+                return guild;
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, string.Empty);
+                return null;
+            }
+        }
+        
+        public override async Task<IEnumerable<SolaceDiscordGuild>> GetGuilds()
+        {
+            CheckConfigured();
+            var guilds = new List<SolaceDiscordGuild>();
+            try
+            {
+                foreach (var dguild in Client.Guilds)
+                {
+                    var guild = await ConvertGuild(dguild.Value);
+                    guilds.Add(guild);
+                }
+                return guilds;
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, string.Empty);
+                return guilds;
+            }
+        }
+        
+        public override async Task<SolaceDiscordChannel?> GetChannel(ulong channel_id)
+        {
+            CheckConfigured();
+            try
+            {
+                var dchannel = await Client.GetChannelAsync(channel_id);
+                var channel = await ConvertChannel(dchannel);
+                return channel;
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, string.Empty);
+                return null;
+            }
+        }
+        
+        public override async Task<IEnumerable<SolaceDiscordChannel>> GetChannels(ulong guild_id)
+        {
+            CheckConfigured();
+            var channels = new List<SolaceDiscordChannel>();
+            try
+            {
+                var guild = await Client.GetGuildAsync(guild_id);
+                foreach (var dchannel in guild.Channels)
+                {
+                    var channel = await ConvertChannel(dchannel.Value);
+                    channels.Add(channel);
+                }
+                return channels;
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, string.Empty);
+                return channels;
+            }
+        }
+        
+        public override async Task<SolaceDiscordUser?> GetUser(ulong user_id)
+        {
+            CheckConfigured();
+            try
+            {
+                var duser = await Client.GetUserAsync(user_id);
+                var user  = await ConvertUser(duser);
+                return user;
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, string.Empty);
+                return null;
+            }
+        }
+        
+        public override async Task<IEnumerable<SolaceDiscordUser>> GetUsers(ulong guild_id)
+        {
+            CheckConfigured();
+            var users = new List<SolaceDiscordUser>();
+            try
+            {
+                var guild = await Client.GetGuildAsync(guild_id);
+                foreach (var duser in await guild.GetAllMembersAsync())
+                {
+                    var user = await ConvertUser(duser);
+                    users.Add(user);
+                }
+                return users;
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, string.Empty);
+                return users;
+            }
+        }
+        
         public override async Task<bool> SetAvatar(Stream file_stream)
         {
             CheckConfigured();

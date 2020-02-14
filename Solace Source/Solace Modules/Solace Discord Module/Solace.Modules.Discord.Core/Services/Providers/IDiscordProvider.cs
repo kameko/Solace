@@ -17,6 +17,7 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         event Func<SolaceDiscordUser, Task> OnUserSettingsUpdated;
         event Func<DifferenceTokens.PresenceUpdatedDifference, Task> OnPresenceUpdated;
         event Func<SolaceDiscordUser, SolaceDiscordChannel, Task> OnUserTyping;
+        event Func<SolaceDiscordHeartbeat, Task> OnHeartbeat;
         event Func<SolaceDiscordMessage, Task> OnReceiveMessage;
         event Func<DifferenceTokens.MessageDifference, Task> OnMessageUpdated;
         event Func<SolaceDiscordMessage, Task> OnMessageAcknowledged;
@@ -41,7 +42,6 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         event Func<SolaceDiscordGuild, SolaceDiscordUser, Task> OnGuildUserRemoved;
         event Func<SolaceDiscordGuild, SolaceDiscordUser, Task> OnGuildUserBanned;
         event Func<SolaceDiscordGuild, SolaceDiscordUser, Task> OnGuildUserUnbanned;
-        event Func<SolaceDiscordHeartbeat, Task> OnHeartbeat;
         
         Task<DiscordChannelQueryToken?> QueryChannel(ulong channel_id, ulong starting_message_id);
         Task<DiscordChannelQueryToken?> QueryChannel(ulong channel_id);
@@ -55,13 +55,17 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         Task<bool> Send(ulong channel_id, Stream resource, string filename);
         Task<bool> Connect();
         Task<bool> Disconnect();
+        Task<SolaceDiscordGuild?> GetGuild(ulong guild_id);
+        Task<IEnumerable<SolaceDiscordGuild>> GetGuilds();
+        Task<SolaceDiscordChannel?> GetChannel(ulong channel_id);
+        Task<IEnumerable<SolaceDiscordChannel>> GetChannels(ulong guild_id);
+        Task<SolaceDiscordUser?> GetUser(ulong user_id);
+        Task<IEnumerable<SolaceDiscordUser>> GetUsers(ulong guild_id);
         Task<bool> SetAvatar(Stream file_stream);
         Task<bool> SetUsername(string name);
         Task<bool> SetNickname(ulong guild, string name);
         Task<bool> SetStatus(string status);
         Task<bool> SetStatus(string status, SolaceDiscordActivity activity_kind);
         Task PingLoop(CancellationToken token, int timeout, int tries);
-        
-        // TODO: get all guilds and channels in a guild.
     }
 }

@@ -18,6 +18,7 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         public event Func<SolaceDiscordUser, Task> OnUserSettingsUpdated;
         public event Func<DifferenceTokens.PresenceUpdatedDifference, Task> OnPresenceUpdated;
         public event Func<SolaceDiscordUser, SolaceDiscordChannel, Task> OnUserTyping;
+        public event Func<SolaceDiscordHeartbeat, Task> OnHeartbeat;
         public event Func<SolaceDiscordMessage, Task> OnReceiveMessage;
         public event Func<DifferenceTokens.MessageDifference, Task> OnMessageUpdated;
         public event Func<SolaceDiscordMessage, Task> OnMessageAcknowledged;
@@ -42,7 +43,6 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         public event Func<SolaceDiscordGuild, SolaceDiscordUser, Task> OnGuildUserRemoved;
         public event Func<SolaceDiscordGuild, SolaceDiscordUser, Task> OnGuildUserBanned;
         public event Func<SolaceDiscordGuild, SolaceDiscordUser, Task> OnGuildUserUnbanned;
-        public event Func<SolaceDiscordHeartbeat, Task> OnHeartbeat;
         
         public BaseDiscordProvider() : base()
         {
@@ -52,6 +52,7 @@ namespace Solace.Modules.Discord.Core.Services.Providers
             OnUserSettingsUpdated = delegate { return Task.CompletedTask; };
             OnPresenceUpdated     = delegate { return Task.CompletedTask; };
             OnUserTyping          = delegate { return Task.CompletedTask; };
+            OnHeartbeat           = delegate { return Task.CompletedTask; };
             OnReceiveMessage      = delegate { return Task.CompletedTask; };
             OnMessageUpdated      = delegate { return Task.CompletedTask; };
             OnMessageAcknowledged = delegate { return Task.CompletedTask; };
@@ -76,8 +77,6 @@ namespace Solace.Modules.Discord.Core.Services.Providers
             OnGuildUserRemoved    = delegate { return Task.CompletedTask; };
             OnGuildUserBanned     = delegate { return Task.CompletedTask; };
             OnGuildUserUnbanned   = delegate { return Task.CompletedTask; };
-            
-            OnHeartbeat           = delegate { return Task.CompletedTask; };
         }
         
         protected async Task RaiseOnReady(bool resuming)
@@ -108,6 +107,11 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         protected async Task RaiseOnUserTyping(SolaceDiscordUser user, SolaceDiscordChannel channel)
         {
             await OnUserTyping.Invoke(user, channel);
+        }
+        
+        protected async Task RaiseOnHeartbeat(SolaceDiscordHeartbeat heartbeat)
+        {
+            await OnHeartbeat.Invoke(heartbeat);
         }
         
         protected async Task RaiseOnReceiveMessage(SolaceDiscordMessage message)
@@ -230,14 +234,6 @@ namespace Solace.Modules.Discord.Core.Services.Providers
             await OnGuildUserUnbanned.Invoke(guild, user);
         }
         
-        // TODO: events
-        
-        
-        protected async Task RaiseOnHeartbeat(SolaceDiscordHeartbeat heartbeat)
-        {
-            await OnHeartbeat.Invoke(heartbeat);
-        }
-        
         public virtual Task<DiscordChannelQueryToken?> QueryChannel(ulong channel_id, ulong starting_message_id)
         {
             throw new NotImplementedException();
@@ -294,6 +290,36 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         }
         
         public virtual Task<bool> Disconnect()
+        {
+            throw new NotImplementedException();
+        }
+        
+        public virtual Task<SolaceDiscordGuild?> GetGuild(ulong guild_id)
+        {
+            throw new NotImplementedException();
+        }
+        
+        public virtual Task<IEnumerable<SolaceDiscordGuild>> GetGuilds()
+        {
+            throw new NotImplementedException();
+        }
+        
+        public virtual Task<SolaceDiscordChannel?> GetChannel(ulong channel_id)
+        {
+            throw new NotImplementedException();
+        }
+        
+        public virtual Task<IEnumerable<SolaceDiscordChannel>> GetChannels(ulong guild_id)
+        {
+            throw new NotImplementedException();
+        }
+        
+        public virtual Task<SolaceDiscordUser?> GetUser(ulong user_id)
+        {
+            throw new NotImplementedException();
+        }
+        
+        public virtual Task<IEnumerable<SolaceDiscordUser>> GetUsers(ulong guild_id)
         {
             throw new NotImplementedException();
         }
