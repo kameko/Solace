@@ -14,6 +14,7 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         event Func<bool, Task> OnReady;
         event Func<SolaceDiscordMessage, Task> OnReceiveMessage;
         event Func<SolaceDiscordVoiceState, SolaceDiscordVoiceState, Task> OnVoiceStateChange;
+        event Func<SolaceDiscordUser, SolaceDiscordUser, Task> OnUserUpdated;
         event Func<SolaceDiscordHeartbeat, Task> OnHeartbeat;
         
         Task<DiscordChannelQueryToken?> QueryChannel(ulong channel_id, ulong starting_message_id);

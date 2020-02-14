@@ -36,12 +36,7 @@ namespace Solace.Modules.Discord.Core
         
         public string GetUserDifference(SolaceDiscordUser other)
         {
-            return GetUserDifference(this, other);
-        }
-        
-        public static string GetUserDifference(SolaceDiscordUser before, SolaceDiscordUser after)
-        {
-            return before.GetObjectDifferencesAsString(after);
+            return ObjectExtensions.GetObjectDifferencesAsString(this, other);
         }
     }
 }

@@ -26,12 +26,7 @@ namespace Solace.Modules.Discord.Core
         
         public string GetDifferenceString(SolaceDiscordVoiceState other)
         {
-            return GetDifferenceString(this, other);
-        }
-        
-        public static string GetDifferenceString(SolaceDiscordVoiceState before, SolaceDiscordVoiceState after)
-        {
-            return before.GetObjectDifferencesAsString(after);
+            return ObjectExtensions.GetObjectDifferencesAsString(this, other);
         }
     }
 }

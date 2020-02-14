@@ -15,14 +15,16 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         public event Func<bool, Task> OnReady;
         public event Func<SolaceDiscordMessage, Task> OnReceiveMessage;
         public event Func<SolaceDiscordVoiceState, SolaceDiscordVoiceState, Task> OnVoiceStateChange;
+        public event Func<SolaceDiscordUser, SolaceDiscordUser, Task> OnUserUpdated;
         public event Func<SolaceDiscordHeartbeat, Task> OnHeartbeat;
         
         public BaseDiscordProvider() : base()
         {
             OnReady            = delegate { return Task.CompletedTask; };
             OnReceiveMessage   = delegate { return Task.CompletedTask; };
-            OnHeartbeat        = delegate { return Task.CompletedTask; };
             OnVoiceStateChange = delegate { return Task.CompletedTask; };
+            OnUserUpdated      = delegate { return Task.CompletedTask; };
+            OnHeartbeat        = delegate { return Task.CompletedTask; };
         }
         
         protected async Task RaiseOnReceiveMessage(SolaceDiscordMessage message)
@@ -33,6 +35,11 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         protected async Task RaiseOnReady(bool resuming)
         {
             await OnReady.Invoke(resuming);
+        }
+        
+        protected async Task RaiseOnUserUpdated(SolaceDiscordUser before, SolaceDiscordUser after)
+        {
+            await OnUserUpdated.Invoke(before, after);
         }
         
         protected async Task RaiseOnReceiveMessage(SolaceDiscordVoiceState before, SolaceDiscordVoiceState after)

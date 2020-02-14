@@ -468,7 +468,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             var before = ConvertVoiceState(e.Before);
             var after = ConvertVoiceState(e.After);
             
-            var diff = SolaceDiscordVoiceState.GetDifferenceString(before, after);
+            var diff = before.GetDifferenceString(after);
             Log.Info($"Client voice state changed for \"{e.Guild.Name}\"\\{e.Channel.Name} ({e.Guild.Id}\\{e.Channel.Id}): {diff}");
             
             await RaiseOnReceiveMessage(before, after);
@@ -480,11 +480,15 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             return Task.CompletedTask;
         }
         
-        private Task ClientOnUserUpdated(UserUpdateEventArgs e)
+        private async Task ClientOnUserUpdated(UserUpdateEventArgs e)
         {
-            // TODO: find a nice way to log this, find the difference in Before and After.
-            // TODO: event for this
-            return Task.CompletedTask;
+            var before = ConvertUser(e.UserBefore);
+            var after = ConvertUser(e.UserAfter);
+            
+            var diff = before.GetUserDifference(after);
+            Log.Info($"User {e.UserAfter.Username}#{e.UserAfter.Discriminator} ({e.UserAfter.Id}) updated information: {diff}");
+            
+            await RaiseOnUserUpdated(before, after);
         }
         
         private Task ClientOnUserSettingsUpdated(UserSettingsUpdateEventArgs e)
