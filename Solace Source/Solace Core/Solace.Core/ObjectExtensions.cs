@@ -31,12 +31,7 @@ namespace Solace.Core
                 }
             }
             
-            if (diff.EndsWith(", "))
-            {
-                diff = diff.Substring(0, diff.Length - 2);
-            }
-            
-            return diff;
+            return diff.Substring(0, diff.Length - 2);
         }
         
         public static string GetDeepObjectDifferencesAsString(this object before, object after)
