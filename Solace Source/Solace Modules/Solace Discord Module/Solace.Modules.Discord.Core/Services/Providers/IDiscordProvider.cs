@@ -43,8 +43,8 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         event Func<SolaceDiscordGuild, SolaceDiscordUser, Task> OnGuildUserBanned;
         event Func<SolaceDiscordGuild, SolaceDiscordUser, Task> OnGuildUserUnbanned;
         
-        Task<DiscordChannelQueryToken?> QueryChannel(ulong channel_id, ulong starting_message_id);
-        Task<DiscordChannelQueryToken?> QueryChannel(ulong channel_id);
+        Task<DiscordChannelQuery?> QueryChannel(ulong channel_id, ulong starting_message_id);
+        Task<DiscordChannelQuery?> QueryChannel(ulong channel_id);
         Task<SolaceDiscordMessage?> GetMessage(ulong channel_id, ulong message_id);
         Task<SolaceDiscordMessage?> QueryLatest(ulong channel_id);
         Task<IEnumerable<SolaceDiscordMessage>?> QueryLatest(ulong channel_id, int limit);

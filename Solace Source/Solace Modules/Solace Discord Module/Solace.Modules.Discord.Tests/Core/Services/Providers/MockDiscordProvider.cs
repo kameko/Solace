@@ -20,7 +20,7 @@ namespace Solace.Modules.Discord.Tests.Core.Services.Providers
             MaxQueryLimit    = 100;
         }
         
-        public override async Task<DiscordChannelQueryToken?> QueryChannel(ulong channel_id, ulong starting_message_id)
+        public override async Task<DiscordChannelQuery?> QueryChannel(ulong channel_id, ulong starting_message_id)
         {
             var guild = Cache.Guilds.Find(x => x.Channels.Exists(y => y.Id == channel_id));
             if (!(guild is null))
@@ -28,7 +28,7 @@ namespace Solace.Modules.Discord.Tests.Core.Services.Providers
                 var channel = guild.Channels.Find(x => x.Id == channel_id);
                 if (!(channel is null))
                 {
-                    var dcqt = new DiscordChannelQueryToken(this, channel_id, starting_message_id);
+                    var dcqt = new DiscordChannelQuery(this, channel_id, starting_message_id);
                     await dcqt.Setup();
                     return dcqt;
                 }
@@ -36,7 +36,7 @@ namespace Solace.Modules.Discord.Tests.Core.Services.Providers
             return null;
         }
         
-        public override async Task<DiscordChannelQueryToken?> QueryChannel(ulong channel_id)
+        public override async Task<DiscordChannelQuery?> QueryChannel(ulong channel_id)
         {
             var guild = Cache.Guilds.Find(x => x.Channels.Exists(y => y.Id == channel_id));
             if (!(guild is null))
@@ -47,7 +47,7 @@ namespace Solace.Modules.Discord.Tests.Core.Services.Providers
                     var first = channel.Messages.FirstOrDefault();
                     if (!(first is null))
                     {
-                        var dcqt = new DiscordChannelQueryToken(this, channel_id, first.MessageId);
+                        var dcqt = new DiscordChannelQuery(this, channel_id, first.MessageId);
                         await dcqt.Setup();
                         return dcqt;
                     }

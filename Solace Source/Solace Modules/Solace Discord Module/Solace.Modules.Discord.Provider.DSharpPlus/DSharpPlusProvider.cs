@@ -113,9 +113,9 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         
         // --- Public Methods --- //
         
-        public override async Task<DiscordChannelQueryToken?> QueryChannel(ulong channel_id, ulong starting_message_id)
+        public override async Task<DiscordChannelQuery?> QueryChannel(ulong channel_id, ulong starting_message_id)
         {
-            var dcqt = new DiscordChannelQueryToken(this, channel_id, starting_message_id);
+            var dcqt = new DiscordChannelQuery(this, channel_id, starting_message_id);
             var success = await dcqt.Setup();
             if (success)
             {
@@ -124,7 +124,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             return null;
         }
         
-        public override async Task<DiscordChannelQueryToken?> QueryChannel(ulong channel_id)
+        public override async Task<DiscordChannelQuery?> QueryChannel(ulong channel_id)
         {
             var current = await QueryLatest(channel_id);
             if (current is null)

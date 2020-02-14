@@ -7,7 +7,7 @@ namespace Solace.Modules.Discord.Core.Services.Providers
     using System.Threading;
     using System.Threading.Tasks;
     
-    public class DiscordChannelQueryToken : IAsyncEnumerable<SolaceDiscordMessage>
+    public class DiscordChannelQuery : IAsyncEnumerable<SolaceDiscordMessage>
     {
         public static readonly int DefaultRequestDelay = 1_000;
         
@@ -17,7 +17,7 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         private List<SolaceDiscordMessage>? CurrentBatch { get; set; }
         private int RequestDelay { get; set; }
         
-        public DiscordChannelQueryToken(IDiscordProvider provider, ulong channel_id, ulong message_id)
+        public DiscordChannelQuery(IDiscordProvider provider, ulong channel_id, ulong message_id)
         {
             Provider         = provider;
             ChannelId        = channel_id;
