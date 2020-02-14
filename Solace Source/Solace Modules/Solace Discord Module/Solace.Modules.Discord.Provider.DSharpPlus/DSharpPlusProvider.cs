@@ -233,19 +233,25 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             }
         }
         
-        // TODO: resource gathering, might need a new object to represent the resource
-        // https://github.com/DSharpPlus/DSharpPlus/blob/master/DSharpPlus/Entities/DiscordEmbedBuilder.cs 
         public override async Task<bool> Send(ulong channel_id, string message, Stream resource, string filename)
         {
             CheckConfigured();
-            var channel = await Client.GetChannelAsync(channel_id);
-            // await channel.SendFileAsync()
-            throw new NotImplementedException();
+            try
+            {
+                var channel = await Client.GetChannelAsync(channel_id);
+                await channel.SendFileAsync(filename, resource, message);
+                return true;
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, string.Empty);
+                return false;
+            }
         }
         
         public override async Task<bool> Send(ulong channel_id, Stream resource, string filename)
         {
-            return await Send(channel_id, string.Empty, resource, filename);
+            return await Send(channel_id, null!, resource, filename);
         }
         
         public override async Task<bool> Connect()
@@ -487,7 +493,8 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             // a loop.
             // Might not actually be needed, D#+ apparently handles this.
             
-            throw new NotImplementedException();
+            // Do nothing.
+            return Task.CompletedTask;
         }
         
         // --- Private Methods --- //
