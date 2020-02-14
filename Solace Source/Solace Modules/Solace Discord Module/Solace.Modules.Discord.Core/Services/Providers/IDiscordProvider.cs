@@ -39,6 +39,8 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         event Func<SolaceDiscordGuild, SolaceDiscordUser, Task> OnGuildUserAdded;
         event Func<DifferenceTokens.GuildUserDifference, Task> OnGuildUserUpdated;
         event Func<SolaceDiscordGuild, SolaceDiscordUser, Task> OnGuildUserRemoved;
+        event Func<SolaceDiscordGuild, SolaceDiscordUser, Task> OnGuildUserBanned;
+        event Func<SolaceDiscordGuild, SolaceDiscordUser, Task> OnGuildUserUnbanned;
         event Func<SolaceDiscordHeartbeat, Task> OnHeartbeat;
         
         Task<DiscordChannelQueryToken?> QueryChannel(ulong channel_id, ulong starting_message_id);

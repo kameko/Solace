@@ -40,6 +40,8 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         public event Func<SolaceDiscordGuild, SolaceDiscordUser, Task> OnGuildUserAdded;
         public event Func<DifferenceTokens.GuildUserDifference, Task> OnGuildUserUpdated;
         public event Func<SolaceDiscordGuild, SolaceDiscordUser, Task> OnGuildUserRemoved;
+        public event Func<SolaceDiscordGuild, SolaceDiscordUser, Task> OnGuildUserBanned;
+        public event Func<SolaceDiscordGuild, SolaceDiscordUser, Task> OnGuildUserUnbanned;
         public event Func<SolaceDiscordHeartbeat, Task> OnHeartbeat;
         
         public BaseDiscordProvider() : base()
@@ -72,6 +74,8 @@ namespace Solace.Modules.Discord.Core.Services.Providers
             OnGuildUserAdded      = delegate { return Task.CompletedTask; };
             OnGuildUserUpdated    = delegate { return Task.CompletedTask; };
             OnGuildUserRemoved    = delegate { return Task.CompletedTask; };
+            OnGuildUserBanned     = delegate { return Task.CompletedTask; };
+            OnGuildUserUnbanned   = delegate { return Task.CompletedTask; };
             
             OnHeartbeat           = delegate { return Task.CompletedTask; };
         }
@@ -214,6 +218,16 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         public async Task RaiseOnGuildUserRemoved(SolaceDiscordGuild guild, SolaceDiscordUser user)
         {
             await OnGuildUserRemoved.Invoke(guild, user);
+        }
+        
+        public async Task RaiseOnGuildUserBanned(SolaceDiscordGuild guild, SolaceDiscordUser user)
+        {
+            await OnGuildUserBanned.Invoke(guild, user);
+        }
+        
+        public async Task RaiseOnGuildUserUnbanned(SolaceDiscordGuild guild, SolaceDiscordUser user)
+        {
+            await OnGuildUserUnbanned.Invoke(guild, user);
         }
         
         // TODO: events
