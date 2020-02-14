@@ -937,15 +937,15 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         private string ConcatMembers(IEnumerable<DiscordMember> discord_users)
         {
             var users_sb = new StringBuilder(discord_users.Count() * 3);
-            var index = 0;
+            var index    = 1;
             foreach (var user in discord_users)
             {
+                users_sb.Append($"{user.Username}#{user.Discriminator} ({user.Id})");
                 if (!string.IsNullOrEmpty(user.Nickname) && user.Nickname != user.Username)
                 {
-                    users_sb.Append($"\"{user.Nickname}\"");
+                    users_sb.Append($" \"{user.Nickname}\"");
                 }
-                users_sb.Append($"{user.Username}#{user.Discriminator} ({user.Id})");
-                if (discord_users.Count() > 1 && index < discord_users.Count() - 1)
+                if (discord_users.Count() > 1 && index < discord_users.Count())
                 {
                     users_sb.Append(", ");
                 }
