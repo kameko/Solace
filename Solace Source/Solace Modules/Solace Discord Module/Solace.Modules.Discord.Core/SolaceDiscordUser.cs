@@ -5,6 +5,8 @@ namespace Solace.Modules.Discord.Core
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using System.Reflection;
+    using Solace.Core;
     
     public class SolaceDiscordUser
     {
@@ -30,6 +32,16 @@ namespace Solace.Modules.Discord.Core
             {
                 AvatarUrl = uri!;
             }
+        }
+        
+        public string GetUserDifference(SolaceDiscordUser other)
+        {
+            return GetUserDifference(this, other);
+        }
+        
+        public static string GetUserDifference(SolaceDiscordUser before, SolaceDiscordUser after)
+        {
+            return before.GetObjectDifferencesAsString(after);
         }
     }
 }

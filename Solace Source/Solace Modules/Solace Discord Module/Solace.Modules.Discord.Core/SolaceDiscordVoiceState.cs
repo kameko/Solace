@@ -5,6 +5,7 @@ namespace Solace.Modules.Discord.Core
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using Solace.Core;
     
     public class SolaceDiscordVoiceState
     {
@@ -30,42 +31,7 @@ namespace Solace.Modules.Discord.Core
         
         public static string GetDifferenceString(SolaceDiscordVoiceState before, SolaceDiscordVoiceState after)
         {
-            var diff = string.Empty;
-            
-            void AppendComma()
-            {
-                if (!string.IsNullOrEmpty(diff))
-                {
-                    diff += ", ";
-                }
-            }
-            
-            if (before.SelfDeafened != after.SelfDeafened)
-            {
-                diff += $"Self Defened: {before.SelfDeafened} -> {after.SelfDeafened}";
-            }
-            if (before.SelfMuted != after.SelfMuted)
-            {
-                AppendComma();
-                diff += $"Self Muted: {before.SelfMuted} -> {after.SelfMuted}";
-            }
-            if (before.GuildDeafened != after.GuildDeafened)
-            {
-                AppendComma();
-                diff += $"Guild Deafened: {before.GuildDeafened} -> {after.GuildDeafened}";
-            }
-            if (before.GuildMuted != after.GuildMuted)
-            {
-                AppendComma();
-                diff += $"Guild Muted: {before.GuildMuted} -> {after.GuildMuted}";
-            }
-            if (before.Suppressed != after.Suppressed)
-            {
-                AppendComma();
-                diff += $"Suppressed: {before.Suppressed} -> {after.Suppressed}";
-            }
-            
-            return diff;
+            return before.GetObjectDifferencesAsString(after);
         }
     }
 }
