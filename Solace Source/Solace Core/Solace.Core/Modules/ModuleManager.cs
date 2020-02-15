@@ -12,6 +12,7 @@ namespace Solace.Core.Modules
     {
         public int QueueCheckDelay { get; set; }
         public event Func<string, IEnumerable<IService>, Task> OnModuleReady;
+        public event Func<IEnumerable<string>, Task> OnRequestStopServices;
         public event Func<Exception, Task> OnError;
         
         private List<ModuleContainer> Containers { get; set; }
@@ -20,12 +21,13 @@ namespace Solace.Core.Modules
         
         public ModuleManager()
         {
-            QueueCheckDelay = 1000;
-            OnModuleReady   = delegate { return Task.CompletedTask; };
-            OnError         = delegate { return Task.CompletedTask; };
+            QueueCheckDelay       = 1000;
+            OnModuleReady         = delegate { return Task.CompletedTask; };
+            OnError               = delegate { return Task.CompletedTask; };
+            OnRequestStopServices = delegate { return Task.CompletedTask; };
             
-            Containers      = new List<ModuleContainer>();
-            DependencyQueue = new List<DependencyQueueToken>();
+            Containers            = new List<ModuleContainer>();
+            DependencyQueue       = new List<DependencyQueueToken>();
         }
         
         public void Start()
@@ -96,7 +98,7 @@ namespace Solace.Core.Modules
         
         public Task Unload(string name)
         {
-            return Task.Run(() =>
+            return Task.Run(async () =>
             {
                 var container = Containers.Find(x => x.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
                 if (!(container is null))
@@ -104,6 +106,7 @@ namespace Solace.Core.Modules
                     container.Stop();
                     Containers.Remove(container);
                     DependencyQueue.RemoveAll(x => object.ReferenceEquals(x.Container, container));
+                    await OnRequestStopServices.Invoke(container.Module!.GetServices().Select(x => x.Name));
                 }
             });
         }
@@ -147,12 +150,7 @@ namespace Solace.Core.Modules
                         Log.Warning($"Module \"{container.Module!.Info.Name}\" has no services. You should consider adding one");
                         return;
                     }
-                    foreach (var service in services)
-                    {
-                        Log.Info($"Starting service \"{service.Name}\" from module \"{container.Module!.Info.Name}\"");
-                        current = service;
-                        await service.Start(container.GetCancellationToken());
-                    }
+                    container.Run();
                     Log.Info($"Finished starting services from module \"{container.Module!.Info.Name}\"");
                 }
                 catch (Exception e)

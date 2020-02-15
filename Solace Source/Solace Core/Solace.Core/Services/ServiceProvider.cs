@@ -21,6 +21,11 @@ namespace Solace.Core.Services
             Services        = new ConcurrentBag<IService>();
         }
         
+        internal Task HandleModuleUnloading(IEnumerable<string> services)
+        {
+            throw new NotImplementedException();
+        }
+        
         internal void AddService(IService service)
         {
             Services.Add(service);

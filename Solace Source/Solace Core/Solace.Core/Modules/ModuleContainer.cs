@@ -46,6 +46,7 @@ namespace Solace.Core.Modules
             var services = Module?.GetServices();
             foreach (var service in services!)
             {
+                Log.Info($"Starting service {service.Name}");
                 service.Start(Token.Token);
             }
         }
