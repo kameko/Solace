@@ -39,7 +39,7 @@ namespace Solace.Core.Modules
             Token?.Cancel();
         }
         
-        public void Start(CancellationToken token)
+        private void Start(CancellationToken token)
         {
             Task.Run(async () =>
             {
@@ -118,7 +118,7 @@ namespace Solace.Core.Modules
                 
                 foreach (var dep in deps)
                 {
-                    if (Containers.Exists(x => x.Module!.Info.Name == dep))
+                    if (Containers.Exists(x => x.Module!.Info.Name.Equals(dep, StringComparison.InvariantCultureIgnoreCase)))
                     {
                         deps_loaded++;
                     }
@@ -141,7 +141,13 @@ namespace Solace.Core.Modules
                 try
                 {
                     Log.Info($"Starting services from module \"{container.Module!.Info.Name}\"");
-                    foreach (var service in container.Module!.GetServices())
+                    var services = container.Module!.GetServices();
+                    if (services.Count() == 0)
+                    {
+                        Log.Warning($"Module \"{container.Module!.Info.Name}\" has no services. You should consider adding one");
+                        return;
+                    }
+                    foreach (var service in services)
                     {
                         Log.Info($"Starting service \"{service.Name}\" from module \"{container.Module!.Info.Name}\"");
                         current = service;
