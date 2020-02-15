@@ -40,23 +40,6 @@ namespace Solace.Core.Modules
             return success;
         }
         
-        public void Run()
-        {
-            Token = Token ?? new CancellationTokenSource();
-            var services = Module?.GetServices();
-            foreach (var service in services!)
-            {
-                Log.Info($"Starting service {service.Name}");
-                service.Start(Token.Token);
-            }
-        }
-        
-        public void Stop()
-        {
-            Token?.Cancel();
-            Token = null;
-        }
-        
         public bool TryLoad(string path)
         {
             return TryLoad(path, out var _);
@@ -64,7 +47,6 @@ namespace Solace.Core.Modules
         
         public void Unload()
         {
-            Stop();
             Module = null;
             Loader?.Dispose();
             Loader = null;

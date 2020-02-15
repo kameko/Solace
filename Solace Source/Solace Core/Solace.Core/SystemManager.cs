@@ -18,6 +18,7 @@ namespace Solace.Core
             Modules  = new ModuleManager();
             Services = new ServiceProvider();
             
+            Modules.OnServicesFound       += Services.HandleModulesFound;
             Modules.OnRequestStopServices += Services.HandleModuleUnloading;
         }
     }

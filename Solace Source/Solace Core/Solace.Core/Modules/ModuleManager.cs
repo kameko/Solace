@@ -12,6 +12,7 @@ namespace Solace.Core.Modules
     {
         public int QueueCheckDelay { get; set; }
         public event Func<string, IEnumerable<IService>, Task> OnModuleReady;
+        public event Func<IEnumerable<IService>, Task> OnServicesFound;
         public event Func<IEnumerable<string>, Task> OnRequestStopServices;
         public event Func<Exception, Task> OnError;
         
@@ -24,6 +25,7 @@ namespace Solace.Core.Modules
             QueueCheckDelay       = 1000;
             OnModuleReady         = delegate { return Task.CompletedTask; };
             OnError               = delegate { return Task.CompletedTask; };
+            OnServicesFound       = delegate { return Task.CompletedTask; };
             OnRequestStopServices = delegate { return Task.CompletedTask; };
             
             Containers            = new List<ModuleContainer>();
@@ -103,7 +105,6 @@ namespace Solace.Core.Modules
                 var container = Containers.Find(x => x.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
                 if (!(container is null))
                 {
-                    container.Stop();
                     Containers.Remove(container);
                     DependencyQueue.RemoveAll(x => object.ReferenceEquals(x.Container, container));
                     await OnRequestStopServices.Invoke(container.Module!.GetServices().Select(x => x.Name));
@@ -150,7 +151,7 @@ namespace Solace.Core.Modules
                         Log.Warning($"Module \"{container.Module!.Info.Name}\" has no services. You should consider adding one");
                         return;
                     }
-                    container.Run();
+                    await OnServicesFound.Invoke(services);
                     Log.Info($"Finished starting services from module \"{container.Module!.Info.Name}\"");
                 }
                 catch (Exception e)
