@@ -16,6 +16,7 @@ namespace Solace.Core.Modules
         
         private List<ModuleContainer> Containers { get; set; }
         private List<DependencyQueueToken> DependencyQueue { get; set; }
+        private CancellationTokenSource? Token { get; set; }
         
         public ModuleManager()
         {
@@ -25,6 +26,17 @@ namespace Solace.Core.Modules
             
             Containers      = new List<ModuleContainer>();
             DependencyQueue = new List<DependencyQueueToken>();
+        }
+        
+        public void Start()
+        {
+            Token = Token ?? new CancellationTokenSource();
+            Start(Token.Token);
+        }
+        
+        public void Stop()
+        {
+            Token?.Cancel();
         }
         
         public void Start(CancellationToken token)
@@ -55,6 +67,7 @@ namespace Solace.Core.Modules
         {
             return Task.Run(async () =>
             {
+                Log.Info($"Loading module \"{name}\" from {path}");
                 var container = new ModuleContainer(name);
                 try
                 {
@@ -62,8 +75,16 @@ namespace Solace.Core.Modules
                     var services = module.GetServices();
                     Containers.Add(container);
                     
-                    var dependency_token = new DependencyQueueToken(container, module.Dependencies);
-                    DependencyQueue.Add(dependency_token);
+                    if (module.Dependencies.Count > 0)
+                    {
+                        Log.Info($"Module \"{name}\" has dependencies. Queuing for dependency verification");
+                        var dependency_token = new DependencyQueueToken(container, module.Dependencies);
+                        DependencyQueue.Add(dependency_token);
+                    }
+                    else
+                    {
+                        await StartServices(container);
+                    }
                 }
                 catch (Exception e)
                 {
@@ -77,15 +98,38 @@ namespace Solace.Core.Modules
         {
             return Task.Run(() =>
             {
-                
+                var container = Containers.Find(x => x.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
+                if (!(container is null))
+                {
+                    container.Stop();
+                    Containers.Remove(container);
+                    DependencyQueue.RemoveAll(x => object.ReferenceEquals(x.Container, container));
+                }
             });
         }
         
         private Task HandleDependencies(DependencyQueueToken dependency_token)
         {
-            return Task.Run(() =>
+            return Task.Run(async () =>
             {
+                var deps        = dependency_token.Container.Module!.Dependencies;
+                var deps_count  = deps.Count;
+                var deps_loaded = 0;
                 
+                foreach (var dep in deps)
+                {
+                    if (Containers.Exists(x => x.Module!.Info.Name == dep))
+                    {
+                        deps_loaded++;
+                    }
+                }
+                
+                if (deps_loaded >= deps_count)
+                {
+                    Log.Info($"All dependencies loaded for module {dependency_token.Container.Module.Info.Name}");
+                    DependencyQueue.Remove(dependency_token);
+                    await StartServices(dependency_token.Container);
+                }
             });
         }
         
@@ -96,15 +140,18 @@ namespace Solace.Core.Modules
                 IService current = null!;
                 try
                 {
+                    Log.Info($"Starting services from module \"{container.Module!.Info.Name}\"");
                     foreach (var service in container.Module!.GetServices())
                     {
+                        Log.Info($"Starting service \"{service.Name}\" from module \"{container.Module!.Info.Name}\"");
                         current = service;
                         await service.Start(container.GetCancellationToken());
                     }
+                    Log.Info($"Finished starting services from module \"{container.Module!.Info.Name}\"");
                 }
                 catch (Exception e)
                 {
-                    Log.Error(e, $"Error starting service {current?.Name ?? "[None]"} in module {container.Module?.Info?.Name ?? "[None]"}");
+                    Log.Error(e, $"Error starting service {current?.Name ?? "[None]"} in module \"{container.Module?.Info?.Name ?? "[None]"}\"");
                     await OnError.Invoke(e);
                 }
             });
