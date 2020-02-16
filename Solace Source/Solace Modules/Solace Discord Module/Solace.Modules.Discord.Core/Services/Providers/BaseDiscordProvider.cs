@@ -234,7 +234,7 @@ namespace Solace.Modules.Discord.Core.Services.Providers
             await OnGuildUserUnbanned.Invoke(guild, user);
         }
         
-        public virtual Task Setup(ProviderConfig config)
+        public virtual Task Setup(DiscordConfig config)
         {
             throw new NotImplementedException();
         }

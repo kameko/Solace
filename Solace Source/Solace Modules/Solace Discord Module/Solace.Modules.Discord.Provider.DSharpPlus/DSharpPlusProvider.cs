@@ -20,7 +20,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
     public partial class DSharpPlusProvider : BaseDiscordProvider
     {
         private DiscordClient Client { get; set; }
-        private ProviderConfig Config { get; set; }
+        private DiscordConfig Config { get; set; }
         private bool Configured => Config is null || Client is null;
         
         public DSharpPlusProvider() : base()
@@ -49,7 +49,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             */
         }
         
-        public override Task Setup(ProviderConfig config)
+        public override Task Setup(DiscordConfig config)
         {
             Config = config;
             

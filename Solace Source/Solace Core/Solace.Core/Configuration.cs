@@ -8,23 +8,44 @@ namespace Solace.Core
     
     public class Configuration : IConfiguration
     {
+        public string Service { get; set; }
         private Dictionary<string, object> Values { get; set; }
         
         public Configuration()
         {
-            Values = new Dictionary<string, object>();
+            Service = "SYSTEM";
+            Values  = new Dictionary<string, object>();
+        }
+        
+        public Configuration(string name) : this()
+        {
+            Service = name;
         }
         
         public T GetValue<T>()
         {
-            var _ = TryGetValue<T>(out var item);
-            return item;
+            var success = TryGetValue<T>(out var item);
+            if (success)
+            {
+                return item;
+            }
+            else
+            {
+                throw new KeyNotFoundException($"Type of {typeof(T)}");
+            }
         }
         
         public T GetValue<T>(string key)
         {
-            var _ = TryGetValue<T>(key, out var item);
-            return item;
+            var success = TryGetValue<T>(key, out var item);
+            if (success)
+            {
+                return item;
+            }
+            else
+            {
+                throw new KeyNotFoundException($"Key {key}. Type of {typeof(T)}");
+            }
         }
         
         public bool TryGetValue<T>(out T item)
@@ -51,6 +72,11 @@ namespace Solace.Core
             }
             item = default!;
             return false;
+        }
+        
+        public void SetValue(string key, object value)
+        {
+            Values.Add(key, value);
         }
         
         public static Configuration GetDefault()

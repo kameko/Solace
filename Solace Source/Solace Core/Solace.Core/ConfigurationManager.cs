@@ -47,9 +47,9 @@ namespace Solace.Core
             return cfg;
         }
         
-        public void InstallNewValues()
+        public void InstallNewValues(Configuration conf)
         {
-            throw new NotImplementedException();
+            // TODO: add to the configuration and rewrite it to disk.
         }
         
         private Configuration CreateDefault()

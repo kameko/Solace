@@ -23,6 +23,15 @@ namespace Solace.Modules.Discord.Core.Services
             Backend  = null;
         }
         
+        public override Task Install(ConfigurationManager config)
+        {
+            return Task.Run(() =>
+            {
+                var conf = CreateDefaultConfig();
+                config.InstallNewValues(conf);
+            });
+        }
+        
         public override Task Setup(ConfigurationManager config, ServiceProvider services)
         {
             Services = services;
@@ -62,16 +71,43 @@ namespace Solace.Modules.Discord.Core.Services
         
         private void CreateBackend(IDiscordProvider provider)
         {
-            var cfg  = Config.Load();
-            var dcfg_success = cfg.TryGetValue<DiscordConfig>(out var dcfg);
-            if (!dcfg_success)
+            try
             {
-                Log.Warning($"No Discord configuration found. Discord service cannot continue");
-                return;
+                var dcfg = CreateConfig();
+                Backend = provider;
+                Backend.Setup(dcfg);
             }
-            
-            Backend = provider;
-            Backend.Setup(dcfg.Provider);
+            catch (KeyNotFoundException e)
+            {
+                var _ = e;
+                // TODO: handle
+            }
+        }
+        
+        private DiscordConfig CreateConfig()
+        {
+            var cfg  = Config.Load();
+            var ccfg = cfg.GetValue<Configuration>("Discord");
+            var dcfg = new DiscordConfig()
+            {
+                ConnectionToken = ccfg.GetValue<string>("ConnectionToken"),
+                DebugLog        = ccfg.GetValue<bool>("DebugLog"),
+                PingTimeout     = ccfg.GetValue<int>("PingTimeout"),
+                PingTries       = ccfg.GetValue<int>("PingTries"),
+                LogLevel        = ccfg.GetValue<Log.LogLevel>("LogLevel"),
+            };
+            return dcfg;
+        }
+        
+        private Configuration CreateDefaultConfig()
+        {
+            var conf = new Configuration();
+            conf.SetValue("ConnectionToken", "[NONE]");
+            conf.SetValue("DebugLog", true);
+            conf.SetValue("PingTimeout", 5000);
+            conf.SetValue("PingTries", 3);
+            conf.SetValue("LogLevel", Log.LogLevel.Info);
+            return conf;
         }
         
         private async Task DisposeOldBackend()
