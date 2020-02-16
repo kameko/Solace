@@ -47,9 +47,12 @@ namespace Solace.Core
             return cfg;
         }
         
-        public void InstallNewValues(Configuration conf)
+        public async Task InstallNewValues(Configuration conf)
         {
-            // TODO: add to the configuration and rewrite it to disk.
+            var config = Load();
+            config.SetValue(conf.Service, conf);
+            // TODO: write config
+            await OnConfigurationReload.Invoke(config);
         }
         
         private Configuration CreateDefault()

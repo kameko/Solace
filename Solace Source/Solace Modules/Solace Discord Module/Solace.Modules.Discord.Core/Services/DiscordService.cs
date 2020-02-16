@@ -23,13 +23,10 @@ namespace Solace.Modules.Discord.Core.Services
             Backend  = null;
         }
         
-        public override Task Install(ConfigurationManager config)
+        public override async Task Install(ConfigurationManager config)
         {
-            return Task.Run(() =>
-            {
-                var conf = CreateDefaultConfig();
-                config.InstallNewValues(conf);
-            });
+            var conf = CreateDefaultConfig();
+            await config.InstallNewValues(conf);
         }
         
         public override Task Setup(ConfigurationManager config, ServiceProvider services)
@@ -101,7 +98,7 @@ namespace Solace.Modules.Discord.Core.Services
         
         private Configuration CreateDefaultConfig()
         {
-            var conf = new Configuration();
+            var conf = new Configuration("Discord");
             conf.SetValue("ConnectionToken", "[NONE]");
             conf.SetValue("DebugLog", true);
             conf.SetValue("PingTimeout", 5000);

@@ -17,12 +17,23 @@ namespace Solace.Core
         public SystemManager(string config_location)
         {
             Config   = new ConfigurationManager(config_location);
+            InstallConfig();
             
             Modules  = new ModuleManager();
             Services = new ServiceProvider(Config);
             
             Modules.OnServicesFound       += Services.HandleModulesFound;
             Modules.OnRequestStopServices += Services.HandleModuleUnloading;
+        }
+        
+        private void InstallConfig()
+        {
+            Task.Run(async () =>
+            {
+                var conf = new Configuration();
+                conf.SetValue("Services", new List<string>());
+                await Config.InstallNewValues(conf);
+            });
         }
     }
 }
