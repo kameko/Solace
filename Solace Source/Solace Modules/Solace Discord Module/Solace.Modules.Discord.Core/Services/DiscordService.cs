@@ -23,7 +23,7 @@ namespace Solace.Modules.Discord.Core.Services
             DiscordToken = string.Empty;
         }
         
-        public override Task Setup(IConfiguration config, ServiceProvider services)
+        public override Task Setup(ConfigurationManager config, ServiceProvider services)
         {
             Services = services;
             return Task.Run(() =>
@@ -31,7 +31,8 @@ namespace Solace.Modules.Discord.Core.Services
                 services.OnServiceUnload += OnServiceUnload;
                 services.OnServiceLoad   += OnServiceLoad;
                 
-                var pc = config.GetValue<ProviderConfig>();
+                var cfg = config.Load();
+                var pc  = cfg.GetValue<ProviderConfig>();
                 if (pc is null)
                 {
                     throw new InvalidOperationException($"Missing ProviderConfig");

@@ -32,7 +32,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         
         // --- Setup --- //
         
-        public override Task Setup(IConfiguration config, ServiceProvider services)
+        public override Task Setup(ConfigurationManager config, ServiceProvider services)
         {
             // Do nothing, DiscordService calls Setup(ProviderConfig) manually.
             return Task.CompletedTask;

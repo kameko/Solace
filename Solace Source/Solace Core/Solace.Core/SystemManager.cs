@@ -8,8 +8,6 @@ namespace Solace.Core
     using Modules;
     using Services;
     
-    // TODO: need to handle reloading configs
-    
     public class SystemManager
     {
         private ConfigurationManager Config { get; set; }
@@ -19,10 +17,9 @@ namespace Solace.Core
         public SystemManager(string config_location)
         {
             Config   = new ConfigurationManager(config_location);
-            var cfg  = Config.Load(); 
             
             Modules  = new ModuleManager();
-            Services = new ServiceProvider(cfg);
+            Services = new ServiceProvider(Config);
             
             Modules.OnServicesFound       += Services.HandleModulesFound;
             Modules.OnRequestStopServices += Services.HandleModuleUnloading;

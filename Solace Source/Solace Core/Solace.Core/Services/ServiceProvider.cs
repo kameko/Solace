@@ -13,12 +13,12 @@ namespace Solace.Core.Services
         public event Action<IService> OnServiceLoad;
         public event Action<string> OnServiceUnload;
         
-        private IConfiguration Config { get; set; }
+        private ConfigurationManager Config { get; set; }
         private readonly object ServicesLock = new object();
         private List<ServiceContainer> Services { get; set; }
         private Dictionary<string, CancellationTokenSource> ModuleCancelTokens { get; set; }
         
-        public ServiceProvider(IConfiguration config)
+        public ServiceProvider(ConfigurationManager config)
         {
             OnServiceLoad      = delegate { };
             OnServiceUnload    = delegate { };
