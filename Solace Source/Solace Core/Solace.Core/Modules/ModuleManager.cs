@@ -12,8 +12,8 @@ namespace Solace.Core.Modules
     {
         public int QueueCheckDelay { get; set; }
         public event Func<string, IEnumerable<IService>, Task> OnModuleReady;
-        public event Func<IEnumerable<IService>, Task> OnServicesFound;
-        public event Func<IEnumerable<string>, Task> OnRequestStopServices;
+        public event Func<string, IEnumerable<IService>, Task> OnServicesFound;
+        public event Func<string, IEnumerable<string>, Task> OnRequestStopServices;
         public event Func<Exception, Task> OnError;
         
         private List<ModuleContainer> Containers { get; set; }
@@ -100,14 +100,16 @@ namespace Solace.Core.Modules
         
         public Task Unload(string name)
         {
+            // TODO: unload anything that depended on this module
             return Task.Run(async () =>
             {
                 var container = Containers.Find(x => x.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
                 if (!(container is null))
                 {
+                    // TODO: find all moduels depending on this one here, call Unload() on them in a loop
                     Containers.Remove(container);
                     DependencyQueue.RemoveAll(x => object.ReferenceEquals(x.Container, container));
-                    await OnRequestStopServices.Invoke(container.Module!.GetServices().Select(x => x.Name));
+                    await OnRequestStopServices.Invoke(container.Module!.Info.Name, container.Module.GetServices().Select(x => x.Name));
                 }
             });
         }
@@ -151,7 +153,7 @@ namespace Solace.Core.Modules
                         Log.Warning($"Module \"{container.Module!.Info.Name}\" has no services. You should consider adding one");
                         return;
                     }
-                    await OnServicesFound.Invoke(services);
+                    await OnServicesFound.Invoke(container.Module.Info.Name, services);
                     Log.Info($"Finished starting services from module \"{container.Module!.Info.Name}\"");
                 }
                 catch (Exception e)
