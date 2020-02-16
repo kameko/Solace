@@ -10,7 +10,7 @@ namespace Solace.Core
     
     public class ConfigurationManager
     {
-        public event Func<IConfiguration, Task> OnConfigurationReload;
+        public event Func<Configuration, Task> OnConfigurationReload;
         public string Location { get; set; }
         
         public ConfigurationManager(string location)
@@ -19,9 +19,17 @@ namespace Solace.Core
             Location              = location;
         }
         
-        public IConfiguration Load()
+        public Configuration Load()
         {
-            return default!;
+            if (File.Exists(Location))
+            {
+                return LoadAndConvert();
+            }
+            else
+            {
+                Log.Info($"No configuration file found at {Location}. Creating default file");
+                return CreateDefault();
+            }
         }
         
         public async Task Reload()
@@ -29,11 +37,47 @@ namespace Solace.Core
             await Reload(Location);
         }
         
-        public async Task<IConfiguration> Reload(string new_path)
+        public async Task<Configuration> Reload(string new_path)
         {
             Location = new_path;
-            var cfg = Load();
+            var cfg  = Load();
             await OnConfigurationReload.Invoke(cfg);
+            return cfg;
+        }
+        
+        public void InstallNewValues()
+        {
+            throw new NotImplementedException();
+        }
+        
+        private Configuration CreateDefault()
+        {
+            var cfg = Configuration.GetDefault();
+            var opt = new JsonSerializerOptions()
+            {
+                IgnoreReadOnlyProperties = true,
+                ReadCommentHandling      = JsonCommentHandling.Allow,
+                WriteIndented            = true,
+                AllowTrailingCommas      = true,
+            };
+            var json = JsonSerializer.Serialize(cfg, opt);
+            
+            try
+            {
+                File.WriteAllText(Location, json);
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, $"Could not write default configuration file");
+            }
+            
+            return cfg;
+        }
+        
+        private Configuration LoadAndConvert()
+        {
+            var text = File.ReadAllText(Location);
+            var cfg  = JsonSerializer.Deserialize<Configuration>(text);
             return cfg;
         }
     }
