@@ -18,18 +18,20 @@ namespace Solace.Core.Modules
         
         // TODO: consider making these thread safe, although I doubt the system
         // will ever race to load two moduels at once.
+        private ConfigurationManager Config { get; set; }
         private List<ModuleContainer> Containers { get; set; }
         private List<DependencyQueueToken> DependencyQueue { get; set; }
         private CancellationTokenSource? Token { get; set; }
         
-        public ModuleManager()
+        public ModuleManager(ConfigurationManager config)
         {
-            QueueCheckDelay       = 1000;
+            QueueCheckDelay       = 500;
             OnModuleReady         = delegate { return Task.CompletedTask; };
             OnError               = delegate { return Task.CompletedTask; };
             OnServicesFound       = delegate { return Task.CompletedTask; };
             OnRequestStopServices = delegate { return Task.CompletedTask; };
             
+            Config                = config;
             Containers            = new List<ModuleContainer>();
             DependencyQueue       = new List<DependencyQueueToken>();
         }
@@ -53,7 +55,7 @@ namespace Solace.Core.Modules
                 {
                     if (DependencyQueue.Count() > 0)
                     {
-                        var queue = new List<DependencyQueueToken>();
+                        var queue = new List<DependencyQueueToken>(DependencyQueue);
                         foreach (var dependency in queue)
                         {
                             await CheckAndWaitForDependencies(dependency);
@@ -74,6 +76,13 @@ namespace Solace.Core.Modules
             return Task.Run(async () =>
             {
                 Log.Info($"Loading module \"{name}\" from {path}");
+                
+                if (Containers.Exists(x => x.Name == name))
+                {
+                    Log.Warning($"Module {name} already loaded");
+                    return;
+                }
+                
                 var container = new ModuleContainer(name);
                 try
                 {

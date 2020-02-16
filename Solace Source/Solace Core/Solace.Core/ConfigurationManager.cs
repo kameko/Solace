@@ -55,8 +55,18 @@ namespace Solace.Core
             await OnConfigurationReload.Invoke(config);
         }
         
+        public async Task UninstallValue(string service_name)
+        {
+            var config = Load();
+            config.SetValue(service_name, null!);
+            WriteConfig(config);
+            await OnConfigurationReload.Invoke(config);
+        }
+        
         public void WriteConfig(Configuration config)
         {
+            // TODO: this isn't thread-safe. queue all requests to this
+            // and work on them one-by-one so nobody overwrites each other.
             var opt = new JsonSerializerOptions()
             {
                 IgnoreReadOnlyProperties = true,
@@ -85,6 +95,7 @@ namespace Solace.Core
         
         private Configuration LoadAndConvert()
         {
+            // TODO: cache config
             var text = File.ReadAllText(Location);
             var cfg  = JsonSerializer.Deserialize<Configuration>(text);
             return cfg;

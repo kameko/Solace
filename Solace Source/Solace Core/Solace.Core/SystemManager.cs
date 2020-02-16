@@ -4,6 +4,7 @@ namespace Solace.Core
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using Modules;
     using Services;
@@ -17,23 +18,47 @@ namespace Solace.Core
         public SystemManager(string config_location)
         {
             Config   = new ConfigurationManager(config_location);
-            InstallConfig();
             
-            Modules  = new ModuleManager();
+            Modules  = new ModuleManager(Config);
             Services = new ServiceProvider(Config);
             
             Modules.OnServicesFound       += Services.HandleModulesFound;
             Modules.OnRequestStopServices += Services.HandleModuleUnloading;
         }
         
-        private void InstallConfig()
+        public async Task Setup()
         {
-            Task.Run(async () =>
+            await InstallConfig();
+        }
+        
+        public void Start()
+        {
+            Modules.Start();
+        }
+        
+        public async Task InstallModule(string name, string path)
+        {
+            try
             {
-                var conf = new Configuration();
-                conf.SetValue("Services", new List<string>());
-                await Config.InstallNewValues(conf);
-            });
+                var conf    = Config.Load();
+                var sysconf = conf.GetValue<Configuration>("System");
+                var modules = sysconf.GetValue<Dictionary<string,string>>("Modules");
+                modules.Add(name, path);
+                Config.WriteConfig(conf);
+            }
+            catch
+            {
+                // TODO: handle error
+            }
+            
+            await Modules.Load(name, path);
+        }
+        
+        private async Task InstallConfig()
+        {
+            var conf = new Configuration("System");
+            conf.SetValue("Modules", new Dictionary<string, string>());
+            await Config.InstallNewValues(conf);
         }
     }
 }

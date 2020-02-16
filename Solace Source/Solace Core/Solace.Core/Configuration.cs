@@ -74,9 +74,22 @@ namespace Solace.Core
             return false;
         }
         
-        public void SetValue(string key, object value)
+        public bool SetValue(string key, object value)
         {
-            Values.Add(key, value);
+            if (value is null)
+            {
+                Values.Remove(key);
+                return true;
+            }
+            else if (!Values.ContainsKey(key))
+            {
+                Values.Add(key, value);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
         
         public static Configuration GetDefault()
