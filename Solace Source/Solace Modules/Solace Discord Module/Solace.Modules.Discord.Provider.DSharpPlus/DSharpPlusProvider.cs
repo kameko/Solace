@@ -34,6 +34,10 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         
         public override Task Setup(IConfiguration config, ServiceProvider services)
         {
+            // Do nothing, DiscordService calls Setup(ProviderConfig) manually.
+            return Task.CompletedTask;
+            
+            /*
             if (config is ProviderConfig pc)
             {
                 return Task.Run(() => Setup(pc));
@@ -42,9 +46,10 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             {
                 throw new ArgumentException($"config is not of type {nameof(ProviderConfig)}");
             }
+            */
         }
         
-        public Task Setup(ProviderConfig config)
+        public override Task Setup(ProviderConfig config)
         {
             Config = config;
             

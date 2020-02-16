@@ -234,6 +234,11 @@ namespace Solace.Modules.Discord.Core.Services.Providers
             await OnGuildUserUnbanned.Invoke(guild, user);
         }
         
+        public virtual Task Setup(ProviderConfig config)
+        {
+            throw new NotImplementedException();
+        }
+        
         public virtual Task<DiscordChannelQuery?> QueryChannel(ulong channel_id, ulong starting_message_id)
         {
             throw new NotImplementedException();

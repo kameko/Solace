@@ -12,8 +12,6 @@ namespace Solace.Modules.Discord.Core.Services
     
     public class DiscordService : BaseChatService
     {
-        private const string CONFIG_DISCORD_TOKEN = "DISCORD.TOKEN";
-        
         private ServiceProvider Services { get; set; }
         private IDiscordProvider? Backend { get; set; }
         private string DiscordToken { get; set; }
@@ -25,14 +23,6 @@ namespace Solace.Modules.Discord.Core.Services
             DiscordToken = string.Empty;
         }
         
-        public override IEnumerable<string> GetAllRequiredConfigurationTokens()
-        {
-            return new List<string>()
-            {
-                CONFIG_DISCORD_TOKEN,
-            };
-        }
-        
         public override Task Setup(IConfiguration config, ServiceProvider services)
         {
             Services = services;
@@ -41,23 +31,18 @@ namespace Solace.Modules.Discord.Core.Services
                 services.OnServiceUnload += OnServiceUnload;
                 services.OnServiceLoad   += OnServiceLoad;
                 
-                var token = config.GetValue(CONFIG_DISCORD_TOKEN);
-                if (!string.IsNullOrEmpty(token))
+                var pc = config.GetValue<ProviderConfig>();
+                if (pc is null)
                 {
-                    DiscordToken = token;
-                }
-                else
-                {
-                    throw new InvalidOperationException($"Missing configuration token {CONFIG_DISCORD_TOKEN}");
+                    throw new InvalidOperationException($"Missing ProviderConfig");
                 }
                 
+                // TODO: don't do this here. take in to account the provider loading first.
                 var discord_service_success = services.GetService<IDiscordProvider>(out var provider);
                 if (discord_service_success)
                 {
                     Backend = provider;
-                    
-                    // TODO:
-                    // Backend.Setup(DiscordToken, services);
+                    Backend.Setup(pc);
                 }
             });
         }

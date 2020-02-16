@@ -13,15 +13,17 @@ namespace Solace.Core.Services
         public event Action<IService> OnServiceLoad;
         public event Action<string> OnServiceUnload;
         
+        private IConfiguration Config { get; set; }
         private readonly object ServicesLock = new object();
         private List<ServiceContainer> Services { get; set; }
         private Dictionary<string, CancellationTokenSource> ModuleCancelTokens { get; set; }
         
-        public ServiceProvider()
+        public ServiceProvider(IConfiguration config)
         {
             OnServiceLoad      = delegate { };
             OnServiceUnload    = delegate { };
             
+            Config             = config;
             Services           = new List<ServiceContainer>();
             ModuleCancelTokens = new Dictionary<string, CancellationTokenSource>();
         }
@@ -75,6 +77,7 @@ namespace Solace.Core.Services
                 {
                     try
                     {
+                        await service.Setup(Config, this);
                         await service.Start(token.Token);
                     }
                     catch
@@ -85,7 +88,7 @@ namespace Solace.Core.Services
             });
         }
         
-        internal void AddService(string module_name, IService service)
+        private void AddService(string module_name, IService service)
         {
             lock (ServicesLock)
             {

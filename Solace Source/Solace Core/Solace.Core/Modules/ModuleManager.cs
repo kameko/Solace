@@ -16,6 +16,8 @@ namespace Solace.Core.Modules
         public event Func<string, IEnumerable<string>, Task> OnRequestStopServices;
         public event Func<Exception, Task> OnError;
         
+        // TODO: consider making these thread safe, although I doubt the system
+        // will ever race to load two moduels at once.
         private List<ModuleContainer> Containers { get; set; }
         private List<DependencyQueueToken> DependencyQueue { get; set; }
         private CancellationTokenSource? Token { get; set; }

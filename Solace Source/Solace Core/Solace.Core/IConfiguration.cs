@@ -7,6 +7,7 @@ namespace Solace.Core
     
     public interface IConfiguration
     {
-        string? GetValue(string key);
+        T GetValue<T>();
+        T GetValue<T>(string key);
     }
 }

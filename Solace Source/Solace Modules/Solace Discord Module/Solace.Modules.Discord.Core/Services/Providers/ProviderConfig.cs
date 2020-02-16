@@ -7,7 +7,7 @@ namespace Solace.Modules.Discord.Core.Services.Providers
     using System.Threading.Tasks;
     using Solace.Core;
     
-    public class ProviderConfig : IConfiguration
+    public class ProviderConfig
     {
         public string ConnectionToken { get; set; }
         public bool DebugLog { get; set; }
@@ -21,11 +21,6 @@ namespace Solace.Modules.Discord.Core.Services.Providers
             PingTimeoutMilliseconds = 5000;
             PingTries               = 3;
             LogLevel                = Log.LogLevel.Debug;
-        }
-        
-        public string? GetValue(string key)
-        {
-            return null;
         }
     }
 }
