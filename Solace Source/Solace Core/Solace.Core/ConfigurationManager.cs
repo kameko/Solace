@@ -10,13 +10,15 @@ namespace Solace.Core
     
     public class ConfigurationManager
     {
+        public static readonly string DefaultLocation = "./solace.conf";
+        
         public event Func<Configuration, Task> OnConfigurationReload;
         public string Location { get; set; }
         
-        public ConfigurationManager(string location)
+        public ConfigurationManager(string? location)
         {
             OnConfigurationReload = delegate { return Task.CompletedTask; };
-            Location              = location;
+            Location              = location ?? DefaultLocation;
         }
         
         public Configuration Load()

@@ -22,7 +22,7 @@ namespace Solace.Core.Services
             return new List<string>();
         }
         
-        public virtual Task Install(IConfiguration config)
+        public virtual Task Install(ConfigurationManager config)
         {
             // No implementation.
             return Task.CompletedTask;

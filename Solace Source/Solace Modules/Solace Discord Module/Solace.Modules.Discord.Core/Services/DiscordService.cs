@@ -12,71 +12,78 @@ namespace Solace.Modules.Discord.Core.Services
     
     public class DiscordService : BaseChatService
     {
+        private ConfigurationManager Config { get; set; }
         private ServiceProvider Services { get; set; }
         private IDiscordProvider? Backend { get; set; }
-        private string DiscordToken { get; set; }
         
         public DiscordService() : base()
         {
-            Services     = null!;
-            Backend      = null;
-            DiscordToken = string.Empty;
+            Config   = null!;
+            Services = null!;
+            Backend  = null;
         }
         
         public override Task Setup(ConfigurationManager config, ServiceProvider services)
         {
             Services = services;
+            Config   = config;
             return Task.Run(() =>
             {
                 services.OnServiceUnload += OnServiceUnload;
                 services.OnServiceLoad   += OnServiceLoad;
                 
-                var cfg = config.Load();
-                var pc  = cfg.GetValue<ProviderConfig>();
-                if (pc is null)
-                {
-                    throw new InvalidOperationException($"Missing ProviderConfig");
-                }
-                
-                // TODO: don't do this here. take in to account the provider loading first.
-                var discord_service_success = services.GetService<IDiscordProvider>(out var provider);
+                // It's okay if this fails. It just means the provider didn't load yet.
+                // The system will wait for it to load and then configure it from there.
+                var discord_service_success = Services.GetService<IDiscordProvider>(out var provider);
                 if (discord_service_success)
                 {
-                    Backend = provider;
-                    Backend.Setup(pc);
+                    CreateBackend(provider);
                 }
             });
         }
         
-        private void OnServiceUnload(string service_name)
+        private async Task OnServiceUnload(string service_name)
         {
             if (service_name == (Backend?.Name ?? string.Empty))
             {
-                DisposeOldBackend();
+                await DisposeOldBackend();
             }
         }
         
-        private void OnServiceLoad(IService service)
+        private async Task OnServiceLoad(IService service)
         {
-            if (service is IDiscordProvider idp)
+            if (service is IDiscordProvider provider)
             {
-                if (!(Backend is null) && (service.Name != Backend.Name))
-                {
-                    DisposeOldBackend();
-                }
-                
-                Backend = idp;
-                
-                // TODO:
-                // Backend.Setup(DiscordToken);
+                await DisposeOldBackend();
+                Backend = provider;
+                CreateBackend(provider);
             }
         }
         
-        private void DisposeOldBackend()
+        private void CreateBackend(IDiscordProvider provider)
         {
-            Backend?.Disconnect();
+            var cfg  = Config.Load();
+            var dcfg_success = cfg.TryGetValue<DiscordConfig>(out var dcfg);
+            if (!dcfg_success)
+            {
+                Log.Warning($"No Discord configuration found. Discord service cannot continue");
+                return;
+            }
+            
+            Backend = provider;
+            Backend.Setup(dcfg.Provider);
+        }
+        
+        private async Task DisposeOldBackend()
+        {
+            var backend = Backend;
             Backend = null;
-            GC.Collect(); // to help AssemblyLoadContext unload the module.
+            if (!(backend is null))
+            {
+                await backend.Disconnect();
+                await backend.DisposeAsync();
+                GC.Collect(); // to help AssemblyLoadContext unload the module.
+            }
         }
     }
 }

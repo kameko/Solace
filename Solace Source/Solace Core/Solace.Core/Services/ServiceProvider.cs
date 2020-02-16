@@ -10,8 +10,8 @@ namespace Solace.Core.Services
     
     public class ServiceProvider
     {
-        public event Action<IService> OnServiceLoad;
-        public event Action<string> OnServiceUnload;
+        public event Func<IService, Task> OnServiceLoad;
+        public event Func<string, Task> OnServiceUnload;
         
         private ConfigurationManager Config { get; set; }
         private readonly object ServicesLock = new object();
@@ -20,8 +20,8 @@ namespace Solace.Core.Services
         
         public ServiceProvider(ConfigurationManager config)
         {
-            OnServiceLoad      = delegate { };
-            OnServiceUnload    = delegate { };
+            OnServiceLoad      = delegate { return Task.CompletedTask; };
+            OnServiceUnload    = delegate { return Task.CompletedTask; };
             
             Config             = config;
             Services           = new List<ServiceContainer>();
@@ -30,21 +30,21 @@ namespace Solace.Core.Services
         
         internal Task HandleModuleUnloading(string module_name, IEnumerable<string> services)
         {
-            return Task.Run(() =>
+            return Task.Run(async () =>
             {
                 lock (ServicesLock)
                 {
                     var token = ModuleCancelTokens[module_name];
                     token.Cancel();
                     ModuleCancelTokens.Remove(module_name);
-                    
-                    foreach (var service_name in services)
+                }
+                
+                foreach (var service_name in services)
+                {
+                    var success = await RemoveService(service_name);
+                    if (!success)
                     {
-                        var success = RemoveService(service_name);
-                        if (!success)
-                        {
-                            Log.Warning($"Attempted to remove service \"{service_name}\" but was not successful");
-                        }
+                        Log.Warning($"Attempted to remove service \"{service_name}\" but was not successful");
                     }
                 }
             });
@@ -79,6 +79,7 @@ namespace Solace.Core.Services
                     {
                         await service.Setup(Config, this);
                         await service.Start(token.Token);
+                        await OnServiceLoad.Invoke(service);
                     }
                     catch
                     {
@@ -97,8 +98,9 @@ namespace Solace.Core.Services
             }
         }
         
-        private bool RemoveService(string name)
+        private async Task<bool> RemoveService(string name)
         {
+            var success = false;
             lock (ServicesLock)
             {
                 var container = Services.Find(x => x.ServiceName.Equals(name, StringComparison.InvariantCultureIgnoreCase));
@@ -106,8 +108,13 @@ namespace Solace.Core.Services
                 {
                     return false;
                 }
-                return Services.Remove(container);
+                success = Services.Remove(container);
             }
+            if (success)
+            {
+                await OnServiceUnload.Invoke(name);
+            }
+            return success;
         }
         
         public bool GetService(string service_name, out IService service)

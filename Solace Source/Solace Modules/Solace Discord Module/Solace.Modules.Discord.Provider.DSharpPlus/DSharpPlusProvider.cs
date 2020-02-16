@@ -834,6 +834,7 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
         public override async ValueTask DisposeAsync()
         {
             await Disconnect();
+            Client.Dispose();
         }
     }
 }

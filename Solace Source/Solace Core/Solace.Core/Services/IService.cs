@@ -18,7 +18,7 @@ namespace Solace.Core.Services
         /// run in an installed instance of Solace.
         /// </summary>
         /// <param name="config"></param>
-        Task Install(IConfiguration config);
+        Task Install(ConfigurationManager config);
         
         /// <summary>
         /// Called once when the user is requesting permanent removal
