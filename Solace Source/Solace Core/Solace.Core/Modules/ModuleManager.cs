@@ -109,6 +109,17 @@ namespace Solace.Core.Modules
             });
         }
         
+        public async Task Reload(string name)
+        {
+            var container = Containers.Find(x => x.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
+            if (!(container is null))
+            {
+                var path = container.Path;
+                await Unload(container);
+                await Load(name, path);
+            }
+        }
+        
         public async Task Unload(string name)
         {
             var container = Containers.Find(x => x.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
@@ -130,6 +141,10 @@ namespace Solace.Core.Modules
                 
                 Containers.Remove(container);
                 DependencyQueue.RemoveAll(x => object.ReferenceEquals(x.Container, container));
+                
+                GC.Collect();
+                await Task.Delay(300);
+                
                 await OnRequestStopServices.Invoke(container.Module!.Info.Name, container.Module.GetServices().Select(x => x.Name));
             });
         }

@@ -10,6 +10,7 @@ namespace Solace.Core.Modules
     public class ModuleContainer : IDisposable
     {
         public string Name { get; set; }
+        public string Path { get; set; }
         internal ModuleLoader? Loader { get; set; }
         internal BaseModule? Module { get; set; }
         private CancellationTokenSource? Token { get; set; }
@@ -17,6 +18,7 @@ namespace Solace.Core.Modules
         public ModuleContainer(string name)
         {
             Name = name;
+            Path = string.Empty;
         }
         
         internal CancellationToken GetCancellationToken()
@@ -27,6 +29,7 @@ namespace Solace.Core.Modules
         
         public BaseModule Load(string path)
         {
+            Path   = path;
             Loader = new ModuleLoader(Name);
             Module = Loader.LoadModule(path);
             return Module;
@@ -34,9 +37,10 @@ namespace Solace.Core.Modules
         
         public bool TryLoad(string path, out BaseModule? module)
         {
-            Loader = new ModuleLoader(Name);
+            Path        = path;
+            Loader      = new ModuleLoader(Name);
             var success = Loader.TryLoadModule(path, out module);
-            Module = module;
+            Module      = module;
             return success;
         }
         

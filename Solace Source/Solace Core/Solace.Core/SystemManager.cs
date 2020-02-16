@@ -45,13 +45,18 @@ namespace Solace.Core
                 var modules = sysconf.GetValue<Dictionary<string,string>>("Modules");
                 modules.Add(name, path);
                 Config.WriteConfig(conf);
+                
+                await Modules.Load(name, path);
             }
-            catch
+            catch (Exception e)
             {
-                // TODO: handle error
+                Log.Error(e, $"Error installing module \"{name}\" from {path}");
             }
-            
-            await Modules.Load(name, path);
+        }
+        
+        public async Task ReloadModule(string name)
+        {
+            await Modules.Reload(name);
         }
         
         private async Task InstallConfig()
