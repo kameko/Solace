@@ -54,7 +54,7 @@ namespace Solace.Core.Modules
                         var queue = new List<DependencyQueueToken>();
                         foreach (var dependency in queue)
                         {
-                            await HandleDependencies(dependency);
+                            await CheckAndWaitForDependencies(dependency);
                             
                             if (token.IsCancellationRequested)
                             {
@@ -75,7 +75,7 @@ namespace Solace.Core.Modules
                 var container = new ModuleContainer(name);
                 try
                 {
-                    var module = container.Load(name);
+                    var module   = container.Load(path);
                     var services = module.GetServices();
                     Containers.Add(container);
                     
@@ -98,23 +98,32 @@ namespace Solace.Core.Modules
             });
         }
         
-        public Task Unload(string name)
+        public async Task Unload(string name)
         {
-            // TODO: unload anything that depended on this module
+            var container = Containers.Find(x => x.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
+            if (!(container is null))
+            {
+                await Unload(container);
+            }
+        }
+        
+        private Task Unload(ModuleContainer container)
+        {
             return Task.Run(async () =>
             {
-                var container = Containers.Find(x => x.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
-                if (!(container is null))
+                var dependers = Containers.FindAll(x => x.Module!.Dependencies.Contains(container.Name));
+                foreach (var depender in dependers)
                 {
-                    // TODO: find all moduels depending on this one here, call Unload() on them in a loop
-                    Containers.Remove(container);
-                    DependencyQueue.RemoveAll(x => object.ReferenceEquals(x.Container, container));
-                    await OnRequestStopServices.Invoke(container.Module!.Info.Name, container.Module.GetServices().Select(x => x.Name));
+                    await Unload(depender);
                 }
+                
+                Containers.Remove(container);
+                DependencyQueue.RemoveAll(x => object.ReferenceEquals(x.Container, container));
+                await OnRequestStopServices.Invoke(container.Module!.Info.Name, container.Module.GetServices().Select(x => x.Name));
             });
         }
         
-        private Task HandleDependencies(DependencyQueueToken dependency_token)
+        private Task CheckAndWaitForDependencies(DependencyQueueToken dependency_token)
         {
             return Task.Run(async () =>
             {
