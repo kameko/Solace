@@ -51,13 +51,12 @@ namespace Solace.Core
         {
             var config = Load();
             config.SetValue(conf.Service, conf);
-            // TODO: write config
+            WriteConfig(config);
             await OnConfigurationReload.Invoke(config);
         }
         
-        private Configuration CreateDefault()
+        public void WriteConfig(Configuration config)
         {
-            var cfg = Configuration.GetDefault();
             var opt = new JsonSerializerOptions()
             {
                 IgnoreReadOnlyProperties = true,
@@ -65,7 +64,7 @@ namespace Solace.Core
                 WriteIndented            = true,
                 AllowTrailingCommas      = true,
             };
-            var json = JsonSerializer.Serialize(cfg, opt);
+            var json = JsonSerializer.Serialize(config, opt);
             
             try
             {
@@ -73,9 +72,14 @@ namespace Solace.Core
             }
             catch (Exception e)
             {
-                Log.Error(e, $"Could not write default configuration file");
+                Log.Error(e, $"Could not write configuration file");
             }
-            
+        }
+        
+        private Configuration CreateDefault()
+        {
+            var cfg = Configuration.GetDefault();
+            WriteConfig(cfg);
             return cfg;
         }
         
