@@ -116,6 +116,13 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             return Task.CompletedTask;
         }
         
+        public override async Task Start(CancellationToken token)
+        {
+            await Connect();
+            await Task.Delay(-1, token);
+            await Disconnect();
+        }
+        
         // --- Public Methods --- //
         
         public override async Task<DiscordChannelQuery?> QueryChannel(ulong channel_id, ulong starting_message_id)

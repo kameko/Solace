@@ -28,6 +28,15 @@ namespace Solace.Core.Services
             ModuleCancelTokens = new Dictionary<string, CancellationTokenSource>();
         }
         
+        internal void StopAllServices()
+        {
+            var tokens = new Dictionary<string, CancellationTokenSource>(ModuleCancelTokens);
+            foreach (var kvp in tokens)
+            {
+                kvp.Value.Cancel();
+            }
+        }
+        
         internal Task HandleModuleUnloading(string module_name, IEnumerable<string> services)
         {
             return Task.Run(async () =>

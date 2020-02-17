@@ -4,6 +4,7 @@ namespace Solace.Modules.Discord.Core.Services
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using Solace.Core;
     using Solace.Core.Services;
@@ -46,6 +47,24 @@ namespace Solace.Modules.Discord.Core.Services
                     CreateBackend(provider);
                 }
             });
+        }
+        
+        public override Task Start(CancellationToken token)
+        {
+            Task.Run(async () =>
+            {
+                while (!token.IsCancellationRequested)
+                {
+                    await Task.Delay(500, token);
+                    if (!(Backend is null))
+                    {
+                        await Backend.Start(token);
+                        break;
+                    }
+                }
+            });
+            
+            return Task.CompletedTask;
         }
         
         private async Task OnServiceUnload(string service_name)
@@ -110,7 +129,7 @@ namespace Solace.Modules.Discord.Core.Services
         private async Task DisposeOldBackend()
         {
             var backend = Backend;
-            Backend = null;
+            Backend     = null;
             if (!(backend is null))
             {
                 await backend.Disconnect();

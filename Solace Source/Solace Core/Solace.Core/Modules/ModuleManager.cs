@@ -36,10 +36,10 @@ namespace Solace.Core.Modules
             DependencyQueue       = new List<DependencyQueueToken>();
         }
         
-        public void Start()
+        public void Start(Dictionary<string, string> modules)
         {
             Token = Token ?? new CancellationTokenSource();
-            Start(Token.Token);
+            Start(modules, Token.Token);
         }
         
         public void Stop()
@@ -47,10 +47,20 @@ namespace Solace.Core.Modules
             Token?.Cancel();
         }
         
-        private void Start(CancellationToken token)
+        private void Start(Dictionary<string, string> modules, CancellationToken token)
         {
             Task.Run(async () =>
             {
+                foreach (var kvp in modules)
+                {
+                    await Load(kvp.Key, kvp.Value);
+                    
+                    if (token.IsCancellationRequested)
+                    {
+                        break;
+                    }
+                }
+                
                 while (!token.IsCancellationRequested)
                 {
                     if (DependencyQueue.Count() > 0)
@@ -75,6 +85,11 @@ namespace Solace.Core.Modules
         {
             return Task.Run(async () =>
             {
+                if (name == "[NONE]" || path == "[NONE]")
+                {
+                    return;
+                }
+                
                 Log.Info($"Loading module \"{name}\" from {path}");
                 
                 if (Containers.Exists(x => x.Name == name))

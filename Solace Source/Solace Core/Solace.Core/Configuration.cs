@@ -9,17 +9,17 @@ namespace Solace.Core
     public class Configuration : IConfiguration
     {
         public string Service { get; set; }
-        private Dictionary<string, object> Values { get; set; }
+        public Dictionary<string, object> Values { get; set; }
         
-        public Configuration()
+        public Configuration(string name)
         {
-            Service = "SYSTEM";
+            Service = name;
             Values  = new Dictionary<string, object>();
         }
         
-        public Configuration(string name) : this()
+        public Configuration() : this("[NONE]")
         {
-            Service = name;
+            
         }
         
         public T GetValue<T>()
@@ -31,7 +31,7 @@ namespace Solace.Core
             }
             else
             {
-                throw new KeyNotFoundException($"Type of {typeof(T)}");
+                throw new KeyNotFoundException($"Type of \"{typeof(T)}\"");
             }
         }
         
@@ -44,8 +44,13 @@ namespace Solace.Core
             }
             else
             {
-                throw new KeyNotFoundException($"Key {key}. Type of {typeof(T)}");
+                throw new KeyNotFoundException($"Key \"{key}\". Type of \"{typeof(T)}\"");
             }
+        }
+        
+        public object GetValue(string key)
+        {
+            return Values[key];
         }
         
         public bool TryGetValue<T>(out T item)
@@ -74,27 +79,28 @@ namespace Solace.Core
             return false;
         }
         
-        public bool SetValue(string key, object value)
+        public bool SetValue(string key, object? value)
         {
             if (value is null)
             {
                 Values.Remove(key);
                 return true;
             }
-            else if (!Values.ContainsKey(key))
+            else if (Values.ContainsKey(key))
             {
-                Values.Add(key, value);
+                Values[key] = value;
                 return true;
             }
             else
             {
-                return false;
+                Values.Add(key, value);
+                return true;
             }
         }
         
         public static Configuration GetDefault()
         {
-            var cfg = new Configuration()
+            var cfg = new Configuration("System")
             {
                 
             };

@@ -47,6 +47,14 @@ namespace Solace.Core
             return cfg;
         }
         
+        public async Task InstallNewValue(string name, object item)
+        {
+            var config = Load();
+            config.SetValue(name, item);
+            WriteConfig(config);
+            await OnConfigurationReload.Invoke(config);
+        }
+        
         public async Task InstallNewValues(Configuration conf)
         {
             var config = Load();
@@ -58,7 +66,7 @@ namespace Solace.Core
         public async Task UninstallValue(string service_name)
         {
             var config = Load();
-            config.SetValue(service_name, null!);
+            config.SetValue(service_name, null);
             WriteConfig(config);
             await OnConfigurationReload.Invoke(config);
         }
@@ -67,14 +75,8 @@ namespace Solace.Core
         {
             // TODO: this isn't thread-safe. queue all requests to this
             // and work on them one-by-one so nobody overwrites each other.
-            var opt = new JsonSerializerOptions()
-            {
-                IgnoreReadOnlyProperties = true,
-                ReadCommentHandling      = JsonCommentHandling.Allow,
-                WriteIndented            = true,
-                AllowTrailingCommas      = true,
-            };
-            var json = JsonSerializer.Serialize(config, opt);
+            
+            var json = JsonSerializer.Serialize(config, JsonOptions());
             
             try
             {
@@ -97,8 +99,20 @@ namespace Solace.Core
         {
             // TODO: cache config
             var text = File.ReadAllText(Location);
-            var cfg  = JsonSerializer.Deserialize<Configuration>(text);
+            var cfg  = JsonSerializer.Deserialize<Configuration>(text, JsonOptions());
             return cfg;
+        }
+        
+        private JsonSerializerOptions JsonOptions()
+        {
+            var opt = new JsonSerializerOptions()
+            {
+                IgnoreReadOnlyProperties = true,
+                ReadCommentHandling      = JsonCommentHandling.Skip,
+                WriteIndented            = true,
+                AllowTrailingCommas      = true,
+            };
+            return opt;
         }
     }
 }
