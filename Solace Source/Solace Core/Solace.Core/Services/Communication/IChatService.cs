@@ -10,5 +10,6 @@ namespace Solace.Core.Services.Communication
         event Func<CommunicationMessage, Task> OnReceive;
         
         Task<bool> Send(CommunicationMessage message);
+        Task<bool> Reconnect();
     }
 }

@@ -19,5 +19,10 @@ namespace Solace.Core.Services.Communication
         {
             return Task.FromResult<bool>(false);
         }
+        
+        public virtual Task<bool> Reconnect()
+        {
+            return Task.FromResult<bool>(false);
+        }
     }
 }

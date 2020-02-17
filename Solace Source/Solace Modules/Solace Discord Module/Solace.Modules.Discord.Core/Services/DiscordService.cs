@@ -67,6 +67,20 @@ namespace Solace.Modules.Discord.Core.Services
             return Task.CompletedTask;
         }
         
+        public override async Task<bool> Reconnect()
+        {
+            if (!(Backend is null))
+            {
+                var success = await Backend.Disconnect();
+                if (success)
+                {
+                    await Task.Delay(1000);
+                    return await Backend.Connect();
+                }
+            }
+            return false;
+        }
+        
         private async Task OnServiceUnload(string service_name)
         {
             if (service_name == (Backend?.Name ?? string.Empty))
