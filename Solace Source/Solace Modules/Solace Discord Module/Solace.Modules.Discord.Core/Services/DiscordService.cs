@@ -24,10 +24,12 @@ namespace Solace.Modules.Discord.Core.Services
             Backend  = null;
         }
         
-        public override async Task Install(ConfigurationManager config)
+        public override Task Install(ConfigurationManager config)
         {
-            var conf = CreateDefaultConfig();
-            await config.InstallNewValues(conf);
+            var conf = config.Load();
+            var dconf = CreateDefaultConfig();
+            conf.Configuration.Add("Discord", dconf);
+            return Task.CompletedTask;
         }
         
         public override Task Setup(ConfigurationManager config, ServiceProvider services)
@@ -116,8 +118,9 @@ namespace Solace.Modules.Discord.Core.Services
         
         private DiscordConfig CreateConfig()
         {
+            /*
             var cfg  = Config.Load();
-            var ccfg = cfg.GetValue<Configuration>("Discord");
+            var ccfg = cfg.GetValue<ConfigurationToken>("Discord");
             var dcfg = new DiscordConfig()
             {
                 ConnectionToken = ccfg.GetValue<string>("ConnectionToken"),
@@ -127,17 +130,22 @@ namespace Solace.Modules.Discord.Core.Services
                 LogLevel        = ccfg.GetValue<Log.LogLevel>("LogLevel"),
             };
             return dcfg;
+            */
+            throw new NotImplementedException();
         }
         
-        private Configuration CreateDefaultConfig()
+        private ConfigurationElement CreateDefaultConfig()
         {
-            var conf = new Configuration("Discord");
+            // var conf = new ConfigurationToken("Discord");
+            /*
             conf.SetValue("ConnectionToken", "[NONE]");
             conf.SetValue("DebugLog", true);
             conf.SetValue("PingTimeout", 5000);
             conf.SetValue("PingTries", 3);
             conf.SetValue("LogLevel", Log.LogLevel.Info);
-            return conf;
+            */
+            // return conf;
+            return default!;
         }
         
         private async Task DisposeOldBackend()

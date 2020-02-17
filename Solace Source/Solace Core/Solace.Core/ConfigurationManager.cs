@@ -6,13 +6,13 @@ namespace Solace.Core
     using System.Linq;
     using System.Threading.Tasks;
     using System.IO;
-    using System.Text.Json;
+    using Newtonsoft.Json;
     
     public class ConfigurationManager
     {
         public static readonly string DefaultLocation = "./solace.conf";
         
-        public event Func<Configuration, Task> OnConfigurationReload;
+        public event Func<ConfigurationToken, Task> OnConfigurationReload;
         public string Location { get; set; }
         
         public ConfigurationManager(string? location)
@@ -21,7 +21,7 @@ namespace Solace.Core
             Location              = location ?? DefaultLocation;
         }
         
-        public Configuration Load()
+        public ConfigurationToken Load()
         {
             if (File.Exists(Location))
             {
@@ -39,7 +39,7 @@ namespace Solace.Core
             await Reload(Location);
         }
         
-        public async Task<Configuration> Reload(string new_path)
+        public async Task<ConfigurationToken> Reload(string new_path)
         {
             Location = new_path;
             var cfg  = Load();
@@ -47,36 +47,11 @@ namespace Solace.Core
             return cfg;
         }
         
-        public async Task InstallNewValue(string name, object item)
-        {
-            var config = Load();
-            config.SetValue(name, item);
-            WriteConfig(config);
-            await OnConfigurationReload.Invoke(config);
-        }
-        
-        public async Task InstallNewValues(Configuration conf)
-        {
-            var config = Load();
-            config.SetValue(conf.Service, conf);
-            WriteConfig(config);
-            await OnConfigurationReload.Invoke(config);
-        }
-        
-        public async Task UninstallValue(string service_name)
-        {
-            var config = Load();
-            config.SetValue(service_name, null);
-            WriteConfig(config);
-            await OnConfigurationReload.Invoke(config);
-        }
-        
-        public void WriteConfig(Configuration config)
+        public void WriteConfig(ConfigurationToken config)
         {
             // TODO: this isn't thread-safe. queue all requests to this
             // and work on them one-by-one so nobody overwrites each other.
-            
-            var json = JsonSerializer.Serialize(config, JsonOptions());
+            var json = JsonConvert.SerializeObject(config, Formatting.Indented);
             
             try
             {
@@ -88,31 +63,28 @@ namespace Solace.Core
             }
         }
         
-        private Configuration CreateDefault()
+        private ConfigurationToken CreateDefault()
         {
-            var cfg = Configuration.GetDefault();
+            var cfg = ConfigurationToken.GetDefault();
             WriteConfig(cfg);
             return cfg;
         }
         
-        private Configuration LoadAndConvert()
+        private ConfigurationToken LoadAndConvert()
         {
             // TODO: cache config
             var text = File.ReadAllText(Location);
-            var cfg  = JsonSerializer.Deserialize<Configuration>(text, JsonOptions());
+            var cfg  = JsonConvert.DeserializeObject<ConfigurationToken>(text, JsonOptions())!;
             return cfg;
         }
         
-        private JsonSerializerOptions JsonOptions()
+        private JsonSerializerSettings JsonOptions()
         {
-            var opt = new JsonSerializerOptions()
+            var settings = new JsonSerializerSettings()
             {
-                IgnoreReadOnlyProperties = true,
-                ReadCommentHandling      = JsonCommentHandling.Skip,
-                WriteIndented            = true,
-                AllowTrailingCommas      = true,
+                Formatting = Formatting.Indented
             };
-            return opt;
+            return settings;
         }
     }
 }

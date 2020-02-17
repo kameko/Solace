@@ -5,7 +5,6 @@ namespace Solace.Server
     using System.Linq;
     using System.Threading.Tasks;
     using Core;
-    using Serilog;
     
     class Program
     {

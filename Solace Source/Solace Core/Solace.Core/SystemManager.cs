@@ -6,7 +6,6 @@ namespace Solace.Core
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using System.Text.Json;
     using Modules;
     using Services;
     
@@ -78,27 +77,20 @@ namespace Solace.Core
             await Modules.Reload(name);
         }
         
-        private async Task InstallConfig()
+        private Task InstallConfig()
         {
-            var modules = new Dictionary<string, string>()
-            {
-                { "[NONE]", "[NONE]" }
-            };
-            await Config.InstallNewValue("Modules", modules);
+            // TODO: check if config exists
+            var conf = ConfigurationToken.GetDefault();
+            conf.Configuration.Add("Modules", new ConfigurationElement());
+            Config.WriteConfig(conf);
+            return Task.CompletedTask;
         }
         
-        private Dictionary<string, string> GetModulesConfig(Configuration conf)
+        private Dictionary<string, string> GetModulesConfig(ConfigurationToken conf)
         {
-            // TODO: fix this, change Configuration's dictionary
-            // to string/IConfiguration instead of string/object
-            
-            var modules     = new Dictionary<string, string>();
-            var modules_elm = conf.GetValue<JsonElement>("Modules");
-            foreach (var item in modules_elm.EnumerateObject())
-            {
-                modules.Add(item.Name, item.Value.GetString());
-            }
-            return modules;
+            var modules = conf.Configuration["Modules"].Configuration
+                .Select(x => new KeyValuePair<string, string>(x.Key, x.Value.ToString()));
+            return new Dictionary<string, string>(modules);
         }
     }
 }
