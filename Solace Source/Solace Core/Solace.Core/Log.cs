@@ -4,8 +4,6 @@ namespace Solace.Core
     using System;
     using System.Runtime.CompilerServices;
     
-    using Serilog.Events;
-    
     public static class Log
     {
         public static event Action<LogToken> OnLog;
@@ -81,122 +79,7 @@ namespace Solace.Core
             }
         }
         
-        // TODO: remove Serilog dependency and move this into the Server project.
-        public static void AttachSerilog()
-        {
-            OnLog += SerilogLogger;
-        }
-        
-        private static void SerilogLogger(LogToken log)
-        {
-            var logger = Serilog.Log.Logger;
-            logger.ForContext("CallerFilePath", log.CallerFilePath);
-            logger.ForContext("CallerMemberName", log.CallerMemberName);
-            logger.ForContext("CallerLineNumber", log.CallerLineNumber);
-            
-            if (log.Exception is null && log.Arguments is null)
-            {
-                switch (log.Level)
-                {
-                    case LogLevel.Write:
-                    case LogLevel.Info:
-                        logger.Information(log.Message);
-                        break;
-                    case LogLevel.Warning:
-                        logger.Warning(log.Message);
-                        break;
-                    case LogLevel.Error:
-                        logger.Error(log.Message);
-                        break;
-                    case LogLevel.Fatal:
-                        logger.Fatal(log.Message);
-                        break;
-                    case LogLevel.Debug:
-                        logger.Debug(log.Message);
-                        break;
-                    case LogLevel.Verbose:
-                        logger.Verbose(log.Message);
-                        break;
-                }
-            }
-            else if (!(log.Exception is null) && log.Arguments is null)
-            {
-                switch (log.Level)
-                {
-                    case LogLevel.Write:
-                    case LogLevel.Info:
-                        logger.Information(log.Exception, log.Message);
-                        break;
-                    case LogLevel.Warning:
-                        logger.Warning(log.Exception, log.Message);
-                        break;
-                    case LogLevel.Error:
-                        logger.Error(log.Exception, log.Message);
-                        break;
-                    case LogLevel.Fatal:
-                        logger.Fatal(log.Exception, log.Message);
-                        break;
-                    case LogLevel.Debug:
-                        logger.Debug(log.Exception, log.Message);
-                        break;
-                    case LogLevel.Verbose:
-                        logger.Verbose(log.Exception, log.Message);
-                        break;
-                }
-            }
-            else if (log.Exception is null && !(log.Arguments is null))
-            {
-                switch (log.Level)
-                {
-                    case LogLevel.Write:
-                    case LogLevel.Info:
-                        logger.Information(log.Message, log.Arguments);
-                        break;
-                    case LogLevel.Warning:
-                        logger.Warning(log.Message, log.Arguments);
-                        break;
-                    case LogLevel.Error:
-                        logger.Error(log.Message, log.Arguments);
-                        break;
-                    case LogLevel.Fatal:
-                        logger.Fatal(log.Message, log.Arguments);
-                        break;
-                    case LogLevel.Debug:
-                        logger.Debug(log.Message, log.Arguments);
-                        break;
-                    case LogLevel.Verbose:
-                        logger.Verbose(log.Message, log.Arguments);
-                        break;
-                }
-            }
-            else
-            {
-                switch (log.Level)
-                {
-                    case LogLevel.Write:
-                    case LogLevel.Info:
-                        logger.Information(log.Exception, log.Message, log.Arguments);
-                        break;
-                    case LogLevel.Warning:
-                        logger.Warning(log.Exception, log.Message, log.Arguments);
-                        break;
-                    case LogLevel.Error:
-                        logger.Error(log.Exception, log.Message, log.Arguments);
-                        break;
-                    case LogLevel.Fatal:
-                        logger.Fatal(log.Exception, log.Message, log.Arguments);
-                        break;
-                    case LogLevel.Debug:
-                        logger.Debug(log.Exception, log.Message, log.Arguments);
-                        break;
-                    case LogLevel.Verbose:
-                        logger.Verbose(log.Exception, log.Message, log.Arguments);
-                        break;
-                }
-            }
-        }
-        
-        public static void Write(LogEventLevel level, string message, 
+        public static void Write(string message, 
             [CallerFilePath] string sourceFilePath = "",
             [CallerMemberName] string callerName = "",
             [CallerLineNumber] int sourceLineNumber = 0)
@@ -204,7 +87,7 @@ namespace Solace.Core
             OnLog.Invoke(new LogToken(LogLevel.Write, sourceFilePath, callerName, sourceLineNumber, message));
         }
         
-        public static void Write(LogEventLevel level, Exception ex, string message, 
+        public static void Write(Exception ex, string message, 
             [CallerFilePath] string sourceFilePath = "",
             [CallerMemberName] string callerName = "",
             [CallerLineNumber] int sourceLineNumber = 0)
@@ -212,7 +95,7 @@ namespace Solace.Core
             OnLog.Invoke(new LogToken(LogLevel.Write, sourceFilePath, callerName, sourceLineNumber, ex, message));
         }
         
-        public static void Write(LogEventLevel level, string message, object[] args,
+        public static void Write(string message, object[] args,
             [CallerFilePath] string sourceFilePath = "",
             [CallerMemberName] string callerName = "",
             [CallerLineNumber] int sourceLineNumber = 0)
@@ -220,7 +103,7 @@ namespace Solace.Core
             OnLog.Invoke(new LogToken(LogLevel.Write, sourceFilePath, callerName, sourceLineNumber, message, args));
         }
         
-        public static void Write(LogEventLevel level, Exception ex, string message, object[] args,
+        public static void Write(Exception ex, string message, object[] args,
             [CallerFilePath] string sourceFilePath = "",
             [CallerMemberName] string callerName = "",
             [CallerLineNumber] int sourceLineNumber = 0)
