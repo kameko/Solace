@@ -2,6 +2,7 @@
 namespace Solace.Server
 {
     using System;
+    using System.Linq;
     using System.Threading.Tasks;
     using Core;
     using Serilog;
@@ -13,12 +14,18 @@ namespace Solace.Server
             // TODO: parse args for:
             // - config path (default is null or "./solace.conf")
             
+            var template = "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff}] [{Level:u3}] "
+                         + "{CallerMemberName}@{CallerFileName}#{CallerLineNumber}: "
+                         + "{Message:lj}{NewLine}{Exception}";
+            
             Serilog.Log.Logger = new Serilog.LoggerConfiguration()
                 .MinimumLevel.Debug()
-                .WriteTo.Console()
+                .WriteTo.Console(outputTemplate: template)
                 .CreateLogger();
             
             Core.Log.OnLog += SerilogLogger;
+            
+            Core.Log.Info("Starting Solice");
             
             var system = new SystemManager(null);
             await system.Setup();
@@ -33,10 +40,15 @@ namespace Solace.Server
         
         private static void SerilogLogger(Core.Log.LogToken log)
         {
+            var callerfile = log.CallerFilePath.Split('\\', '/').ToList().LastOrDefault() ?? string.Empty;
+            
             var logger = Serilog.Log.Logger;
-            logger.ForContext("CallerFilePath", log.CallerFilePath);
-            logger.ForContext("CallerMemberName", log.CallerMemberName);
-            logger.ForContext("CallerLineNumber", log.CallerLineNumber);
+            logger = logger.ForContext("CallerFileName"  , callerfile);
+            logger = logger.ForContext("CallerFilePath"  , log.CallerFilePath);
+            logger = logger.ForContext("CallerMemberName", log.CallerMemberName);
+            logger = logger.ForContext("CallerLineNumber", log.CallerLineNumber);
+            
+            var message = log.Message;
             
             if (log.Exception is null && log.Arguments is null)
             {
@@ -44,22 +56,22 @@ namespace Solace.Server
                 {
                     case Core.Log.LogLevel.Write:
                     case Core.Log.LogLevel.Info:
-                        logger.Information(log.Message);
+                        logger.Information(message);
                         break;
                     case Core.Log.LogLevel.Warning:
-                        logger.Warning(log.Message);
+                        logger.Warning(message);
                         break;
                     case Core.Log.LogLevel.Error:
-                        logger.Error(log.Message);
+                        logger.Error(message);
                         break;
                     case Core.Log.LogLevel.Fatal:
-                        logger.Fatal(log.Message);
+                        logger.Fatal(message);
                         break;
                     case Core.Log.LogLevel.Debug:
-                        logger.Debug(log.Message);
+                        logger.Debug(message);
                         break;
                     case Core.Log.LogLevel.Verbose:
-                        logger.Verbose(log.Message);
+                        logger.Verbose(message);
                         break;
                 }
             }
@@ -69,22 +81,22 @@ namespace Solace.Server
                 {
                     case Core.Log.LogLevel.Write:
                     case Core.Log.LogLevel.Info:
-                        logger.Information(log.Exception, log.Message);
+                        logger.Information(log.Exception, message);
                         break;
                     case Core.Log.LogLevel.Warning:
-                        logger.Warning(log.Exception, log.Message);
+                        logger.Warning(log.Exception, message);
                         break;
                     case Core.Log.LogLevel.Error:
-                        logger.Error(log.Exception, log.Message);
+                        logger.Error(log.Exception, message);
                         break;
                     case Core.Log.LogLevel.Fatal:
-                        logger.Fatal(log.Exception, log.Message);
+                        logger.Fatal(log.Exception, message);
                         break;
                     case Core.Log.LogLevel.Debug:
-                        logger.Debug(log.Exception, log.Message);
+                        logger.Debug(log.Exception, message);
                         break;
                     case Core.Log.LogLevel.Verbose:
-                        logger.Verbose(log.Exception, log.Message);
+                        logger.Verbose(log.Exception, message);
                         break;
                 }
             }
@@ -94,22 +106,22 @@ namespace Solace.Server
                 {
                     case Core.Log.LogLevel.Write:
                     case Core.Log.LogLevel.Info:
-                        logger.Information(log.Message, log.Arguments);
+                        logger.Information(message, log.Arguments);
                         break;
                     case Core.Log.LogLevel.Warning:
-                        logger.Warning(log.Message, log.Arguments);
+                        logger.Warning(message, log.Arguments);
                         break;
                     case Core.Log.LogLevel.Error:
-                        logger.Error(log.Message, log.Arguments);
+                        logger.Error(message, log.Arguments);
                         break;
                     case Core.Log.LogLevel.Fatal:
-                        logger.Fatal(log.Message, log.Arguments);
+                        logger.Fatal(message, log.Arguments);
                         break;
                     case Core.Log.LogLevel.Debug:
-                        logger.Debug(log.Message, log.Arguments);
+                        logger.Debug(message, log.Arguments);
                         break;
                     case Core.Log.LogLevel.Verbose:
-                        logger.Verbose(log.Message, log.Arguments);
+                        logger.Verbose(message, log.Arguments);
                         break;
                 }
             }
@@ -119,22 +131,22 @@ namespace Solace.Server
                 {
                     case Core.Log.LogLevel.Write:
                     case Core.Log.LogLevel.Info:
-                        logger.Information(log.Exception, log.Message, log.Arguments);
+                        logger.Information(log.Exception, message, log.Arguments);
                         break;
                     case Core.Log.LogLevel.Warning:
-                        logger.Warning(log.Exception, log.Message, log.Arguments);
+                        logger.Warning(log.Exception, message, log.Arguments);
                         break;
                     case Core.Log.LogLevel.Error:
-                        logger.Error(log.Exception, log.Message, log.Arguments);
+                        logger.Error(log.Exception, message, log.Arguments);
                         break;
                     case Core.Log.LogLevel.Fatal:
-                        logger.Fatal(log.Exception, log.Message, log.Arguments);
+                        logger.Fatal(log.Exception, message, log.Arguments);
                         break;
                     case Core.Log.LogLevel.Debug:
-                        logger.Debug(log.Exception, log.Message, log.Arguments);
+                        logger.Debug(log.Exception, message, log.Arguments);
                         break;
                     case Core.Log.LogLevel.Verbose:
-                        logger.Verbose(log.Exception, log.Message, log.Arguments);
+                        logger.Verbose(log.Exception, message, log.Arguments);
                         break;
                 }
             }
