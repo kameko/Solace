@@ -509,20 +509,6 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             }
         }
         
-        public override Task PingLoop(CancellationToken token, int timeout, int tries)
-        {
-            // create a task to constantly ping and
-            // try to connect if it doesn't get a response.
-            // needs to be configurable, but should default
-            // to around a ping every two seconds. If it doesn't
-            // get 3 pings in a row, disconnect and reconnect in
-            // a loop.
-            // Might not actually be needed, D#+ apparently handles this.
-            
-            // Do nothing.
-            return Task.CompletedTask;
-        }
-        
         // --- Private Methods --- //
         
         private void CheckConfigured()

@@ -358,10 +358,5 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         {
             throw new NotImplementedException();
         }
-        
-        public virtual Task PingLoop(CancellationToken token, int timeout, int tries)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

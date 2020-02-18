@@ -11,6 +11,18 @@ namespace Solace.Modules.Discord.Core.Services
     using Solace.Core.Services.Communication;
     using Providers;
     
+    // TODO: remove PingLoop, use the Heartbeat callback from the Provider
+    // here to check a configured amount of heartbeats missed. If enough has
+    // not been fired. perform the following:
+    // - Check if there is an internet connection
+    // - Ping Discord
+    // - Reconnect
+    // If any step fails, wait a few seconds and restart the cycle.
+    // Configuration items required:
+    // - HeartbeatsSkipped (int)
+    // - PingUrls (List<string>)
+    // - RestartReconnectDelay (int)
+    
     public class DiscordService : BaseChatService
     {
         private ConfigurationManager Config { get; set; }
@@ -27,13 +39,24 @@ namespace Solace.Modules.Discord.Core.Services
         public override Task Install(ConfigurationManager config)
         {
             var conf = config.Load();
-            var dconf = CreateDefaultConfig();
-            conf.Configuration.Add("Discord", dconf);
+            if (!conf.Configuration.ContainsKey("Discord"))
+            {
+                var dconf = CreateDefaultConfig();
+                conf.Configuration.Add("Discord", dconf);
+            }
             return Task.CompletedTask;
         }
         
         public override Task Setup(ConfigurationManager config, ServiceProvider services)
         {
+            // TODO: check for DiscordConfig from the config manager. If not present,
+            // wait until it becomes present. We're gonna buffer config writes so this
+            // may get called before Install finishes updating the config to have it's
+            // config values.
+            // Also, after it installs it's config values, they'll be default, so wait
+            // here until the config is updated so we can get user-configured values
+            // at runtime.
+            
             Services = services;
             Config   = config;
             return Task.Run(() =>

@@ -68,6 +68,5 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         Task<bool> SetNickname(ulong guild, string name);
         Task<bool> SetStatus(string status);
         Task<bool> SetStatus(string status, SolaceDiscordActivity activity_kind);
-        Task PingLoop(CancellationToken token, int timeout, int tries);
     }
 }
