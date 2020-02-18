@@ -6,6 +6,7 @@ namespace Solace.Core.Modules
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using System.IO;
     using Services;
     
     // TODO: when loading, load a temp copy of the DLL.
@@ -93,7 +94,13 @@ namespace Solace.Core.Modules
                     return;
                 }
                 
-                Log.Info($"Loading module \"{name}\" from {path}");
+                if (!File.Exists(path))
+                {
+                    Log.Warning($"No module \"{name}\" found at \"{path}\"");
+                    return;
+                }
+                
+                Log.Info($"Loading module \"{name}\" from \"{path}\"");
                 
                 if (Containers.Exists(x => x.Name == name))
                 {
@@ -121,7 +128,8 @@ namespace Solace.Core.Modules
                 }
                 catch (Exception e)
                 {
-                    Log.Error(e, $"Error loading module \"{name}\" from {path}");
+                    Log.Error(e, $"Error loading module \"{name}\" from \"{path}\"");
+                    container.Unload();
                     await OnError.Invoke(e);
                 }
             });
@@ -208,7 +216,6 @@ namespace Solace.Core.Modules
                     }
                     
                     await OnServicesFound.Invoke(container.Module.Info.Name, services);
-                    Log.Info($"Finished starting services from module \"{container.Module!.Info.Name}\"");
                 }
                 catch (Exception e)
                 {

@@ -43,8 +43,11 @@ namespace Solace.Modules.Discord.Core.Services
             var conf = config.Load();
             if (!conf.Configuration.ContainsKey("Discord"))
             {
+                Log.Info($"No Discord config present. Writing config section to configuration file. Please update these values");
+                
                 var dconf = CreateDefaultConfig();
                 conf.Configuration.Add("Discord", dconf);
+                config.WriteConfig(conf);
             }
             return Task.CompletedTask;
         }
