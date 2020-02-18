@@ -26,5 +26,10 @@ namespace Solace.Modules.Discord.Core
             DebugLog        = true;
             LogLevel        = Log.LogLevel.Debug;
         }
+        
+        public void FromConfig(ConfigurationToken config)
+        {
+            
+        }
     }
 }

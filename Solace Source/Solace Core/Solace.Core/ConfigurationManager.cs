@@ -4,6 +4,7 @@ namespace Solace.Core
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using System.IO;
     using Newtonsoft.Json;
@@ -19,6 +20,18 @@ namespace Solace.Core
         {
             OnConfigurationReload = delegate { return Task.CompletedTask; };
             Location              = location ?? DefaultLocation;
+        }
+        
+        public void Start(CancellationToken token)
+        {
+            Task.Run(async () =>
+            {
+                while (!token.IsCancellationRequested)
+                {
+                    // TODO: handle configs in buffer here
+                    await Task.Delay(500);
+                }
+            });
         }
         
         public ConfigurationToken Load()

@@ -82,7 +82,9 @@ namespace Solace.Core
             var conf = Config.Load();
             if (!conf.Configuration.ContainsKey("Modules"))
             {
-                conf.Configuration.Add("Modules", new ConfigurationElement());
+                var modconf = new ConfigurationElement();
+                modconf.Configuration.Add("[NONE]", "[NONE]");
+                conf.Configuration.Add("Modules", modconf);
                 Config.WriteConfig(conf);
             }
             return Task.CompletedTask;
