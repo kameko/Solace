@@ -86,6 +86,8 @@ namespace Solace.Core.Services
                 {
                     try
                     {
+                        await service.Install(Config);
+                        await Task.Delay(500); // give service time to install
                         await service.Setup(Config, this);
                         await service.Start(token.Token);
                         await OnServiceLoad.Invoke(service);
