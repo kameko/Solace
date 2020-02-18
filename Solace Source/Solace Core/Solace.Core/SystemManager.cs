@@ -51,8 +51,10 @@ namespace Solace.Core
         
         public void Stop()
         {
+            Config.Start();
             Modules.Stop();
             Services.StopAllServices();
+            Config.Stop();
         }
         
         public async Task InstallModule(string name, string path)
@@ -62,7 +64,7 @@ namespace Solace.Core
                 var conf    = Config.Load();
                 var modules = GetModulesConfig(conf);
                 modules.Add(name, path);
-                Config.WriteConfig(conf);
+                Config.SaveConfig(conf);
                 
                 await Modules.Load(name, path);
             }
@@ -85,7 +87,7 @@ namespace Solace.Core
                 var modconf = new ConfigurationElement();
                 modconf.Configuration.Add("[NONE]", "[NONE]");
                 conf.Configuration.Add("Modules", modconf);
-                Config.WriteConfig(conf);
+                Config.SaveConfig(conf);
             }
             return Task.CompletedTask;
         }

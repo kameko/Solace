@@ -6,6 +6,7 @@ namespace Solace.Core
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using System.Threading.Channels;
     using System.IO;
     using Newtonsoft.Json;
     
@@ -16,10 +17,27 @@ namespace Solace.Core
         public event Func<ConfigurationToken, Task> OnConfigurationReload;
         public string Location { get; set; }
         
+        private Channel<ConfigurationToken> ConfigBuffer { get; set; }
+        private CancellationTokenSource CancelToken { get; set; }
+        
         public ConfigurationManager(string? location)
         {
             OnConfigurationReload = delegate { return Task.CompletedTask; };
             Location              = location ?? DefaultLocation;
+            ConfigBuffer          = Channel.CreateUnbounded<ConfigurationToken>();
+            CancelToken           = null!;
+        }
+        
+        public void Stop()
+        {
+            CancelToken?.Cancel();
+        }
+        
+        public void Start()
+        {
+            var token = new CancellationTokenSource();
+            CancelToken = token;
+            Start(token.Token);
         }
         
         public void Start(CancellationToken token)
@@ -28,8 +46,12 @@ namespace Solace.Core
             {
                 while (!token.IsCancellationRequested)
                 {
-                    // TODO: handle configs in buffer here
-                    await Task.Delay(500);
+                    var success = await ConfigBuffer.Reader.WaitToReadAsync(token);
+                    if (success)
+                    {
+                        var config = await ConfigBuffer.Reader.ReadAsync(token);
+                        SaveConfig(config);
+                    }
                 }
             });
         }
@@ -60,10 +82,13 @@ namespace Solace.Core
             return cfg;
         }
         
-        public void WriteConfig(ConfigurationToken config)
+        public bool WriteConfig(ConfigurationToken config)
         {
-            // TODO: this isn't thread-safe. queue all requests to this
-            // and work on them one-by-one so nobody overwrites each other.
+            return ConfigBuffer.Writer.TryWrite(config);
+        }
+        
+        internal void SaveConfig(ConfigurationToken config)
+        {
             var json = JsonConvert.SerializeObject(config, Formatting.Indented);
             
             try
@@ -79,7 +104,7 @@ namespace Solace.Core
         private ConfigurationToken CreateDefault()
         {
             var cfg = ConfigurationToken.GetDefault();
-            WriteConfig(cfg);
+            SaveConfig(cfg);
             return cfg;
         }
         
