@@ -35,6 +35,8 @@ namespace Solace.Core
         {
             try
             {
+                Config.Start();
+                
                 var conf    = Config.Load();
                 var modules = GetModulesConfig(conf);
                 if (modules is null)
@@ -51,7 +53,7 @@ namespace Solace.Core
         
         public void Stop()
         {
-            Config.Start();
+            Config.Stop();
             Modules.Stop();
             Services.StopAllServices();
             Config.Stop();
