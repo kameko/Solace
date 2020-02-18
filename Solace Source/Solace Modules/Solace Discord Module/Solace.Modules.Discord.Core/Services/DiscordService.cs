@@ -25,15 +25,17 @@ namespace Solace.Modules.Discord.Core.Services
     
     public class DiscordService : BaseChatService
     {
+        private CancellationTokenSource CancelToken { get; set; }
         private ConfigurationManager Config { get; set; }
         private ServiceProvider Services { get; set; }
         private IDiscordProvider? Backend { get; set; }
         
         public DiscordService() : base()
         {
-            Config   = null!;
-            Services = null!;
-            Backend  = null;
+            Config      = null!;
+            Services    = null!;
+            Backend     = null;
+            CancelToken = new CancellationTokenSource();
         }
         
         public override Task Install(ConfigurationManager config)
@@ -51,7 +53,7 @@ namespace Solace.Modules.Discord.Core.Services
         {
             Services = services;
             Config   = config;
-            return Task.Run(() =>
+            return Task.Run(async () =>
             {
                 services.OnServiceUnload += OnServiceUnload;
                 services.OnServiceLoad   += OnServiceLoad;
@@ -61,7 +63,11 @@ namespace Solace.Modules.Discord.Core.Services
                 var discord_service_success = Services.GetService<IDiscordProvider>(out var provider);
                 if (discord_service_success)
                 {
-                    CreateBackend(provider);
+                    await CreateBackend(provider);
+                }
+                else
+                {
+                    Log.Info($"A Discord provider module is not loaded. Waiting for Discord provider");
                 }
             });
         }
@@ -70,15 +76,17 @@ namespace Solace.Modules.Discord.Core.Services
         {
             Task.Run(async () =>
             {
+                if (CancelToken.IsCancellationRequested)
+                {
+                    CancelToken = new CancellationTokenSource();
+                }
+                
                 while (!token.IsCancellationRequested)
                 {
-                    await Task.Delay(500, token);
-                    if (!(Backend is null))
-                    {
-                        await Backend.Start(token);
-                        break;
-                    }
+                    await Task.Delay(-1, token);
                 }
+                
+                CancelToken.Cancel();
             });
             
             return Task.CompletedTask;
@@ -108,21 +116,24 @@ namespace Solace.Modules.Discord.Core.Services
         
         private async Task OnServiceLoad(IService service)
         {
-            if (service is IDiscordProvider provider)
+            if (service is IDiscordProvider provider && Backend is null)
             {
+                Log.Info($"Discord provider \"{service.Name}\" was found. Initializing");
+                
                 await DisposeOldBackend();
                 Backend = provider;
-                CreateBackend(provider);
+                await CreateBackend(provider);
             }
         }
         
-        private void CreateBackend(IDiscordProvider provider)
+        private async Task CreateBackend(IDiscordProvider provider)
         {
             try
             {
                 var dcfg = LoadConfig();
                 Backend = provider;
-                Backend.Setup(dcfg);
+                await Backend.Setup(dcfg);
+                await Backend.Start(CancelToken.Token);
             }
             catch (KeyNotFoundException e)
             {
@@ -150,6 +161,8 @@ namespace Solace.Modules.Discord.Core.Services
             Backend     = null;
             if (!(backend is null))
             {
+                Log.Info($"Destroying old Discord provider");
+                
                 await backend.Disconnect();
                 await backend.DisposeAsync();
                 GC.Collect(); // to help AssemblyLoadContext unload the module.
