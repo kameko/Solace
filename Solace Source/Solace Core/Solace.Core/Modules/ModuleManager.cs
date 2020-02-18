@@ -113,7 +113,7 @@ namespace Solace.Core.Modules
                     }
                     else
                     {
-                        await StartServices(container);
+                        await RaiseOnServicesFound(container);
                     }
                 }
                 catch (Exception e)
@@ -184,12 +184,12 @@ namespace Solace.Core.Modules
                 {
                     Log.Info($"All dependencies loaded for module {dependency_token.Container.Module.Info.Name}");
                     DependencyQueue.Remove(dependency_token);
-                    await StartServices(dependency_token.Container);
+                    await RaiseOnServicesFound(dependency_token.Container);
                 }
             });
         }
         
-        private Task StartServices(ModuleContainer container)
+        private Task RaiseOnServicesFound(ModuleContainer container)
         {
             return Task.Run(async () =>
             {
@@ -203,6 +203,7 @@ namespace Solace.Core.Modules
                         Log.Warning($"Module \"{container.Module!.Info.Name}\" has no services. You should consider adding one");
                         return;
                     }
+                    
                     await OnServicesFound.Invoke(container.Module.Info.Name, services);
                     Log.Info($"Finished starting services from module \"{container.Module!.Info.Name}\"");
                 }
