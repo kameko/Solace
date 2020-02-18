@@ -6,6 +6,10 @@ namespace Solace.Server
     using System.Threading.Tasks;
     using Core;
     
+    // TODO: custom serilog sink for console.
+    // custom console interface that has a text input
+    // field at the bottom.
+    
     class Program
     {
         static async Task Main(string[] args)

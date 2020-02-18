@@ -11,17 +11,17 @@ namespace Solace.Modules.Discord.Core.Services
     using Solace.Core.Services.Communication;
     using Providers;
     
-    // TODO: remove PingLoop, use the Heartbeat callback from the Provider
-    // here to check a configured amount of heartbeats missed. If enough has
+    // TODO: Use the Heartbeat callback from the Provider here to
+    // check a configured amount of heartbeats missed. If enough has
     // not been fired. perform the following:
     // - Check if there is an internet connection
     // - Ping Discord
     // - Reconnect
     // If any step fails, wait a few seconds and restart the cycle.
     // Configuration items required:
-    // - HeartbeatsSkipped (int)
-    // - PingUrls (List<string>)
-    // - RestartReconnectDelay (int)
+    // - HeartbeatsSkipped (int, default 5)
+    // - PingUrls (List<string>, default { discordapp.com })
+    // - RetryReconnectDelay (int, default 5000)
     
     public class DiscordService : BaseChatService
     {
