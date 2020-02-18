@@ -79,10 +79,12 @@ namespace Solace.Core
         
         private Task InstallConfig()
         {
-            // TODO: check if config exists
-            var conf = ConfigurationToken.GetDefault();
-            conf.Configuration.Add("Modules", new ConfigurationElement());
-            Config.WriteConfig(conf);
+            var conf = Config.Load();
+            if (!conf.Configuration.ContainsKey("Modules"))
+            {
+                conf.Configuration.Add("Modules", new ConfigurationElement());
+                Config.WriteConfig(conf);
+            }
             return Task.CompletedTask;
         }
         
