@@ -8,6 +8,9 @@ namespace Solace.Core.Modules
     using System.Threading.Tasks;
     using Services;
     
+    // TODO: when loading, load a temp copy of the DLL.
+    // when reloading, delete the temp and copy the new version.
+    
     public class ModuleManager
     {
         public int QueueCheckDelay { get; set; }
