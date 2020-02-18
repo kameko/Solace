@@ -110,6 +110,8 @@ namespace Solace.Modules.Discord.Core.Services
         {
             if (service_name == (Backend?.Name ?? string.Empty))
             {
+                Log.Info($"Discord provider is being unloaded. All Discord services will be stopped until a new one is loaded");
+                
                 await DisposeOldBackend();
             }
         }
