@@ -116,7 +116,12 @@ namespace Solace.Modules.Discord.Provider.DSharpPlus
             return Task.CompletedTask;
         }
         
-        public override async Task Start(CancellationToken token)
+        public override Task Start(CancellationToken token)
+        {
+            return Task.CompletedTask;
+        }
+        
+        public override async Task StartProvider(CancellationToken token)
         {
             await Connect();
             await Task.Delay(-1, token);

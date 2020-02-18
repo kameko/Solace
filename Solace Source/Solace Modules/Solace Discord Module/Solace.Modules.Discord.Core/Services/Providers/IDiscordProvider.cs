@@ -44,6 +44,7 @@ namespace Solace.Modules.Discord.Core.Services.Providers
         event Func<SolaceDiscordGuild, SolaceDiscordUser, Task> OnGuildUserUnbanned;
         
         Task Setup(DiscordConfig config);
+        Task StartProvider(CancellationToken token);
         Task<DiscordChannelQuery?> QueryChannel(ulong channel_id, ulong starting_message_id);
         Task<DiscordChannelQuery?> QueryChannel(ulong channel_id);
         Task<SolaceDiscordMessage?> GetMessage(ulong channel_id, ulong message_id);

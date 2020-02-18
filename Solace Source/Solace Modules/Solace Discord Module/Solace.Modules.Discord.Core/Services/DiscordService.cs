@@ -133,7 +133,7 @@ namespace Solace.Modules.Discord.Core.Services
                 var dcfg = LoadConfig();
                 Backend = provider;
                 await Backend.Setup(dcfg);
-                await Backend.Start(CancelToken.Token);
+                await Backend.StartProvider(CancelToken.Token);
             }
             catch (KeyNotFoundException e)
             {

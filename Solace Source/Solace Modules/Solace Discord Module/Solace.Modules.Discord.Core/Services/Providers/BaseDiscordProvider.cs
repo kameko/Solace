@@ -239,6 +239,11 @@ namespace Solace.Modules.Discord.Core.Services.Providers
             throw new NotImplementedException();
         }
         
+        public virtual Task StartProvider(CancellationToken token)
+        {
+            throw new NotImplementedException();
+        }
+        
         public virtual Task<DiscordChannelQuery?> QueryChannel(ulong channel_id, ulong starting_message_id)
         {
             throw new NotImplementedException();
