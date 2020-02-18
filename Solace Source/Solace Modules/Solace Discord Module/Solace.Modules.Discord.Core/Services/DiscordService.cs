@@ -49,14 +49,6 @@ namespace Solace.Modules.Discord.Core.Services
         
         public override Task Setup(ConfigurationManager config, ServiceProvider services)
         {
-            // TODO: check for DiscordConfig from the config manager. If not present,
-            // wait until it becomes present. We're gonna buffer config writes so this
-            // may get called before Install finishes updating the config to have it's
-            // config values.
-            // Also, after it installs it's config values, they'll be default, so wait
-            // here until the config is updated so we can get user-configured values
-            // at runtime.
-            
             Services = services;
             Config   = config;
             return Task.Run(() =>
