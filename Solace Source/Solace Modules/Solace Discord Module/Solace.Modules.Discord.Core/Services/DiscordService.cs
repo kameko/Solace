@@ -120,7 +120,7 @@ namespace Solace.Modules.Discord.Core.Services
         {
             try
             {
-                var dcfg = CreateConfig();
+                var dcfg = LoadConfig();
                 Backend = provider;
                 Backend.Setup(dcfg);
             }
@@ -131,36 +131,17 @@ namespace Solace.Modules.Discord.Core.Services
             }
         }
         
-        private DiscordConfig CreateConfig()
+        private DiscordConfig LoadConfig()
         {
-            /*
             var cfg  = Config.Load();
-            var ccfg = cfg.GetValue<ConfigurationToken>("Discord");
-            var dcfg = new DiscordConfig()
-            {
-                ConnectionToken = ccfg.GetValue<string>("ConnectionToken"),
-                DebugLog        = ccfg.GetValue<bool>("DebugLog"),
-                PingTimeout     = ccfg.GetValue<int>("PingTimeout"),
-                PingTries       = ccfg.GetValue<int>("PingTries"),
-                LogLevel        = ccfg.GetValue<Log.LogLevel>("LogLevel"),
-            };
+            var dcfg = DiscordConfig.FromConfig(cfg);
             return dcfg;
-            */
-            throw new NotImplementedException();
         }
         
         private ConfigurationElement CreateDefaultConfig()
         {
-            // var conf = new ConfigurationToken("Discord");
-            /*
-            conf.SetValue("ConnectionToken", "[NONE]");
-            conf.SetValue("DebugLog", true);
-            conf.SetValue("PingTimeout", 5000);
-            conf.SetValue("PingTries", 3);
-            conf.SetValue("LogLevel", Log.LogLevel.Info);
-            */
-            // return conf;
-            return default!;
+            var conf = new DiscordConfig();
+            return conf.ToConfig();
         }
         
         private async Task DisposeOldBackend()

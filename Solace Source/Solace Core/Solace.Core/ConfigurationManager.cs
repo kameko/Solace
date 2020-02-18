@@ -44,6 +44,8 @@ namespace Solace.Core
         {
             Task.Run(async () =>
             {
+                // TODO: try to figure out if two configs being written exclude each other's
+                // service configs and combine them instead of overwriting each other.
                 while (!token.IsCancellationRequested)
                 {
                     var success = await ConfigBuffer.Reader.WaitToReadAsync(token);
