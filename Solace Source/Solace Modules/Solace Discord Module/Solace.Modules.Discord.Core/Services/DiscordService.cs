@@ -121,6 +121,16 @@ namespace Solace.Modules.Discord.Core.Services
         
         private async Task OnServiceLoad(IService service)
         {
+            if (object.ReferenceEquals(service, this))
+            {
+                return;
+            }
+            
+            Log.Debug($"Service found. Type of {service.GetType().Name}"
+                + $". Service is {(service is IDiscordProvider ? "" : "NOT")} IDiscordProvider"
+                // + $". It is of type {}"
+            );
+            // FIXME: this isn't passing, something is wrong.
             if (service is IDiscordProvider provider && Backend is null)
             {
                 Log.Info($"Discord provider \"{service.Name}\" was found. Initializing");

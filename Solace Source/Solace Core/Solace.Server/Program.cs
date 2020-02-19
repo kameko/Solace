@@ -32,6 +32,7 @@ namespace Solace.Server
             system.Start();
             
             Console.ReadLine();
+            Log.Info($"Halting system");
             
             system.Stop();
             

@@ -8,12 +8,10 @@ namespace Solace.Core
     
     public class ConfigurationElement
     {
-        public Version Version { get; set; }
         public Dictionary<string, string> Configuration { get; set; }
         
         public ConfigurationElement()
         {
-            Version       = new Version(0, 0, 0, 0);
             Configuration = new Dictionary<string, string>();
         }
         

@@ -11,7 +11,7 @@ namespace Solace.Server
         {
             var template = "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff}] [{Level:u3}] "
                          + "{CallerMemberName}@{CallerFileName}#{CallerLineNumber}: "
-                         + "{Message:lj}{NewLine}{Exception}";
+                         + "{Message:lj}.{NewLine}{Exception}";
             
             Serilog.Log.Logger = new Serilog.LoggerConfiguration()
                 .MinimumLevel.Debug()
