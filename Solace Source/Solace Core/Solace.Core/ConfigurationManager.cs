@@ -8,7 +8,8 @@ namespace Solace.Core
     using System.Threading.Tasks;
     using System.Threading.Channels;
     using System.IO;
-    using Newtonsoft.Json;
+    using System.Text.Json;
+    // using Newtonsoft.Json;
     
     public class ConfigurationManager
     {
@@ -91,7 +92,8 @@ namespace Solace.Core
         
         internal void SaveConfig(ConfigurationToken config)
         {
-            var json = JsonConvert.SerializeObject(config, Formatting.Indented);
+            // var json = JsonConvert.SerializeObject(config, Formatting.Indented);
+            var json = JsonSerializer.Serialize(config, JsonOptions());
             
             try
             {
@@ -114,17 +116,32 @@ namespace Solace.Core
         {
             // TODO: cache config
             var text = File.ReadAllText(Location);
-            var cfg  = JsonConvert.DeserializeObject<ConfigurationToken>(text, JsonOptions())!;
+            // var cfg  = JsonConvert.DeserializeObject<ConfigurationToken>(text, NewtonsoftJsonOptions())!;
+            var cfg  = JsonSerializer.Deserialize<ConfigurationToken>(text, JsonOptions());
             return cfg;
         }
         
-        private JsonSerializerSettings JsonOptions()
+        /*
+        private JsonSerializerSettings NewtonsoftJsonOptions()
         {
             var settings = new JsonSerializerSettings()
             {
                 Formatting = Formatting.Indented
             };
             return settings;
+        }
+        */
+        
+        private JsonSerializerOptions JsonOptions()
+        {
+            var opt = new JsonSerializerOptions()
+            {
+                IgnoreReadOnlyProperties = true,
+                ReadCommentHandling      = JsonCommentHandling.Skip,
+                WriteIndented            = true,
+                AllowTrailingCommas      = true,
+            };
+            return opt;
         }
     }
 }
