@@ -23,6 +23,14 @@ namespace Solace.Modules.Discord.Core.Services
     // - PingUrls (List<string>, default { discordapp.com })
     // - RetryReconnectDelay (int, default 5000)
     
+    // TODO: AssemblyLoadContext may not be able to support both
+    // the DiscordService and the Provider depending on DiscordService
+    // as indevidual plugins. We will either need to:
+    // A: Make them both one single plugin, or
+    // B: Make DiscordService a part of the Core project.
+    // Further testing and corrispondance with the .NET team is required,
+    // as of now this project is stalled.
+    
     public class DiscordService : BaseChatService
     {
         private CancellationTokenSource CancelToken { get; set; }
