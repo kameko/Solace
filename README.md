@@ -1,7 +1,7 @@
 
 ![logo](Tools/Images/solace2.png)
 
-Multipurpose, multi-platform, modular bot framework emphasizing uptime with stability, hot code reloading (through plugins).
+Multipurpose, multi-platform, modular bot microservice framework emphasizing uptime with stability, targeting .NET 5.
 
 Please see [CONTRIBUTING.md](Tools/Information/CONTRIBUTING.md) on how to contribute. If you are contributing, you agree to the contribution guidelines.
 
