@@ -26,6 +26,19 @@ namespace Caesura.Solace.Manager.Controllers
         [HttpGet]
         public IEnumerable<WeatherForecast> Get()
         {
+            _logger.LogInformation("Stamp");
+            _logger.LogInformation("<$NoStamp>No stamp");
+            _logger.LogInformation("No stamp and <$NoNewLine>");
+            _logger.LogInformation("<$NoStamp>no new line");
+            try
+            {
+                ThrowMe();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "oopsie poopsie!");
+            }
+            
             var rng = new Random();
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
@@ -34,6 +47,11 @@ namespace Caesura.Solace.Manager.Controllers
                 Summary = Summaries[rng.Next(Summaries.Length)]
             })
             .ToArray();
+        }
+        
+        private void ThrowMe()
+        {
+            throw new InvalidOperationException("oops");
         }
     }
 }
