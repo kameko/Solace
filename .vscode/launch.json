@@ -10,7 +10,7 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/Source/Core/Caesura.Solace.Manager/bin/Debug/netcoreapp5.0/Caesura.Solace.Manager.dll",
+            "program": "${workspaceFolder}/.temp/build/Caesura.Solace.Manager/bin/Debug/netcoreapp5.0/Caesura.Solace.Manager.dll",
             "args": [],
             "cwd": "${workspaceFolder}/Source/Core/Caesura.Solace.Manager",
             "stopAtEntry": false,
