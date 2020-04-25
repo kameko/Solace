@@ -13,6 +13,7 @@ namespace Caesura.Solace.Foundation
         public static event Action OnStopped  = delegate { };
         public static CancellationToken Token => tokenSource.Token;
         private static CancellationTokenSource tokenSource = new CancellationTokenSource();
+        private static Action? end_application_callback;
         private readonly IHostApplicationLifetime _appLifetime;
         
         public LifetimeEventsHostedService(IHostApplicationLifetime appLifetime)
@@ -26,12 +27,27 @@ namespace Caesura.Solace.Foundation
             _appLifetime.ApplicationStopping.Register(CallOnStopping);
             _appLifetime.ApplicationStopped.Register(CallOnStopped);
             
+            if (end_application_callback is null)
+            {
+                end_application_callback = () => _appLifetime.StopApplication();
+            }
+            
             return Task.CompletedTask;
         }
         
         public Task StopAsync(CancellationToken cancellationToken)
         {
             return Task.CompletedTask;
+        }
+        
+        public static void StopApplication()
+        {
+            if (end_application_callback is null)
+            {
+                throw new InvalidOperationException("Callback to end application is not set.");
+            }
+            
+            end_application_callback.Invoke();
         }
         
         private void CallOnStarted()
