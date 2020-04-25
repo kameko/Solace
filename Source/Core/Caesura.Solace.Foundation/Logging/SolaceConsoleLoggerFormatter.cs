@@ -16,6 +16,8 @@ namespace Caesura.Solace.Foundation.Logging
         
         public SolaceConsoleLoggerFormatter()
         {
+            Console.ResetColor();
+            
             original_foreground_color = Console.ForegroundColor;
             original_background_color = Console.BackgroundColor;
             builder                   = new StringBuilder();
@@ -23,9 +25,6 @@ namespace Caesura.Solace.Foundation.Logging
         
         public void PreLog(LogItem item)
         {
-            Console.ForegroundColor = item.Configuration.ForegroundColor;
-            Console.BackgroundColor = item.Configuration.BackgroundColor;
-            
             builder.Clear();
         }
         
@@ -39,6 +38,9 @@ namespace Caesura.Solace.Foundation.Logging
         {
             var message = item.State?.ToString() ?? string.Empty;
             var newline = true;
+            
+            var original_foreground = original_foreground_color;
+            var original_background = original_background_color;
             
             if (message.Contains("<$NoStamp>"))
             {
@@ -57,7 +59,10 @@ namespace Caesura.Solace.Foundation.Logging
             
             if (!string.IsNullOrEmpty(message))
             {
+                original_foreground     = Console.ForegroundColor;
+                Console.ForegroundColor = item.Configuration.Theme.MessageColor;
                 Write(message);
+                Console.ForegroundColor = original_foreground;
             }
             
             if (!(item.Exception is null))
@@ -84,45 +89,72 @@ namespace Caesura.Solace.Foundation.Logging
         
         private void StampFormatter(LogItem item)
         {
-            var original_foreground = item.Configuration.ForegroundColor;
-            var original_background = item.Configuration.BackgroundColor;
+            var original_foreground = Console.ForegroundColor;
+            var original_background = Console.BackgroundColor;
             
             var level_color = item.Level switch
             {
-                LogLevel.Information => original_foreground,
-                LogLevel.Warning     => ConsoleColor.Yellow,
-                LogLevel.Error       => ConsoleColor.Red,
-                LogLevel.Critical    => ConsoleColor.DarkRed,
-                LogLevel.Debug       => ConsoleColor.DarkYellow,
-                LogLevel.Trace       => ConsoleColor.DarkYellow,
+                LogLevel.Information => item.Configuration.Theme.InfoColor,
+                LogLevel.Warning     => item.Configuration.Theme.WarnColor,
+                LogLevel.Error       => item.Configuration.Theme.ErrorColor,
+                LogLevel.Critical    => item.Configuration.Theme.CriticalColor,
+                LogLevel.Debug       => item.Configuration.Theme.DebugColor,
+                LogLevel.Trace       => item.Configuration.Theme.TraceColor,
                 LogLevel.None        => ConsoleColor.Gray,
                 
                 _ => ConsoleColor.Gray
             };
             
+            Console.ForegroundColor = item.Configuration.Theme.BracketColor;
+            Write("[");
             Console.ForegroundColor = level_color;
-            
-            Write("[");
             Write(item.Level);
+            Console.ForegroundColor = item.Configuration.Theme.BracketColor;
             Write("]");
-            
-            Console.ForegroundColor = ConsoleColor.Gray;
-            
-            Write("[");
-            Write(item.TimeStamp.ToString(item.Configuration.TimeStampFormat));
-            Write("]");
-            
-            Write("[");
-            Write(item.Name);
-            if (item.Id != 0)
-            {
-                Write("(");
-                Write(item.Id);
-                Write(")");
-            }
-            Write("]");
-            
             Console.ForegroundColor = original_foreground;
+            
+            Console.ForegroundColor = item.Configuration.Theme.BracketColor;
+            Write("[");
+            Console.ForegroundColor = item.Configuration.Theme.TimeStampColor;
+            Write(item.TimeStamp.ToString(item.Configuration.TimeStampFormat));
+            Console.ForegroundColor = item.Configuration.Theme.BracketColor;
+            Write("]");
+            Console.ForegroundColor = original_foreground;
+            
+            var name = item.Name;
+            foreach (var trim in item.Configuration.TrimNames)
+            {
+                if (name.StartsWith(trim))
+                {
+                    name = name.Replace(trim, string.Empty);
+                    break;
+                }
+            }
+            foreach (var (val, repl) in item.Configuration.ReplaceNames)
+            {
+                if (name == val)
+                {
+                    name = repl;
+                    break;
+                }
+            }
+            
+            if (!string.IsNullOrEmpty(name))
+            {
+                Console.ForegroundColor = item.Configuration.Theme.BracketColor;
+                Write("[");
+                Console.ForegroundColor = item.Configuration.Theme.NameColor;
+                Write(name);
+                if (item.Id != 0)
+                {
+                    Write("(");
+                    Write(item.Id);
+                    Write(")");
+                }
+                Console.ForegroundColor = item.Configuration.Theme.BracketColor;
+                Write("]");
+                Console.ForegroundColor = original_foreground;
+            }
             
             Write(" ");
         }
@@ -134,24 +166,29 @@ namespace Caesura.Solace.Foundation.Logging
             var original_foreground = Console.ForegroundColor;
             var original_background = Console.BackgroundColor;
             
-            Console.ForegroundColor = ConsoleColor.Red;
-            
+            Console.ForegroundColor = item.Configuration.Theme.ExceptionWarningColor;
             Write("EXCEPTION: ");
+            Console.ForegroundColor = item.Configuration.Theme.ExceptionNameColor;
             Write(exception.GetType().FullName ?? "<NO TYPE NAME>");
             WriteLine();
             
             if (!string.IsNullOrEmpty(exception.Message))
             {
+                Console.ForegroundColor = item.Configuration.Theme.ExceptionMetaColor;
                 Write("MESSAGE: ");
+                Console.ForegroundColor = item.Configuration.Theme.ExceptionMessageColor;
                 Write(exception.Message);
                 WriteLine();
             }
             
-            Write("Stack Trace: ");
+            Console.ForegroundColor = item.Configuration.Theme.ExceptionMetaColor;
+            Write(" Stack Trace: ");
             WriteLine();
-            Write(exception.StackTrace ?? "<NO STACK TRACE>");
+            Console.ForegroundColor = item.Configuration.Theme.ExceptionStackTraceColor;
+            Write(exception.StackTrace ?? " <NO STACK TRACE>");
+            Console.ForegroundColor = item.Configuration.Theme.ExceptionMetaColor;
             WriteLine();
-            Write("--- End of stack trace ---");
+            Write(" --- End of stack trace ---");
             
             Console.ForegroundColor = original_foreground;
         }

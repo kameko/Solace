@@ -10,6 +10,7 @@ namespace Caesura.Solace.Foundation.Logging
     {
         private static object console_lock = new Object();
         private static SolaceConsoleLoggerConfiguration? static_config;
+        private static SolaceConsoleLoggerConfiguration? replacement_static_config;
         private static ConcurrentQueue<LogItem> queue;
         
         private readonly string _name;
@@ -62,6 +63,29 @@ namespace Caesura.Solace.Foundation.Logging
             }
         }
         
+        public static void ChangeLogLevel(LogLevel level)
+        {
+            lock (console_lock)
+            {
+                if (static_config is null)
+                {
+                    return;
+                }
+                
+                var conf                  = static_config.Clone();
+                conf.LogLevel             = level;
+                replacement_static_config = conf;
+            }
+        }
+        
+        public static void Reconfigure(SolaceConsoleLoggerConfiguration config)
+        {
+            lock (console_lock)
+            {
+                replacement_static_config = config;
+            }
+        }
+        
         private static async Task LogHandler()
         {
             LogItem? n_item = null;
@@ -90,6 +114,12 @@ namespace Caesura.Solace.Foundation.Logging
                     
                     lock (console_lock)
                     {
+                        if (!(replacement_static_config is null))
+                        {
+                            config = replacement_static_config;
+                            replacement_static_config = null;
+                        }
+                        
                         var item = n_item;
                         n_item   = null;
                         
