@@ -94,18 +94,7 @@ namespace Caesura.Solace.Foundation.Logging
                         n_item   = null;
                         
                         config.Formatter.PreLog(item);
-                        
-                        var message = config.Formatter.Format(item);
-                        if (item.State?.ToString()?.Contains("<$NoNewLine>") ?? false)
-                        {
-                            message = message.Replace("<$NoNewLine>", string.Empty);
-                            Console.Write(message);
-                        }
-                        else
-                        {
-                            Console.WriteLine(message);
-                        }
-                        
+                        config.Formatter.Format(item);
                         config.Formatter.PostLog(item);
                     }
                 }

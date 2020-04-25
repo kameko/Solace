@@ -38,6 +38,7 @@ namespace Caesura.Solace.Foundation.Logging
         public string Format(LogItem item)
         {
             var message = item.State?.ToString() ?? string.Empty;
+            var newline = true;
             
             if (message.Contains("<$NoStamp>"))
             {
@@ -48,23 +49,34 @@ namespace Caesura.Solace.Foundation.Logging
                 StampFormatter(item);
             }
             
+            if (message.Contains("<$NoNewLine>"))
+            {
+                message = message.Replace("<$NoNewLine>", string.Empty);
+                newline = false;
+            }
+            
             if (!string.IsNullOrEmpty(message))
             {
-                builder.Append(message);
+                Write(message);
             }
             
             if (!(item.Exception is null))
             {
                 if (string.IsNullOrEmpty(message))
                 {
-                    builder.Append(" ");
+                    Write(" ");
                 }
                 else
                 {
-                    builder.AppendLine();
+                    WriteLine();
                 }
                 
                 ExceptionFormatter(item);
+            }
+            
+            if (newline)
+            {
+                WriteLine();
             }
             
             return builder.ToString();
@@ -77,7 +89,7 @@ namespace Caesura.Solace.Foundation.Logging
             
             var level_color = item.Level switch
             {
-                LogLevel.Information => ConsoleColor.Gray, //original_foreground,
+                LogLevel.Information => original_foreground,
                 LogLevel.Warning     => ConsoleColor.Yellow,
                 LogLevel.Error       => ConsoleColor.Red,
                 LogLevel.Critical    => ConsoleColor.DarkRed,
@@ -90,29 +102,29 @@ namespace Caesura.Solace.Foundation.Logging
             
             Console.ForegroundColor = level_color;
             
-            builder.Append("[");
-            builder.Append(item.Level);
-            builder.Append("]");
+            Write("[");
+            Write(item.Level);
+            Write("]");
             
             Console.ForegroundColor = ConsoleColor.Gray;
             
-            builder.Append("[");
-            builder.Append(item.TimeStamp.ToString(item.Configuration.TimeStampFormat));
-            builder.Append("]");
+            Write("[");
+            Write(item.TimeStamp.ToString(item.Configuration.TimeStampFormat));
+            Write("]");
             
-            builder.Append("[");
-            builder.Append(item.Name);
+            Write("[");
+            Write(item.Name);
             if (item.Id != 0)
             {
-                builder.Append("(");
-                builder.Append(item.Id);
-                builder.Append(")");
+                Write("(");
+                Write(item.Id);
+                Write(")");
             }
-            builder.Append("]");
+            Write("]");
             
             Console.ForegroundColor = original_foreground;
             
-            builder.Append(" ");
+            Write(" ");
         }
         
         private void ExceptionFormatter(LogItem item)
@@ -124,24 +136,42 @@ namespace Caesura.Solace.Foundation.Logging
             
             Console.ForegroundColor = ConsoleColor.Red;
             
-            builder.Append("EXCEPTION: ");
-            builder.Append(exception.GetType().FullName);
-            builder.AppendLine();
+            Write("EXCEPTION: ");
+            Write(exception.GetType().FullName ?? "<NO TYPE NAME>");
+            WriteLine();
             
             if (!string.IsNullOrEmpty(exception.Message))
             {
-                builder.Append("MESSAGE: ");
-                builder.Append(exception.Message);
-                builder.AppendLine();
+                Write("MESSAGE: ");
+                Write(exception.Message);
+                WriteLine();
             }
             
-            builder.Append("Stack Trace: ");
-            builder.AppendLine();
-            builder.Append(exception.StackTrace);
-            builder.AppendLine();
-            builder.Append("--- End of stack trace ---");
+            Write("Stack Trace: ");
+            WriteLine();
+            Write(exception.StackTrace ?? "<NO STACK TRACE>");
+            WriteLine();
+            Write("--- End of stack trace ---");
             
             Console.ForegroundColor = original_foreground;
+        }
+        
+        private void Write(object item)
+        {
+            var str = item.ToString();
+            Write(str!);
+        }
+        
+        private void Write(string str)
+        {
+            builder.Append(str);
+            Console.Write(str);
+        }
+        
+        private void WriteLine()
+        {
+            builder.AppendLine();
+            Console.WriteLine();
         }
     }
 }
