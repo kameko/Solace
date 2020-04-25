@@ -2,24 +2,22 @@
 namespace Caesura.Solace.Foundation.Logging
 {
     using System;
-    using System.Collections.Generic;
-    using System.Threading;
+    using System.Collections.Concurrent;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Logging;
     
     public class SolaceConsoleLogger : ILogger
     {
-        private static object queue_lock   = new Object();
         private static object console_lock = new Object();
         private static SolaceConsoleLoggerConfiguration? static_config;
-        private static Queue<LogItem> messages;
+        private static ConcurrentQueue<LogItem> queue;
         
         private readonly string _name;
         private readonly SolaceConsoleLoggerConfiguration _config;
         
         static SolaceConsoleLogger()
         {
-            messages = new Queue<LogItem>();
+            queue = new ConcurrentQueue<LogItem>();
             Task.Run(LogHandler);
         }
         
@@ -59,11 +57,8 @@ namespace Caesura.Solace.Foundation.Logging
             
             if (_config.EventId == 0 || _config.EventId == eventId.Id)
             {
-                lock (queue_lock)
-                {
-                    var item = new LogItem(_config, logLevel, eventId, _name, (state as object), exception);
-                    messages.Enqueue(item);
-                }
+                var item = new LogItem(_config, logLevel, eventId, _name, (state as object), exception);
+                queue.Enqueue(item);
             }
         }
         
@@ -81,14 +76,15 @@ namespace Caesura.Solace.Foundation.Logging
             {
                 try
                 {
-                    lock (queue_lock)
-                    {
-                        messages.TryDequeue(out n_item);
-                    }
-                    
-                    if (n_item is null)
+                    while (queue.IsEmpty)
                     {
                         await Task.Delay(15);
+                        continue;
+                    }
+                    
+                    var success = queue.TryDequeue(out n_item);
+                    if (!success || n_item is null)
+                    {
                         continue;
                     }
                     
