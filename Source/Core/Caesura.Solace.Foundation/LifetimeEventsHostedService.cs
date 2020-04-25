@@ -8,10 +8,12 @@ namespace Caesura.Solace.Foundation
     
     public class LifetimeEventsHostedService : IHostedService
     {
+        public static bool Started { get; private set; } = false;
         public static event Action OnStarted  = delegate { };
         public static event Action OnStopping = delegate { };
         public static event Action OnStopped  = delegate { };
         public static CancellationToken Token => tokenSource.Token;
+        
         private static CancellationTokenSource tokenSource = new CancellationTokenSource();
         private static Action? end_application_callback;
         private readonly IHostApplicationLifetime _appLifetime;
@@ -31,6 +33,8 @@ namespace Caesura.Solace.Foundation
             {
                 end_application_callback = () => _appLifetime.StopApplication();
             }
+            
+            Started = true;
             
             return Task.CompletedTask;
         }
