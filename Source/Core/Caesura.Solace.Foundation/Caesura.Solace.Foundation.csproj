@@ -1,6 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
   
   <ItemGroup>
+    <ProjectReference Include="..\Caesura.Solace.Entities\Caesura.Solace.Entities.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   

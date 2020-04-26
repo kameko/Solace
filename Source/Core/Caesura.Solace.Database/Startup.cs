@@ -13,6 +13,8 @@ namespace Caesura.Solace.Database
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
+    using Microsoft.EntityFrameworkCore;
+    using Entities.Core;
     
     public class Startup
     {

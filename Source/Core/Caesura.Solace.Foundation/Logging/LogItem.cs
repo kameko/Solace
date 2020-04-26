@@ -3,6 +3,7 @@ namespace Caesura.Solace.Foundation.Logging
 {
     using System;
     using Microsoft.Extensions.Logging;
+    using Entities.Core;
     
     public class LogItem
     {
@@ -23,6 +24,25 @@ namespace Caesura.Solace.Foundation.Logging
             Name          = name;
             State         = state;
             Exception     = exception;
+        }
+        
+        public LogElement ToLogElement()
+        {
+            var le = new LogElement()
+            {
+                TimeStamp = this.TimeStamp,
+                Level     = this.Level,
+                Id        = this.Id.Id,
+                Name      = this.Name,
+                Message   = this.State?.ToString() ?? string.Empty,
+                Exception = this.Exception,
+            };
+            return le;
+        }
+        
+        public static implicit operator LogElement (LogItem item)
+        {
+            return item.ToLogElement();
         }
         
         public override string ToString()
