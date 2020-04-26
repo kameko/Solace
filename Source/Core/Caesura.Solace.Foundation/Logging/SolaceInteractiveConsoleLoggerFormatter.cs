@@ -20,7 +20,7 @@ namespace Caesura.Solace.Foundation.Logging
         private List<LineElement> screen_buffer;
         private List<LineElement> remove_buffer;
         private StringBuilder input;
-        private int cursor_pos;
+        // private int cursor_pos;
         private bool running;
         private const int ui_area_height = 3;
         

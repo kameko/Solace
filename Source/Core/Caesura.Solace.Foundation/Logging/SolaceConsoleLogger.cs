@@ -96,6 +96,7 @@ namespace Caesura.Solace.Foundation.Logging
             }
             
             var config = static_config;
+            var formatter = config.FormatterFactory();
             while (!config.Token.IsCancellationRequested)
             {
                 try
@@ -117,15 +118,32 @@ namespace Caesura.Solace.Foundation.Logging
                         if (!(replacement_static_config is null))
                         {
                             config = replacement_static_config;
+                            formatter = config.FormatterFactory();
                             replacement_static_config = null;
                         }
                         
                         var item = n_item;
                         n_item   = null;
                         
-                        config.Formatter.PreLog(item);
-                        config.Formatter.Format(item);
-                        config.Formatter.PostLog(item);
+                        formatter.PreLog(item);
+                        formatter.Format(item);
+                        formatter.PostLog(item);
+                        
+                        if (queue.Count > config.InternalLoggerQueueOverloadThreshold)
+                        {
+                            item = new LogItem(
+                                config,
+                                LogLevel.Warning,
+                                0,
+                                nameof(SolaceConsoleLogger),
+                                "WARNING! LOG BUFFER IS OVERLOADED!",
+                                null
+                            );
+                            
+                            formatter.PreLog(item);
+                            formatter.Format(item);
+                            formatter.PostLog(item);
+                        }
                     }
                 }
                 catch (Exception e)
@@ -135,7 +153,11 @@ namespace Caesura.Solace.Foundation.Logging
             }
             
             Console.ResetColor();
-            Console.WriteLine("Stopping logger.");
+            
+            if (config.LogLevel == LogLevel.Trace)
+            {
+                Console.WriteLine("Stopping logger.");
+            }
         }
     }
 }
