@@ -3,35 +3,130 @@ namespace Caesura.Solace.Foundation.Logging
 {
     using System;
     using System.Text;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
     using Microsoft.Extensions.Logging;
     
-    public class SolaceConsoleLoggerFormatter : ISolaceConsoleLoggerFormatter
+    // TODO: finish this, maybe rewrite it. not important right now
+    
+    public class SolaceInteractiveConsoleLoggerFormatter : ISolaceConsoleLoggerFormatter
     {
         private readonly ConsoleColor original_foreground_color;
         private readonly ConsoleColor original_background_color;
         private readonly StringBuilder builder;
+        private List<LineElement> text_buffer;
+        private List<LineElement> screen_buffer;
+        private List<LineElement> remove_buffer;
+        private StringBuilder input;
+        private int cursor_pos;
+        private bool running;
+        private const int ui_area_height = 3;
         
-        public SolaceConsoleLoggerFormatter()
+        public SolaceInteractiveConsoleLoggerFormatter()
         {
             Console.ResetColor();
             
             original_foreground_color = Console.ForegroundColor;
             original_background_color = Console.BackgroundColor;
             builder                   = new StringBuilder();
+            text_buffer               = new List<LineElement>();
+            screen_buffer             = new List<LineElement>();
+            remove_buffer             = new List<LineElement>();
+            input                     = new StringBuilder();
+            running                   = false;
+        }
+        
+        private Task RunRenderer(CancellationToken token)
+        {
+            while (!token.IsCancellationRequested)
+            {
+                Console.Clear();
+                Render();
+            }
+            return Task.CompletedTask;
+        }
+        
+        private Task RunInputReader(CancellationToken token)
+        {
+            while (!token.IsCancellationRequested)
+            {
+                var cki = Console.ReadKey(true);
+                if (IsCommandCharacter(cki))
+                {
+                    ProcessCommandCharacter(cki);
+                }
+                else
+                {
+                    input.Append(cki.KeyChar);
+                }
+            }
+            return Task.CompletedTask;
+        }
+        
+        private void Render()
+        {
+            
+        }
+        
+        private bool IsCommandCharacter(ConsoleKeyInfo cki)
+        {
+            if (cki.Key == ConsoleKey.Backspace)
+            {
+                return true;
+            }
+            
+            return false;
+        }
+        
+        private void ProcessCommandCharacter(ConsoleKeyInfo cki)
+        {
+            if (cki.Key == ConsoleKey.Backspace)
+            {
+                
+            }
+            else
+            {
+                
+            }
         }
         
         public void PreLog(LogItem item)
         {
-            builder.Clear();
+            if (!running)
+            {
+                running = true;
+                Task.Run(() => RunRenderer(item.Configuration.Token));
+                Task.Run(() => RunInputReader(item.Configuration.Token));
+            }
         }
         
         public void PostLog(LogItem item)
         {
-            Console.ForegroundColor = original_foreground_color;
-            Console.BackgroundColor = original_background_color;
+            
         }
         
         public string Format(LogItem item)
+        {
+            var height = Console.BufferHeight;
+            foreach (var line in screen_buffer)
+            {
+                line.Place++;
+                if (line.Place > height - ui_area_height - 1)
+                {
+                    remove_buffer.Add(line);
+                }
+            }
+            screen_buffer = (List<LineElement>)screen_buffer.Except(remove_buffer);
+            
+            var elm = new LineElement(item);
+            screen_buffer.Add(elm);
+            
+            return item.ToString();
+        }
+        
+        private int RenderLine(LogItem item)
         {
             var message = item.State?.ToString() ?? string.Empty;
             var newline = true;
@@ -81,7 +176,9 @@ namespace Caesura.Solace.Foundation.Logging
                 WriteLine();
             }
             
-            return builder.ToString();
+            var length = builder.Length;
+            builder.Clear();
+            return length;
         }
         
         private void StampFormatter(LogItem item)
@@ -206,6 +303,18 @@ namespace Caesura.Solace.Foundation.Logging
         {
             builder.AppendLine();
             Console.WriteLine();
+        }
+        
+        private class LineElement
+        {
+            public LogItem Item;
+            public int Place;
+            
+            public LineElement(LogItem item)
+            {
+                Item  = item;
+                Place = 0;
+            }
         }
     }
 }

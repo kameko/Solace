@@ -45,5 +45,32 @@ namespace Caesura.Solace.Foundation.Logging
         public ConsoleColor ExceptionNameColor       { get; set; } = ConsoleColor.Gray;
         public ConsoleColor ExceptionMessageColor    { get; set; } = ConsoleColor.Gray;
         public ConsoleColor ExceptionStackTraceColor { get; set; } = ConsoleColor.Gray;
+        
+        public ConsoleTheme()
+        {
+            
+        }
+        
+        public ConsoleTheme(IConsoleTheme theme)
+        {
+            Name                        = theme.Name;
+            Credit                      = theme.Credit;
+            IntendedThemeSystemVersion  = theme.IntendedThemeSystemVersion;
+            InfoColor                   = theme.InfoColor;
+            WarnColor                   = theme.WarnColor;
+            ErrorColor                  = theme.ErrorColor;
+            CriticalColor               = theme.CriticalColor;
+            DebugColor                  = theme.DebugColor;
+            TraceColor                  = theme.TraceColor;
+            BracketColor                = theme.BracketColor;
+            TimeStampColor              = theme.TimeStampColor;
+            NameColor                   = theme.NameColor;
+            MessageColor                = theme.MessageColor;
+            ExceptionWarningColor       = theme.ExceptionWarningColor;
+            ExceptionMetaColor          = theme.ExceptionMetaColor;
+            ExceptionNameColor          = theme.ExceptionNameColor;
+            ExceptionMessageColor       = theme.ExceptionMessageColor;
+            ExceptionStackTraceColor    = theme.ExceptionStackTraceColor;
+        }
     }
 }
