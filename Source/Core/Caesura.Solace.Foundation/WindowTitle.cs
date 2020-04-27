@@ -2,6 +2,7 @@
 namespace Caesura.Solace.Foundation
 {
     using System;
+    using System.Runtime.InteropServices;
     
     public class WindowTitle : IDisposable
     {
@@ -15,13 +16,21 @@ namespace Caesura.Solace.Foundation
         public static WindowTitle Set(string title)
         {
             var wt = new WindowTitle(Console.Title);
-            Console.Title = title;
+            wt.ChangeTitle(title);
             return wt;
         }
         
         public void Dispose()
         {
-            Console.Title = old_title;
+            ChangeTitle(old_title);
+        }
+        
+        private void ChangeTitle(string title)
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                Console.Title = title;
+            }
         }
     }
 }
