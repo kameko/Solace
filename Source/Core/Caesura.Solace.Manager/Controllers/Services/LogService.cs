@@ -26,81 +26,92 @@ namespace Caesura.Solace.Manager.Controllers.Services
         {
             log.EnterMethod(nameof(Get));
             
-            // TODO: have this return the last 100 log elements.
-            
-            var items = new List<LogElement>()
+            using (var context = new LogElementContext())
             {
-                new LogElement()
-                {
-                    Id = 1,
-                    Message = "Hello!"
-                },
-                new LogElement()
-                {
-                    Id = 2,
-                    Message = "Hello, again!"
-                },
-                new LogElement()
-                {
-                    Id = 3,
-                    Message = "Hello, once more!"
-                },
-            };
-            
-            log.ExitMethod(nameof(Get));
-            return Task.FromResult(LogServiceResult.GetAll.Ok(items));
-            // throw new NotImplementedException();
+                var elms = context.LogItems.Take(100);
+                var ok   = LogServiceResult.GetAll.Ok(elms);
+                log.ExitMethod(nameof(Get));
+                return Task.FromResult(ok);
+            }
         }
         
-        public async Task<LogServiceResult.GetById> Get(ulong id)
+        public Task<LogServiceResult.GetById> Get(ulong id)
         {
             log.EnterMethod(nameof(Get), "for Id {Id}.", id);
             
-            var items = await Get();
-            var item = (items.Value as List<LogElement>)!.Find(x => x.Id == id);
-            
-            LogServiceResult.GetById retval = null!;
-            if (item is null)
+            using (var context = new LogElementContext())
             {
-                retval = LogServiceResult.GetById.NotFound();
+                var elm = context.LogItems.Find(id);
+                if (elm is null)
+                {
+                    var bad = LogServiceResult.GetById.NotFound();
+                    log.ExitMethod(nameof(Get));
+                    return Task.FromResult(bad);
+                }
+                else
+                {
+                    var ok = LogServiceResult.GetById.Ok(elm);
+                    log.ExitMethod(nameof(Get));
+                    return Task.FromResult(ok);
+                }
             }
-            else
-            {
-                retval = LogServiceResult.GetById.Ok(item);
-            }
-            
-            log.ExitMethod(nameof(Get), "for Id {Id}.", id);
-            return retval;
-            //throw new NotImplementedException();
         }
         
         public Task<LogServiceResult.Put> Put(ulong id, LogElement element)
         {
             log.EnterMethod(nameof(Put), "for Id {Id} and LogElement {LogElement}.", id, element);
             
-            // ...
+            log.Debug("This method is not implemented.");
             
             log.ExitMethod(nameof(Put), "for Id {Id} and LogElement {LogElement}.", id, element);
             
             return Task.FromResult(LogServiceResult.Put.Unauthorized());
         }
         
-        public Task<LogServiceResult.Post> Post(LogElement element)
+        public async Task<LogServiceResult.Post> Post(LogElement element)
         {
             log.EnterMethod(nameof(Post), "for LogElement {LogElement}.", element);
             
-            // ...
-            
-            log.ExitMethod(nameof(Post), "for LogElement {LogElement}.", element);
-            
-            throw new NotImplementedException();
+            try
+            {
+                using (var context = new LogElementContext())
+                {
+                    var elm = context.LogItems.Find(element.Id);
+                    if (elm is null)
+                    {
+                        context.Add(element);
+                        await context.SaveChangesAsync();
+                        elm = context.LogItems.Find(element.Id);
+                        if (elm is null)
+                        {
+                            throw new Exception($"LogElement with Id {element.Id} was added but not found!");
+                        }
+                        else
+                        {
+                            return LogServiceResult.Post.Ok(elm);
+                        }
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException($"LogElement with Id {element.Id} already exists.");
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                return LogServiceResult.Post.Bad(e);
+            }
+            finally
+            {
+                log.ExitMethod(nameof(Post), "for LogElement {LogElement}.", element);
+            }
         }
         
         public Task<LogServiceResult.Delete> Delete(ulong id)
         {
             log.EnterMethod(nameof(Delete), "for Id {Id}.", id);
             
-            // ...
+            log.Debug("This method is not implemented.");
             
             log.ExitMethod(nameof(Delete), "for Id {Id}.", id);
             
