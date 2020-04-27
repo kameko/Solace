@@ -8,6 +8,7 @@ namespace Caesura.Solace.Manager.Controllers.Services
     using Microsoft.Extensions.Logging;
     using Foundation.Logging;
     using Entities.Core;
+    using Entities.Core.Contexts;
     using Interfaces;
     
     public class LogService : ILogService
@@ -24,6 +25,8 @@ namespace Caesura.Solace.Manager.Controllers.Services
         public Task<LogServiceResult.GetAll> Get()
         {
             log.EnterMethod(nameof(Get));
+            
+            // TODO: have this return the last 100 log elements.
             
             var items = new List<LogElement>()
             {
@@ -63,7 +66,7 @@ namespace Caesura.Solace.Manager.Controllers.Services
             }
             else
             {
-                retval = LogServiceResult.GetById.Ok(item!);
+                retval = LogServiceResult.GetById.Ok(item);
             }
             
             log.ExitMethod(nameof(Get), "for Id {Id}.", id);
@@ -75,6 +78,8 @@ namespace Caesura.Solace.Manager.Controllers.Services
         {
             log.EnterMethod(nameof(Put), "for Id {Id} and LogElement {LogElement}.", id, element);
             
+            // ...
+            
             log.ExitMethod(nameof(Put), "for Id {Id} and LogElement {LogElement}.", id, element);
             
             return Task.FromResult(LogServiceResult.Put.Unauthorized());
@@ -84,6 +89,8 @@ namespace Caesura.Solace.Manager.Controllers.Services
         {
             log.EnterMethod(nameof(Post), "for LogElement {LogElement}.", element);
             
+            // ...
+            
             log.ExitMethod(nameof(Post), "for LogElement {LogElement}.", element);
             
             throw new NotImplementedException();
@@ -92,6 +99,8 @@ namespace Caesura.Solace.Manager.Controllers.Services
         public Task<LogServiceResult.Delete> Delete(ulong id)
         {
             log.EnterMethod(nameof(Delete), "for Id {Id}.", id);
+            
+            // ...
             
             log.ExitMethod(nameof(Delete), "for Id {Id}.", id);
             

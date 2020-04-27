@@ -6,13 +6,13 @@ namespace Caesura.Solace.Foundation.Logging
     using System.Collections.Generic;
     using Microsoft.Extensions.Logging;
     
+    // Abandon all hope ye who enter here
+    
     public class SolaceConsoleLoggerFormatter : ISolaceConsoleLoggerFormatter
     {
         private readonly ConsoleColor original_foreground_color;
         private readonly ConsoleColor original_background_color;
         private readonly List<string> errors;
-        private readonly StringBuilder json_builder;
-        private readonly Dictionary<int, string> json_positions;
         
         public SolaceConsoleLoggerFormatter()
         {
@@ -21,13 +21,11 @@ namespace Caesura.Solace.Foundation.Logging
             original_foreground_color = Console.ForegroundColor;
             original_background_color = Console.BackgroundColor;
             errors                    = new List<string>();
-            json_builder              = new StringBuilder();
-            json_positions            = new Dictionary<int, string>();
         }
         
         public void PreLog(LogItem item)
         {
-            errors.Clear();
+            
         }
         
         public void PostLog(LogItem item)
@@ -310,6 +308,8 @@ namespace Caesura.Solace.Foundation.Logging
                     count++;
                 }
                 
+                errors.Clear();
+                
                 Console.ForegroundColor = original_foreground;
             }
         }
@@ -322,18 +322,11 @@ namespace Caesura.Solace.Foundation.Logging
         
         private void Write(string str)
         {
-            // builder.Append(str);
             Console.Write(str);
-        }
-        
-        private void Write(char c)
-        {
-            Console.Write(c);
         }
         
         private void WriteLine()
         {
-            // builder.AppendLine();
             Console.WriteLine();
         }
     }
