@@ -10,7 +10,7 @@ namespace Caesura.Solace.Manager.Controllers.Interfaces
     public interface ILogService
     {
         void Inject(ILogger ilog);
-        Task<LogServiceResult.Get> Get();
+        Task<LogServiceResult.GetAll> Get();
         Task<LogServiceResult.GetById> Get(ulong id);
         Task<LogServiceResult.Put> Put(ulong id, LogElement element);
         Task<LogServiceResult.Post> Post(LogElement element);
@@ -19,26 +19,26 @@ namespace Caesura.Solace.Manager.Controllers.Interfaces
     
     public static class LogServiceResult
     {
-        public class Get
+        public class GetAll
         {
             private IEnumerable<LogElement>? _val;
             
             public bool Success { get; private set; }
             public IEnumerable<LogElement> Value => Success && !(_val is null) ? _val : throw new InvalidOperationException();
             
-            private Get(IEnumerable<LogElement> elms)
+            private GetAll(IEnumerable<LogElement> elms)
             {
                 _val    = elms;
                 Success = true;
             }
             
-            private Get()
+            private GetAll()
             {
                 Success = false;
             }
             
-            public static Get Ok(IEnumerable<LogElement> elms) => new Get(elms);
-            public static Get Bad() => new Get();
+            public static GetAll Ok(IEnumerable<LogElement> elms) => new GetAll(elms);
+            public static GetAll Bad() => new GetAll();
         }
         
         public class GetById

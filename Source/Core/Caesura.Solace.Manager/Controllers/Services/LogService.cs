@@ -23,7 +23,7 @@ namespace Caesura.Solace.Manager.Controllers.Services
             log = ilog;
         }
         
-        public Task<LogServiceResult.Get> Get()
+        public Task<LogServiceResult.GetAll> Get()
         {
             throw new NotImplementedException();
         }
