@@ -32,7 +32,7 @@ namespace Caesura.Solace.Foundation.Logging
             {
                 TimeStamp = this.TimeStamp,
                 Level     = this.Level,
-                Id        = this.Id.Id,
+                EventId   = this.Id.Id,
                 Name      = this.Name,
                 Message   = this.State?.ToString() ?? string.Empty,
                 Exception = this.Exception,
@@ -48,7 +48,7 @@ namespace Caesura.Solace.Foundation.Logging
         public override string ToString()
         {
             return 
-                $"[{Level}]({Id}): {State}{(State is null ? string.Empty : " ")} " + 
+                $"[{Level}][{Name}({Id})]: {State}{(State is null ? string.Empty : " ")} " + 
                 $"{(Exception is null ? string.Empty : Environment.NewLine)}{Exception}";
         }
     }
