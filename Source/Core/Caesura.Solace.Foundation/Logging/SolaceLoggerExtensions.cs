@@ -2,8 +2,6 @@
 namespace Caesura.Solace.Foundation.Logging
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
     using System.Runtime.CompilerServices;
     using Microsoft.Extensions.Logging;
     
@@ -131,7 +129,7 @@ namespace Caesura.Solace.Foundation.Logging
         
         private static void RawLog(LogLevel level, ILogger logger, Exception? exception, string message, params object[] args)
         {
-            logger.Log<SolaceLogState>(level, GetId(logger), SolaceLogState.Create(message, args), exception, null);
+            logger.Log<SolaceLogState>(level, GetId(logger), SolaceLogState.Create(message, args), exception, Formatter);
         }
         
         private static EventId GetId(ILogger logger)
@@ -144,6 +142,17 @@ namespace Caesura.Solace.Foundation.Logging
             {
                 return new EventId(0, string.Empty);
             }
+        }
+        
+        private static string Formatter(SolaceLogState? state, Exception? exception)
+        {
+            var str = state?.ToJson(indent: false) ?? string.Empty;
+            if (!string.IsNullOrEmpty(str) && !(exception is null))
+            {
+                str += " ";
+            }
+            str += exception?.ToString() ?? string.Empty;
+            return str;
         }
     }
 }

@@ -4,6 +4,8 @@ namespace Caesura.Solace.Entities.Core
     using System;
     using Microsoft.Extensions.Logging;
     
+    // TODO: Add an Elements class/property like in Foundation.Logging.LogItem
+    
     public class LogElement
     {
         public ulong Id             { get; set; }
