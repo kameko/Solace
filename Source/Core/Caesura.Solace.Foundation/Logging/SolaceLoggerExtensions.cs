@@ -146,7 +146,7 @@ namespace Caesura.Solace.Foundation.Logging
         
         private static string Formatter(SolaceLogState? state, Exception? exception)
         {
-            var str = state?.ToJson(indent: false) ?? string.Empty;
+            var str = state?.ToJson(indent: false, ignore_null: false) ?? string.Empty;
             if (!string.IsNullOrEmpty(str) && !(exception is null))
             {
                 str += " ";

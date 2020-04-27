@@ -33,7 +33,7 @@ namespace Caesura.Solace.Foundation.Logging
         public int InternalLoggerQueueOverloadThreshold
             { get; set; } = 1_000;
         public ObjectStringifyOption StringifyOption
-            { get; set; } = ObjectStringifyOption.SerializeJsonPretty;
+            { get; set; } = ObjectStringifyOption.SerializeJsonRaw;
         
         public SolaceConsoleLoggerConfiguration()
         {

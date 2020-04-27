@@ -18,6 +18,7 @@ namespace Caesura.Solace.Foundation.Logging
         ConsoleColor TimeStampColor           { get; set; }
         ConsoleColor NameColor                { get; set; }
         ConsoleColor MessageColor             { get; set; }
+        ConsoleColor JsonColor                { get; set; }
         ConsoleColor ExceptionWarningColor    { get; set; }
         ConsoleColor ExceptionMetaColor       { get; set; }
         ConsoleColor ExceptionNameColor       { get; set; }
@@ -40,6 +41,7 @@ namespace Caesura.Solace.Foundation.Logging
         public ConsoleColor TimeStampColor           { get; set; } = ConsoleColor.Gray;
         public ConsoleColor NameColor                { get; set; } = ConsoleColor.Gray;
         public ConsoleColor MessageColor             { get; set; } = ConsoleColor.Gray;
+        public ConsoleColor JsonColor                { get; set; } = ConsoleColor.Gray;
         public ConsoleColor ExceptionWarningColor    { get; set; } = ConsoleColor.Gray;
         public ConsoleColor ExceptionMetaColor       { get; set; } = ConsoleColor.Gray;
         public ConsoleColor ExceptionNameColor       { get; set; } = ConsoleColor.Gray;
@@ -66,6 +68,7 @@ namespace Caesura.Solace.Foundation.Logging
             TimeStampColor              = theme.TimeStampColor;
             NameColor                   = theme.NameColor;
             MessageColor                = theme.MessageColor;
+            JsonColor                   = theme.JsonColor;
             ExceptionWarningColor       = theme.ExceptionWarningColor;
             ExceptionMetaColor          = theme.ExceptionMetaColor;
             ExceptionNameColor          = theme.ExceptionNameColor;

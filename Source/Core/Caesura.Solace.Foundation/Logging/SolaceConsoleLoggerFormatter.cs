@@ -2,6 +2,7 @@
 namespace Caesura.Solace.Foundation.Logging
 {
     using System;
+    using System.Text;
     using System.Collections.Generic;
     using Microsoft.Extensions.Logging;
     
@@ -10,6 +11,8 @@ namespace Caesura.Solace.Foundation.Logging
         private readonly ConsoleColor original_foreground_color;
         private readonly ConsoleColor original_background_color;
         private readonly List<string> errors;
+        private readonly StringBuilder json_builder;
+        private readonly Dictionary<int, string> json_positions;
         
         public SolaceConsoleLoggerFormatter()
         {
@@ -18,6 +21,8 @@ namespace Caesura.Solace.Foundation.Logging
             original_foreground_color = Console.ForegroundColor;
             original_background_color = Console.BackgroundColor;
             errors                    = new List<string>();
+            json_builder              = new StringBuilder();
+            json_positions            = new Dictionary<int, string>();
         }
         
         public void PreLog(LogItem item)
@@ -160,9 +165,6 @@ namespace Caesura.Solace.Foundation.Logging
             var original_foreground = Console.ForegroundColor;
             var original_background = Console.BackgroundColor;
             
-            original_foreground     = Console.ForegroundColor;
-            Console.ForegroundColor = item.Configuration.Theme.MessageColor;
-            
             if (item.Configuration.StringifyOption == SolaceConsoleLoggerConfiguration.ObjectStringifyOption.CallToString)
             {
                 WriteState();
@@ -183,23 +185,54 @@ namespace Caesura.Solace.Foundation.Logging
                 );
             }
             
-            Console.ForegroundColor = original_foreground;
-            
             void WriteState()
             {
+                Console.ForegroundColor = item.Configuration.Theme.MessageColor;
                 Write(item.State?.ToString() ?? string.Empty);
+                Console.ForegroundColor = original_foreground;
             }
             
             void WriteJson(bool indent)
             {
                 if (item.State is SolaceLogState sls)
                 {
-                    var json = sls.ToJson(indent);
-                    Write(json);
+                    JsonFormatter(item, sls, indent);
                 }
                 else
                 {
                     WriteState();
+                }
+            }
+        }
+        
+        private void JsonFormatter(LogItem item, SolaceLogState state, bool indent)
+        {
+            var original_foreground = Console.ForegroundColor;
+            var original_background = Console.BackgroundColor;
+            
+            var json = state.ToJson(indent, ignore_null: true, json_tag: true);
+            
+            var splits = json.Split("<JSON>");
+            foreach (var str in splits)
+            {
+                if (str.StartsWith("<$JSON>"))
+                {
+                    var xsplits = str.Replace("<$JSON>", string.Empty).Split("</JSON>");
+                    Console.ForegroundColor = item.Configuration.Theme.JsonColor;
+                    Write(xsplits[0]);
+                    Console.ForegroundColor = original_foreground;
+                    if (xsplits.Length > 1)
+                    {
+                        Console.ForegroundColor = item.Configuration.Theme.MessageColor;
+                        Write(xsplits[1]);
+                        Console.ForegroundColor = original_foreground;
+                    }
+                }
+                else
+                {
+                    Console.ForegroundColor = item.Configuration.Theme.MessageColor;
+                    Write(str);
+                    Console.ForegroundColor = original_foreground;
                 }
             }
         }
@@ -245,18 +278,35 @@ namespace Caesura.Solace.Foundation.Logging
                 var original_foreground = Console.ForegroundColor;
                 var original_background = Console.BackgroundColor;
                 
+                var e_count = errors.Count;
+                
                 WriteLine();
                 Console.ForegroundColor = item.Configuration.Theme.ExceptionMessageColor;
                 Write(
-                    $"{nameof(SolaceConsoleLoggerFormatter)} Error: {errors.Count} "
-                  + $"error{(errors.Count == 1 ? string.Empty : "s")} encountered."
+                    $"{nameof(SolaceConsoleLoggerFormatter)} Error: {e_count} "
+                  + $"error{(e_count == 1 ? string.Empty : "s")} encountered."
                 );
+                
+                var ee_count = e_count;
+                var d_len = string.Empty;
+                if (ee_count >= 10 && ee_count < 100)
+                {
+                    d_len = "D2";
+                }
+                else if (ee_count >= 100 && ee_count < 1_000)
+                {
+                    d_len = "D3";
+                }
+                else if (ee_count >= 1_000 && ee_count < 10_000)
+                {
+                    d_len = "D4";
+                }
                 
                 var count = 1;
                 foreach (var error in errors)
                 {
                     WriteLine();
-                    Write($" [{count}]: {error}");
+                    Write($" [{count.ToString(d_len)}]: {error}");
                     count++;
                 }
                 
@@ -274,6 +324,11 @@ namespace Caesura.Solace.Foundation.Logging
         {
             // builder.Append(str);
             Console.Write(str);
+        }
+        
+        private void Write(char c)
+        {
+            Console.Write(c);
         }
         
         private void WriteLine()
