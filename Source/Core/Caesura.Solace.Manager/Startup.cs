@@ -13,15 +13,9 @@ namespace Caesura.Solace.Manager
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
-    using Entities.Core;
-    
-    // TODO: add a LogController so a service can fetch log messages from
-    // the manager.
-    // There are two kinds of logs, a service log and the universal log.
-    // A service log, for instance, may contain debug/trace messages.
-    // The universal log is only for information messages, or messages
-    // specifically helpful to the universal log (like what service is
-    // calling what service for what purpose and data).
+    using Entities.Core.Contexts;
+    using Controllers.Interfaces;
+    using Controllers.Services;
     
     public class Startup
     {
@@ -38,19 +32,17 @@ namespace Caesura.Solace.Manager
             {
                 
             });
+            
+            services.AddScoped<ILogService, LogService>();
+            
             services.AddControllers();
         }
         
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseDeveloperExceptionPage();
-            
-            app.UseHttpsRedirection();
-            
             app.UseRouting();
-            
             app.UseAuthorization();
-            
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
