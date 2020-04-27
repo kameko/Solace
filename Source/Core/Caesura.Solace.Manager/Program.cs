@@ -17,7 +17,10 @@ namespace Caesura.Solace.Manager
     {
         public static void Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            using (WindowTitle.Set("Caesura Solace Manager"))
+            {
+                CreateHostBuilder(args).Build().Run();
+            }
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args)
@@ -27,7 +30,15 @@ namespace Caesura.Solace.Manager
                 {
                     logging
                         .ClearProviders()
-                        .AddSolaceConsoleLogger(LogLevel.Trace);
+                        .AddSolaceConsoleLogger(config =>
+                        {
+                            config.LogLevel  = LogLevel.Trace;
+                            config.TrimNames = new List<string>()
+                            {
+                                "Caesura.Solace.Manager.Controllers.",
+                            };
+                            // config.StringifyOption = SolaceConsoleLoggerConfiguration.ObjectStringifyOption.SerializeJsonPretty;
+                        });
                 })
                 .ConfigureServices((hostContext, services) =>
                 {
