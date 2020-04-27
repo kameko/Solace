@@ -17,6 +17,10 @@ namespace Caesura.Solace.Manager
     using Controllers.Interfaces;
     using Controllers.Services;
     
+    // TODO: consider some sort of configuration service, it has
+    // statis fields for configuration and when injected the service
+    // has callbacks for when it gets updated.
+    
     public class Startup
     {
         public IConfiguration Configuration { get; }

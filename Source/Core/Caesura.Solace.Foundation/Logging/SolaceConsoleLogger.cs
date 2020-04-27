@@ -16,6 +16,8 @@ namespace Caesura.Solace.Foundation.Logging
         private readonly string _name;
         private readonly SolaceConsoleLoggerConfiguration _config;
         
+        public EventId Id { get; private set; }
+        
         static SolaceConsoleLogger()
         {
             queue = new ConcurrentQueue<LogItem>();
@@ -27,6 +29,8 @@ namespace Caesura.Solace.Foundation.Logging
             _name   = name;
             _config = config;
             static_config ??= config;
+            
+            Id = new EventId(_config.EventId, _name);
         }
         
         public IDisposable? BeginScope<TState>(TState state)

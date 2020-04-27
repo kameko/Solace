@@ -7,6 +7,7 @@ namespace Caesura.Solace.Manager.Controllers
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Logging;
+    using Foundation.Logging;
     using Entities.Core;
     using Interfaces;
     
@@ -22,75 +23,76 @@ namespace Caesura.Solace.Manager.Controllers
             log     = ilog;
             service = iservice;
             
-            log.LogTrace("Created LogController instance.");
-            
-            service.Inject(log);
+            log.InstanceAbreaction();
         }
         
         [HttpGet]
         public async Task<ActionResult<IEnumerable<LogElement>>> Get()
         {
-            log.LogTrace("Entering GET request for LogElements.");
+            log.EnterMethod(nameof(Get));
             try
             {
                 var service_result = await service.Get();
-                log.LogDebug("GET request for LogElements. Success: {Success}", service_result.Success);
                 if (service_result.Success)
                 {
+                    log.Debug("Successful GET request for LogElements.");
                     return Ok(service_result.Value);
                 }
                 else
                 {
+                    log.Debug("Unsuccessful GET request for LogElements.");
                     return BadRequest();
                 }
             }
             catch (Exception e)
             {
-                log.LogError(e, string.Empty);
+                log.Error(e, string.Empty);
                 throw;
             }
             finally
             {
-                log.LogTrace("Exiting GET request for LogElements.");
+                log.ExitMethod(nameof(Get));
             }
         }
         
         [HttpGet("{id}")]
         public async Task<ActionResult<LogElement>> Get(ulong id)
         {
-            log.LogTrace("Entering GET request for LogElement {Id}.", id);
+            log.EnterMethod(nameof(Get), "for Id {Id}.", id);
             try
             {
                 var service_result = await service.Get(id);
-                log.LogDebug("GET request for LogElement {Id}, Success: {Success}.", id, service_result.Success);
                 if (service_result.Success)
                 {
-                    return service_result.Value;
+                    var val = service_result.Value;
+                    log.Debug("Successful GET request for LogElement {Id}. Returned item: {LogElement}.", id, val);
+                    return val;
                 }
                 else
                 {
+                    log.Debug("Unsuccessful GET request for LogElement {Id}.", id);
                     return NotFound();
                 }
             }
             catch (Exception e)
             {
-                log.LogError(e, string.Empty);
+                log.Error(e, string.Empty);
                 throw;
             }
             finally
             {
-                log.LogTrace("Exiting GET request for LogElement {Id}.", id);
+                log.ExitMethod(nameof(Get), "for Id {Id}.", id);
             }
         }
         
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(ulong id, LogElement element)
         {
-            log.LogTrace("Entering PUT request for LogElement {Id} {LogElement}.", id, element);
+            log.EnterMethod(nameof(Put), "for Id {Id} and LogElement {LogElement}.", id, element);
             try
             {
                 var service_result = await service.Put(id, element);
-                log.LogDebug("PUT request for LogElement {Id}, Result: {Result}.", id, service_result.Result);
+                log.Debug("PUT request for LogElement {Id}, Result: {Result}.", id, service_result.Result);
                 return service_result.Result switch
                 {
                     LogServiceResult.Put.ResultKind.Ok           => NoContent(),
@@ -104,55 +106,57 @@ namespace Caesura.Solace.Manager.Controllers
             }
             catch (Exception e)
             {
-                log.LogError(e, string.Empty);
+                log.Error(e, string.Empty);
                 throw;
             }
             finally
             {
-                log.LogTrace("Exiting PUT request for LogElement {Id} {LogElement}.", id, element);
+                log.ExitMethod(nameof(Put), "for Id {Id} and LogElement {LogElement}.", id, element);
             }
         }
         
         [HttpPost]
         public async Task<ActionResult<LogElement>> Post(LogElement element)
         {
-            log.LogTrace("Entering POST request for LogElement {LogElement}.", element);
+            log.EnterMethod(nameof(Post), "for LogElement {LogElement}.", element);
             try
             {
                 var service_result = await service.Post(element);
-                log.LogDebug("POST request for LogElement {LogElement}, Success: {Success}.", element, service_result.Success);
                 if (service_result.Success)
                 {
+                    var val = service_result.Value;
+                    log.Debug("Successful POST request for LogElement: {LogElement1}. Returned item: {LogElement2}.", element, val);
                     return CreatedAtAction(
                             nameof(Get),
                             new { id = element.Id },
-                            service_result.Value
+                            val
                         );
                 }
                 else
                 {
+                    log.Debug("Unuccessful POST request for LogElement: {LogElement1}.", element);
                     return BadRequest(service_result.Error);
                 }
             }
             catch (Exception e)
             {
-                log.LogError(e, string.Empty);
+                log.Error(e, string.Empty);
                 throw;
             }
             finally
             {
-                log.LogTrace("Exiting POST request for LogElement {LogElement}.", element);
+                log.ExitMethod(nameof(Post), "for LogElement {LogElement}.", element);
             }
         }
         
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(ulong id)
         {
-            log.LogTrace("Entering DELETE request for LogElement {Id}.", id);
+            log.EnterMethod(nameof(Delete), "for Id {Id}.", id);
             try
             {
                 var service_result = await service.Delete(id);
-                log.LogDebug("DELETE request for LogElement {Id}, Result: {Result}.", id, service_result.Result);
+                log.Debug("DELETE request for LogElement {Id}, Result: {Result}.", id, service_result.Result);
                 return service_result.Result switch
                 {
                     LogServiceResult.Delete.ResultKind.Ok           => NoContent(),
@@ -164,12 +168,12 @@ namespace Caesura.Solace.Manager.Controllers
             }
             catch (Exception e)
             {
-                log.LogError(e, string.Empty);
+                log.Error(e, string.Empty);
                 throw;
             }
             finally
             {
-                log.LogTrace("Exiting DELETE request for LogElement {Id}.", id);
+                log.ExitMethod(nameof(Delete), "for Id {Id}.", id);
             }
         }
     }

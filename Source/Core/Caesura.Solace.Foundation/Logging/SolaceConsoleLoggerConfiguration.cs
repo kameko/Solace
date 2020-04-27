@@ -32,6 +32,8 @@ namespace Caesura.Solace.Foundation.Logging
             { get; set; } = Themes.Native;
         public int InternalLoggerQueueOverloadThreshold
             { get; set; } = 1_000;
+        public ObjectStringifyOption StringifyOption
+            { get; set; } = ObjectStringifyOption.SerializeJsonPretty;
         
         public SolaceConsoleLoggerConfiguration()
         {
@@ -49,11 +51,19 @@ namespace Caesura.Solace.Foundation.Logging
             Token                                = other.Token;
             Theme                                = other.Theme;
             InternalLoggerQueueOverloadThreshold = other.InternalLoggerQueueOverloadThreshold;
+            StringifyOption                      = other.StringifyOption;
         }
         
         public SolaceConsoleLoggerConfiguration Clone()
         {
             return new SolaceConsoleLoggerConfiguration(this);
+        }
+        
+        public enum ObjectStringifyOption
+        {
+            CallToString,
+            SerializeJsonRaw,
+            SerializeJsonPretty,
         }
     }
 }

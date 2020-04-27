@@ -4,12 +4,10 @@ namespace Caesura.Solace.Manager.Controllers.Interfaces
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using Microsoft.Extensions.Logging;
     using Entities.Core;
     
     public interface ILogService
     {
-        void Inject(ILogger ilog);
         Task<LogServiceResult.GetAll> Get();
         Task<LogServiceResult.GetById> Get(ulong id);
         Task<LogServiceResult.Put> Put(ulong id, LogElement element);
@@ -19,7 +17,7 @@ namespace Caesura.Solace.Manager.Controllers.Interfaces
     
     public static class LogServiceResult
     {
-        public class GetAll
+        public sealed class GetAll
         {
             private IEnumerable<LogElement>? _val;
             
@@ -41,7 +39,7 @@ namespace Caesura.Solace.Manager.Controllers.Interfaces
             public static GetAll Bad() => new GetAll();
         }
         
-        public class GetById
+        public sealed class GetById
         {
             private LogElement? _val;
             
@@ -63,7 +61,7 @@ namespace Caesura.Solace.Manager.Controllers.Interfaces
             public static GetById NotFound() => new GetById();
         }
         
-        public class Put
+        public sealed class Put
         {
             public ResultKind Result { get; private set; }
             public bool Success => Result == ResultKind.Ok;
@@ -86,7 +84,7 @@ namespace Caesura.Solace.Manager.Controllers.Interfaces
             public static Put Unauthorized() => new Put(ResultKind.Unauthorized);
         }
         
-        public class Post
+        public sealed class Post
         {
             private LogElement? _val;
             private Exception? _error;
@@ -111,7 +109,7 @@ namespace Caesura.Solace.Manager.Controllers.Interfaces
             public static Post Bad(Exception err) => new Post(err);
         }
         
-        public class Delete
+        public sealed class Delete
         {
             public ResultKind Result { get; private set; }
             public bool Success => Result == ResultKind.Ok;

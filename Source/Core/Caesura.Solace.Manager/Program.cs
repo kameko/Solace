@@ -27,7 +27,7 @@ namespace Caesura.Solace.Manager
                 {
                     logging
                         .ClearProviders()
-                        .AddSolaceConsoleLogger();
+                        .AddSolaceConsoleLogger(LogLevel.Trace);
                 })
                 .ConfigureServices((hostContext, services) =>
                 {
