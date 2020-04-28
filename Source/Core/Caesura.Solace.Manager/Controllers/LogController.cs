@@ -41,8 +41,9 @@ namespace Caesura.Solace.Manager.Controllers
                 var service_result = await service.Get();
                 if (service_result.Success)
                 {
-                    log.Debug("Successful GET request for LogElements.");
-                    return Ok(service_result.Value);
+                    var val = service_result.Value;
+                    log.Debug("Successful GET request for LogElements. Returned {num} item(s).", val.Count());
+                    return Ok(val);
                 }
                 else
                 {
@@ -71,8 +72,11 @@ namespace Caesura.Solace.Manager.Controllers
                 var service_result = await service.Get(field, term);
                 if (service_result.Success)
                 {
-                    log.Debug("Successful GET search for LogElements with search term {field}/{term}", field, term);
-                    return Ok(service_result.Value);
+                    var val = service_result.Value;
+                    log.Debug(
+                        "Successful GET search for LogElements with search term {field}/{term}. "
+                        + "Returned {num} item(s).", field, term, val.Count());
+                    return Ok(val);
                 }
                 else
                 {
