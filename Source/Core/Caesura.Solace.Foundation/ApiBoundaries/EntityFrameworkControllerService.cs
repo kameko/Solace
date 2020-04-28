@@ -10,6 +10,7 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
     using Microsoft.Extensions.Logging;
     using Microsoft.EntityFrameworkCore;
     using Logging;
+    using Entities.Core.Contexts;
     
     public abstract class EntityFrameworkControllerService<TService, TKey, T, TTerm, TSource>
         : IControllerSearchableService<TKey, T, TTerm, TSource>
@@ -40,6 +41,11 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
                 get_limit = 100;
             }
             GetLimit = get_limit;
+        }
+        
+        public virtual Task<ControllerResult.GetOne<T>> GetOne()
+        {
+            return GetOneUnsupported();
         }
         
         public virtual Task<ControllerResult.GetAll<T>> GetAll()
@@ -78,6 +84,24 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
         }
         
         // --- Default Options --- //
+        
+        protected async Task<ControllerResult.GetOne<T>> DefaultGetOne(
+            Func<TSource, T> producer,
+            FileInfo source,
+            Func<TSource> source_factory,
+            Action<TSource> seed_factory)
+        {
+            Log.EnterMethod(nameof(GetOne));
+            
+            await CreateDatabaseIfNotExist(source, source_factory, seed_factory);
+            
+            using (var context = source_factory.Invoke())
+            {
+                var elm = producer.Invoke(context);
+                Log.ExitMethod(nameof(GetOne));
+                return ControllerResult.GetOne<T>.Ok(elm);
+            }
+        }
         
         protected async Task<ControllerResult.GetAll<T>> DefaultGetAll(
             Func<TSource, IEnumerable<T>> producer,
@@ -134,22 +158,39 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
         protected async Task<ControllerResult.GetBySearch<T>> DefaultGetBySearch(
             string field,
             TTerm term,
-            Func<TSource, IEnumerable<T>> producer,
             FileInfo source,
             Func<TSource> source_factory,
             Action<TSource> seed_factory)
         {
-            Log.EnterMethod(nameof(GetBySearch));
+            Log.EnterMethod(nameof(GetBySearch), "with search field {field} and term {term}", field, term!);
             
             await CreateDatabaseIfNotExist(source, source_factory, seed_factory);
             
-            // TODO: possible methods to implement this:
-            // - iterate over property names (call seed_factory for an instance to iterate over)
-            // - list of callbacks for properties and how to compare them
-            
-            Log.ExitMethod(nameof(GetBySearch));
-            
-            throw new NotImplementedException("Currently can't think of a good way to do a generic search.");
+            using (var context = source_factory.Invoke())
+            {
+                if (context is ISearchable<T> ist)
+                {
+                    var sterm = term!.ToString()!;
+                    var success = ist.Search(field, sterm, GetLimit, out var elms);
+                    if (success)
+                    {
+                        Log.ExitMethod(nameof(GetBySearch), "with search field {field} and term {term}", field, sterm);
+                        return ControllerResult.GetBySearch<T>.Ok(elms);
+                    }
+                    else
+                    {
+                        Log.ExitMethod(nameof(GetBySearch), "with search field {field} and term {term}", field, sterm);
+                        return ControllerResult.GetBySearch<T>.NotFound();
+                    }
+                }
+                else
+                {
+                    throw new NotSupportedException(
+                        $"{(typeof(TSource).FullName)} must implement {nameof(ISearchable<T>)} to be automatically searched."
+                    );
+                }
+            }
+
         }
         
         protected async Task<ControllerResult.Put> DefaultPut(
@@ -278,6 +319,7 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             }
         }
         
+        protected Task<ControllerResult.GetOne<T>> GetOneUnsupported() => Task.FromResult(ControllerResult.GetOne<T>.Unsupported());
         protected Task<ControllerResult.GetAll<T>> GetAllUnsupported() => Task.FromResult(ControllerResult.GetAll<T>.Unsupported());
         protected Task<ControllerResult.GetById<T>> GetByIdUnsupported() => Task.FromResult(ControllerResult.GetById<T>.Unsupported());
         protected Task<ControllerResult.GetBySearch<T>> GetBySearchUnsupported() => Task.FromResult(ControllerResult.GetBySearch<T>.Unsupported());

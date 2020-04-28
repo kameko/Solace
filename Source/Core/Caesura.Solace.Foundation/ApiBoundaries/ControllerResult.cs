@@ -70,6 +70,20 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             }
         }
         
+        public sealed class GetOne<T> : BaseResponse<T>
+        {
+            private GetOne() : base() { }
+            private GetOne(Result result) : base(result) { }
+            private GetOne(T value) : base(value) { }
+            private GetOne(Exception exception) : base(exception) { }
+            
+            public static GetOne<T> Ok(T value) => new GetOne<T>(value);
+            public static GetOne<T> NotFound() => new GetOne<T>(Result.NotFound);
+            public static GetOne<T> Unauthorized() => new GetOne<T>(Result.Unauthorized);
+            public static GetOne<T> Unsupported() => new GetOne<T>(Result.Unsupported);
+            public static GetOne<T> Error(Exception exception) => new GetOne<T>(exception);
+        }
+        
         public sealed class GetAll<T> : BaseResponse<IEnumerable<T>>
         {
             private GetAll() : base() { }
