@@ -35,7 +35,7 @@ namespace Caesura.Solace.Foundation.Logging
                 EventId   = this.Id.Id,
                 Name      = this.Name,
                 Message   = this.State?.ToString() ?? string.Empty,
-                Exception = this.Exception,
+                Exception = new LogElement.ExceptionElement(this.Exception),
             };
             return le;
         }

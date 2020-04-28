@@ -6,6 +6,11 @@ namespace Caesura.Solace.Manager.Controllers.Interfaces
     using System.Threading.Tasks;
     using Entities.Core;
     
+    // TODO: get rid of the specific Result classes, make generic
+    // ones with a generic IService<K, T> and IService<T> where
+    // the K argument defaults to ulong. Give them all the same
+    // enum, like Put.ResultKind
+    
     public interface ILogService
     {
         Task<LogServiceResult.GetAll> Get();

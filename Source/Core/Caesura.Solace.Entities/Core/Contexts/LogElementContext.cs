@@ -7,11 +7,12 @@ namespace Caesura.Solace.Entities.Core.Contexts
     #nullable disable
     public class LogElementContext : DbContext
     {
-        public DbSet<LogElement> LogItems { get; set; }
+        public string connection_string { get; private set; }
+        public DbSet<LogElement> LogElements { get; set; }
         
-        public LogElementContext() : base()
+        public LogElementContext(string path) : base()
         {
-            
+            connection_string = path;
         }
         
         public LogElementContext(DbContextOptions<LogElementContext> options) : base(options)
@@ -21,7 +22,12 @@ namespace Caesura.Solace.Entities.Core.Contexts
         
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            options.UseSqlite("Data Source=./Data/Log/log.db; Version=3; Journal Mode=Persist");
+            options.UseSqlite(connection_string);
+        }
+        
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            
         }
     }
     #nullable restore

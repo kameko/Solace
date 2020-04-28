@@ -6,22 +6,28 @@ namespace Caesura.Solace.Manager.Controllers
     using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Mvc;
+    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
     using Foundation.Logging;
     using Entities.Core;
     using Interfaces;
+    
+    // TODO: rip out the implementations in here, put them in a generic
+    // reusable class we can base all simple controllers on
     
     [ApiController]
     [Route("system/[controller]")]
     public class LogController : ControllerBase
     {
         private readonly ILogger<LogController> log;
+        private readonly IConfiguration config;
         private readonly ILogService service;
         
-        public LogController(ILogger<LogController> ilog, ILogService iservice)
+        public LogController(ILogger<LogController> ilog, IConfiguration configuration, ILogService iservice)
         {
             log     = ilog;
             service = iservice;
+            config  = configuration;
             
             log.InstanceAbreaction();
         }
