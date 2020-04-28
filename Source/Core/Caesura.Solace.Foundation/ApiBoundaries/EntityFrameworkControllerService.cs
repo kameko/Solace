@@ -172,9 +172,8 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
         }
         
         protected async Task<ControllerResult.Post<T>> DefaultPost(
-            T value,
             Func<TSource, T> producer,
-            Action<TSource, T> joiner,
+            Action<TSource> joiner,
             FileInfo source,
             Func<TSource> source_factory,
             Action<TSource> seed_factory)
@@ -188,7 +187,7 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
                 var elm = producer.Invoke(context);
                 if (elm is null)
                 {
-                    joiner.Invoke(context, value);
+                    joiner.Invoke(context);
                     await context.SaveChangesAsync();
                     elm = producer.Invoke(context);
                     if (elm is null)

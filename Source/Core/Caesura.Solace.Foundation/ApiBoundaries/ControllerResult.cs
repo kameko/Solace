@@ -102,11 +102,13 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
         {
             private GetBySearch() : base() { }
             private GetBySearch(Result result) : base(result) { }
+            private GetBySearch(Result result, string message) : base(result, message) { }
             private GetBySearch(IEnumerable<T> value) : base(value) { }
             private GetBySearch(Exception exception) : base(exception) { }
             
             public static GetBySearch<T> Ok(IEnumerable<T> value) => new GetBySearch<T>(value);
             public static GetBySearch<T> NotFound() => new GetBySearch<T>(Result.NotFound);
+            public static GetBySearch<T> BadRequest(string message) => new GetBySearch<T>(Result.BadRequest, message);
             public static GetBySearch<T> Unauthorized() => new GetBySearch<T>(Result.Unauthorized);
             public static GetBySearch<T> Unsupported() => new GetBySearch<T>(Result.Unsupported);
             public static GetBySearch<T> Error(Exception exception) => new GetBySearch<T>(exception);
