@@ -17,6 +17,7 @@ namespace Caesura.Solace.Manager.Controllers.Services
     {
         private FileInfo db_path;
         private string db_connection;
+        private int get_limit;
         private readonly ILogger log;
         private readonly IConfiguration config;
         
@@ -25,10 +26,21 @@ namespace Caesura.Solace.Manager.Controllers.Services
             log    = ilog;
             config = configuration;
             
-            db_path       = new FileInfo(config["LogService:DatabasePath"]);
-            db_connection = config["LogService:ConnectionString"].Replace("{DatabasePath}", db_path.FullName);
+            db_path       = null!;
+            db_connection = null!;
+            Reconfigure();
             
             log.InstanceAbreaction();
+        }
+        
+        private void Reconfigure()
+        {
+            db_path       = new FileInfo(config["LogService:DatabasePath"]);
+            db_connection = config["LogService:ConnectionString"].Replace("{DatabasePath}", db_path.FullName);
+            if (!int.TryParse(config["LogService:GetLimit"], out get_limit))
+            {
+                get_limit = 100;
+            }
         }
         
         public async Task<LogServiceResult.GetAll> Get()
@@ -37,10 +49,10 @@ namespace Caesura.Solace.Manager.Controllers.Services
             
             await CreateDatabaseIfNotExist();
             
-            var elms = new List<LogElement>(100);
+            var elms = new List<LogElement>(get_limit);
             using (var context = new LogElementContext(db_connection))
             {
-                var db_elms = context.LogElements.Take(100);
+                var db_elms = context.LogElements.Take(get_limit);
                 // required or the context will throw when we try to pass
                 // db_elms to the caller.
                 elms.AddRange(db_elms);
@@ -78,7 +90,7 @@ namespace Caesura.Solace.Manager.Controllers.Services
         {
             log.EnterMethod(nameof(Put), "for Id {Id} and LogElement {LogElement}.", id, element);
             
-            log.Warning("This method is not implemented.");
+            log.Warning($"Method {nameof(Put)} is not meant to be implemented for this service.");
             
             log.ExitMethod(nameof(Put), "for Id {Id} and LogElement {LogElement}.", id, element);
             
@@ -130,7 +142,7 @@ namespace Caesura.Solace.Manager.Controllers.Services
         {
             log.EnterMethod(nameof(Delete), "for Id {Id}.", id);
             
-            log.Warning("This method is not implemented.");
+            log.Warning($"Method {nameof(Delete)} is not meant to be implemented for this service.");
             
             log.ExitMethod(nameof(Delete), "for Id {Id}.", id);
             
@@ -141,6 +153,8 @@ namespace Caesura.Solace.Manager.Controllers.Services
         {
             if (!File.Exists(db_path.FullName))
             {
+                log.Information($"Database file not found at {db_path.FullName}. Creating...");
+                
                 log.EnterMethod(nameof(CreateDatabaseIfNotExist));
                 
                 var le = new LogElement()
@@ -168,8 +182,9 @@ namespace Caesura.Solace.Manager.Controllers.Services
                     await context.Database.EnsureCreatedAsync();
                     context.LogElements.Add(le);
                     await context.SaveChangesAsync();
-                    log.Information($"Created log database at {db_path}.");
                 }
+                
+                log.Information($"Created system log database at {db_path.FullName}.");
                 
                 log.ExitMethod(nameof(CreateDatabaseIfNotExist));
             }
