@@ -9,11 +9,9 @@ namespace Caesura.Solace.Manager.Controllers
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
     using Foundation.Logging;
+    using Foundation.ApiBoundaries;
     using Entities.Core;
     using Interfaces;
-    
-    // TODO: rip out the implementations in here, put them in a generic
-    // reusable class we can base all simple controllers on
     
     [ApiController]
     [Route("system/[controller]")]
@@ -38,7 +36,7 @@ namespace Caesura.Solace.Manager.Controllers
             log.EnterMethod(nameof(Get));
             try
             {
-                var service_result = await service.Get();
+                var service_result = await service.GetAll();
                 if (service_result.Success)
                 {
                     var val = service_result.Value;
@@ -69,7 +67,7 @@ namespace Caesura.Solace.Manager.Controllers
             log.EnterMethod(nameof(Get), "with search field {field} and term {term}", field, term);
             try
             {
-                var service_result = await service.Get(field, term);
+                var service_result = await service.GetBySearch(field, term);
                 if (service_result.Success)
                 {
                     var val = service_result.Value;
@@ -82,9 +80,9 @@ namespace Caesura.Solace.Manager.Controllers
                 {
                     log.Debug(
                         "Unsuccessful GET search for LogElements with search term "
-                        + "{field}/{term}. Error: {error}", field, term, service_result.Error
+                        + "{field}/{term}. Error: {error}", field, term, service_result.Exception
                     );
-                    return BadRequest($"Invalid term: {service_result.Error}");
+                    return BadRequest($"Invalid term: {service_result.Exception}");
                 }
             }
             catch (Exception e)
@@ -104,7 +102,7 @@ namespace Caesura.Solace.Manager.Controllers
             log.EnterMethod(nameof(Get), "for Id {Id}.", id);
             try
             {
-                var service_result = await service.Get(id);
+                var service_result = await service.GetById(id);
                 if (service_result.Success)
                 {
                     var val = service_result.Value;
@@ -138,11 +136,11 @@ namespace Caesura.Solace.Manager.Controllers
                 log.Debug("PUT request for LogElement {Id}, Result: {Result}.", id, service_result.Result);
                 return service_result.Result switch
                 {
-                    LogServiceResult.Put.ResultKind.Ok           => NoContent(),
-                    LogServiceResult.Put.ResultKind.NoContent    => NoContent(),
-                    LogServiceResult.Put.ResultKind.BadRequest   => BadRequest(),
-                    LogServiceResult.Put.ResultKind.NotFound     => NotFound(),
-                    LogServiceResult.Put.ResultKind.Unauthorized => Unauthorized(),
+                    ControllerResult.Result.NoContent    => NoContent(),
+                    ControllerResult.Result.BadRequest   => BadRequest(),
+                    ControllerResult.Result.NotFound     => NotFound(),
+                    ControllerResult.Result.Unauthorized => Unauthorized(),
+                    ControllerResult.Result.Unsupported  => BadRequest(),
                     
                     _ => BadRequest()
                 };
@@ -178,7 +176,7 @@ namespace Caesura.Solace.Manager.Controllers
                 else
                 {
                     log.Debug("Unuccessful POST request for LogElement: {LogElement1}.", element);
-                    return BadRequest(service_result.Error);
+                    return BadRequest(service_result.BadRequestMessage);
                 }
             }
             catch (Exception e)
@@ -198,13 +196,13 @@ namespace Caesura.Solace.Manager.Controllers
             log.EnterMethod(nameof(Delete), "for Id {Id}.", id);
             try
             {
-                var service_result = await service.Delete(id);
+                var service_result = await service.DeleteById(id);
                 log.Debug("DELETE request for LogElement {Id}, Result: {Result}.", id, service_result.Result);
                 return service_result.Result switch
                 {
-                    LogServiceResult.Delete.ResultKind.Ok           => NoContent(),
-                    LogServiceResult.Delete.ResultKind.NotFound     => NotFound(),
-                    LogServiceResult.Delete.ResultKind.Unauthorized => Unauthorized(),
+                    ControllerResult.Result.Ok           => NoContent(),
+                    ControllerResult.Result.NotFound     => NotFound(),
+                    ControllerResult.Result.Unauthorized => Unauthorized(),
                     
                     _ => BadRequest()
                 };

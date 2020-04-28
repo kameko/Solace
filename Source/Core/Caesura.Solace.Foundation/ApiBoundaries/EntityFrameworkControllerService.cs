@@ -11,9 +11,8 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
     using Microsoft.EntityFrameworkCore;
     using Logging;
     
-    public abstract class BaseControllerService<TService, TKey, T, TTerm, TSource>
-        : IControllerService<TKey, T, TSource>
-        , IControllerSearchableService<T, TTerm, TSource>
+    public abstract class EntityFrameworkControllerService<TService, TKey, T, TTerm, TSource>
+        : IControllerSearchableService<TKey, T, TTerm, TSource>
         where TSource : DbContext
     {
         protected FileInfo SourcePath { get; set; }
@@ -23,7 +22,7 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
         
         public int GetLimit { get; protected set; }
         
-        public BaseControllerService(ILogger<TService> logger, IConfiguration config)
+        public EntityFrameworkControllerService(ILogger<TService> logger, IConfiguration config)
         {
             SourcePath             = null!;
             SourceConnectionString = null!;
@@ -32,11 +31,11 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             Configuration = config;
         }
         
-        protected void Reconfigure(string db_path_elm, string db_con_string_elm, string get_limit_elm)
+        protected void Reconfigure(string service_name)
         {
-            SourcePath             = new FileInfo(Configuration["LogService:DatabasePath"]);
-            SourceConnectionString = Configuration["LogService:ConnectionString"].Replace("{DatabasePath}", SourcePath.FullName);
-            if (!int.TryParse(Configuration["LogService:GetLimit"], out var get_limit))
+            SourcePath             = new FileInfo(Configuration[$"{service_name}:DatabasePath"]);
+            SourceConnectionString = Configuration[$"{service_name}:ConnectionString"].Replace("{DatabasePath}", SourcePath.FullName);
+            if (!int.TryParse(Configuration[$"{service_name}:GetLimit"], out var get_limit))
             {
                 get_limit = 100;
             }
@@ -68,10 +67,17 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             return PostUnsupported();
         }
         
-        public virtual Task<ControllerResult.Delete> Delete(TKey id)
+        public virtual Task<ControllerResult.DeleteAll> DeleteAll()
         {
-            return DeleteUnsupported();
+            return DeleteAllUnsupported();
         }
+        
+        public virtual Task<ControllerResult.DeleteById> DeleteById(TKey id)
+        {
+            return DeleteByIdUnsupported();
+        }
+        
+        // --- Default Options --- //
         
         protected async Task<ControllerResult.GetAll<T>> DefaultGetAll(
             Func<TSource, IEnumerable<T>> producer,
@@ -81,7 +87,7 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
         {
             Log.EnterMethod(nameof(GetAll));
             
-            await CreateDatabaseIfNotExist(SourcePath, source_factory, seed_factory);
+            await CreateDatabaseIfNotExist(source, source_factory, seed_factory);
             
             var elms = new List<T>();
             using (var context = source_factory.Invoke())
@@ -105,7 +111,7 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
         {
             Log.EnterMethod(nameof(GetById));
             
-            await CreateDatabaseIfNotExist(SourcePath, source_factory, seed_factory);
+            await CreateDatabaseIfNotExist(source, source_factory, seed_factory);
             
             using (var context = source_factory.Invoke())
             {
@@ -135,7 +141,7 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
         {
             Log.EnterMethod(nameof(GetBySearch));
             
-            await CreateDatabaseIfNotExist(SourcePath, source_factory, seed_factory);
+            await CreateDatabaseIfNotExist(source, source_factory, seed_factory);
             
             // TODO: possible methods to implement this:
             // - iterate over property names (call seed_factory for an instance to iterate over)
@@ -156,7 +162,7 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
         {
             Log.EnterMethod(nameof(Put));
             
-            await CreateDatabaseIfNotExist(SourcePath, source_factory, seed_factory);
+            await CreateDatabaseIfNotExist(source, source_factory, seed_factory);
             
             // TODO:
             
@@ -175,7 +181,7 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
         {
             Log.EnterMethod(nameof(Post));
             
-            await CreateDatabaseIfNotExist(SourcePath, source_factory, seed_factory);
+            await CreateDatabaseIfNotExist(source, source_factory, seed_factory);
             
             using (var context = source_factory.Invoke())
             {
@@ -204,23 +210,41 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             }
         }
         
-        protected async Task<ControllerResult.Delete> DefaultDelete(
+        protected async Task<ControllerResult.DeleteAll> DefaultDeleteAll(
+            FileInfo source,
+            Func<TSource> source_factory,
+            Action<TSource> seed_factory)
+        {
+            Log.EnterMethod(nameof(DeleteAll));
+            
+            await CreateDatabaseIfNotExist(source, source_factory, seed_factory);
+            
+            // TODO:
+            
+            Log.ExitMethod(nameof(DeleteAll));
+            
+            throw new NotImplementedException();
+        }
+        
+        protected async Task<ControllerResult.DeleteById> DefaultDeleteById(
             TKey id,
             FileInfo source,
             Func<TSource> source_factory,
             Action<TSource> seed_factory,
             Func<TSource, T> producer)
         {
-            Log.EnterMethod(nameof(Delete));
+            Log.EnterMethod(nameof(DeleteById));
             
-            await CreateDatabaseIfNotExist(SourcePath, source_factory, seed_factory);
+            await CreateDatabaseIfNotExist(source, source_factory, seed_factory);
             
             // TODO:
             
-            Log.ExitMethod(nameof(Delete));
+            Log.ExitMethod(nameof(DeleteById));
             
             throw new NotImplementedException();
         }
+        
+        // --- Utilities --- //
         
         protected virtual async Task CreateDatabaseIfNotExist(FileInfo source, Func<TSource> source_factory, Action<TSource> seed_factory)
         {
@@ -260,6 +284,7 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
         protected Task<ControllerResult.GetBySearch<T>> GetBySearchUnsupported() => Task.FromResult(ControllerResult.GetBySearch<T>.Unsupported());
         protected Task<ControllerResult.Put> PutUnsupported() => Task.FromResult(ControllerResult.Put.Unsupported());
         protected Task<ControllerResult.Post<T>> PostUnsupported() => Task.FromResult(ControllerResult.Post<T>.Unsupported());
-        protected Task<ControllerResult.Delete> DeleteUnsupported() => Task.FromResult(ControllerResult.Delete.Unsupported());
+        protected Task<ControllerResult.DeleteAll> DeleteAllUnsupported() => Task.FromResult(ControllerResult.DeleteAll.Unsupported());
+        protected Task<ControllerResult.DeleteById> DeleteByIdUnsupported() => Task.FromResult(ControllerResult.DeleteById.Unsupported());
     }
 }

@@ -6,8 +6,10 @@ namespace Caesura.Solace.Entities.Core
     using Microsoft.EntityFrameworkCore;
     
     // TODO: Add an Elements class/property like in Foundation.Logging.LogItem
-    // TODO: way more information here, like the service's name, it's resource
-    // usage at the time, anything and everything.
+    // TODO: way more information here
+    // Items to add:
+    // - Receiving service name
+    // - Current resource usage
     
     public class LogElement
     {

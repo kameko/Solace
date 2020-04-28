@@ -15,7 +15,7 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             NotFound     = 4,
             NoContent    = 5,
             Unauthorized = 6,
-            Unspported   = 7,
+            Unsupported  = 7,
         }
         
         public class BaseResponse<T>
@@ -80,7 +80,7 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             public static GetAll<T> Ok(IEnumerable<T> value) => new GetAll<T>(value);
             public static GetAll<T> NotFound() => new GetAll<T>(Result.NotFound);
             public static GetAll<T> Unauthorized() => new GetAll<T>(Result.Unauthorized);
-            public static GetAll<T> Unsupported() => new GetAll<T>(Result.Unspported);
+            public static GetAll<T> Unsupported() => new GetAll<T>(Result.Unsupported);
             public static GetAll<T> Error(Exception exception) => new GetAll<T>(exception);
         }
         
@@ -94,7 +94,7 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             public static GetById<T> Ok(T value) => new GetById<T>(value);
             public static GetById<T> NotFound() => new GetById<T>(Result.NotFound);
             public static GetById<T> Unauthorized() => new GetById<T>(Result.Unauthorized);
-            public static GetById<T> Unsupported() => new GetById<T>(Result.Unspported);
+            public static GetById<T> Unsupported() => new GetById<T>(Result.Unsupported);
             public static GetById<T> Error(Exception exception) => new GetById<T>(exception);
         }
         
@@ -108,7 +108,7 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             public static GetBySearch<T> Ok(IEnumerable<T> value) => new GetBySearch<T>(value);
             public static GetBySearch<T> NotFound() => new GetBySearch<T>(Result.NotFound);
             public static GetBySearch<T> Unauthorized() => new GetBySearch<T>(Result.Unauthorized);
-            public static GetBySearch<T> Unsupported() => new GetBySearch<T>(Result.Unspported);
+            public static GetBySearch<T> Unsupported() => new GetBySearch<T>(Result.Unsupported);
             public static GetBySearch<T> Error(Exception exception) => new GetBySearch<T>(exception);
         }
         
@@ -127,7 +127,7 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             public static Put BadRequest() => new Put(Result.BadRequest);
             public static Put BadRequest(string message) => new Put(Result.BadRequest, message);
             public static Put Unauthorized() => new Put(Result.Unauthorized);
-            public static Put Unsupported() => new Put(Result.Unspported);
+            public static Put Unsupported() => new Put(Result.Unsupported);
             public static Put Error(Exception exception) => new Put(exception);
         }
         
@@ -144,20 +144,32 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             public static Post<T> BadRequest() => new Post<T>(Result.BadRequest);
             public static Post<T> BadRequest(string message) => new Post<T>(Result.BadRequest, message);
             public static Post<T> Unauthorized() => new Post<T>(Result.Unauthorized);
-            public static Post<T> Unsupported() => new Post<T>(Result.Unspported);
+            public static Post<T> Unsupported() => new Post<T>(Result.Unsupported);
             public static Post<T> Error(Exception exception) => new Post<T>(exception);
         }
         
-        public sealed class Delete : BaseResponse<object>
+        public sealed class DeleteAll : BaseResponse<object>
         {
-            private Delete() : base() { }
-            private Delete(Result result) : base(result) { }
-            private Delete(Exception exception) : base(exception) { }
+            private DeleteAll() : base() { }
+            private DeleteAll(Result result) : base(result) { }
+            private DeleteAll(Exception exception) : base(exception) { }
             
-            public static Delete Ok() => new Delete(Result.Ok);
-            public static Delete NotFound() => new Delete(Result.NotFound);
-            public static Delete Unauthorized() => new Delete(Result.Unauthorized);
-            public static Delete Unsupported() => new Delete(Result.Unspported);
+            public static DeleteAll Ok() => new DeleteAll(Result.Ok);
+            public static DeleteAll NotFound() => new DeleteAll(Result.NotFound);
+            public static DeleteAll Unauthorized() => new DeleteAll(Result.Unauthorized);
+            public static DeleteAll Unsupported() => new DeleteAll(Result.Unsupported);
+        }
+        
+        public sealed class DeleteById : BaseResponse<object>
+        {
+            private DeleteById() : base() { }
+            private DeleteById(Result result) : base(result) { }
+            private DeleteById(Exception exception) : base(exception) { }
+            
+            public static DeleteById Ok() => new DeleteById(Result.Ok);
+            public static DeleteById NotFound() => new DeleteById(Result.NotFound);
+            public static DeleteById Unauthorized() => new DeleteById(Result.Unauthorized);
+            public static DeleteById Unsupported() => new DeleteById(Result.Unsupported);
         }
     }
 }
