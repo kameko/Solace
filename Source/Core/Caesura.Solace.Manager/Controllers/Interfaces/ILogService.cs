@@ -15,6 +15,7 @@ namespace Caesura.Solace.Manager.Controllers.Interfaces
     {
         Task<LogServiceResult.GetAll> Get();
         Task<LogServiceResult.GetById> Get(ulong id);
+        Task<LogServiceResult.GetBySearch> Get(string field, string term);
         Task<LogServiceResult.Put> Put(ulong id, LogElement element);
         Task<LogServiceResult.Post> Post(LogElement element);
         Task<LogServiceResult.Delete> Delete(ulong id);
@@ -64,6 +65,38 @@ namespace Caesura.Solace.Manager.Controllers.Interfaces
             
             public static GetById Ok(LogElement elm) => new GetById(elm);
             public static GetById NotFound() => new GetById();
+        }
+        
+        public sealed class GetBySearch
+        {
+            private IEnumerable<LogElement>? _val;
+            private string? error_msg;
+            
+            public bool Success { get; private set; }
+            public IEnumerable<LogElement> Value => Success && !(_val is null) ? _val : throw new InvalidOperationException();
+            public string Error => !Success && !(error_msg is null) ? error_msg : throw new InvalidOperationException();
+            
+            private GetBySearch(IEnumerable<LogElement> elms)
+            {
+                _val    = elms;
+                Success = true;
+            }
+            
+            private GetBySearch(string error)
+            {
+                error_msg = error;
+                Success   = false;
+            }
+            
+            private GetBySearch() : this("Bad Request")
+            {
+                
+            }
+            
+            public static GetBySearch Ok(IEnumerable<LogElement> elms) => new GetBySearch(elms);
+            public static GetBySearch InvalidField(string name) => new GetBySearch(name);
+            public static GetBySearch InvalidTerm(string name) => new GetBySearch(name);
+            public static GetBySearch Bad() => new GetBySearch();
         }
         
         public sealed class Put

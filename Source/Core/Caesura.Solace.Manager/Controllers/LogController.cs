@@ -61,6 +61,39 @@ namespace Caesura.Solace.Manager.Controllers
             }
         }
         
+        [HttpGet("search/{field}/{term}")]
+        public async Task<ActionResult<LogElement>> Get(string field, string term)
+        {
+            log.EnterMethod(nameof(Get), "with field {field} and term {term}", field, term);
+            term = term.Replace("\u0022", string.Empty);
+            try
+            {
+                var service_result = await service.Get(field, term);
+                if (service_result.Success)
+                {
+                    log.Debug("Successful GET search for LogElements with search term {field}/{term}", field, term);
+                    return Ok(service_result.Value);
+                }
+                else
+                {
+                    log.Debug(
+                        "Unsuccessful GET search for LogElements with search term "
+                        + "{field}/{term}. Error: {error}", field, term, service_result.Error
+                    );
+                    return BadRequest($"Invalid term: {service_result.Error}");
+                }
+            }
+            catch (Exception e)
+            {
+                log.Error(e, string.Empty);
+                throw;
+            }
+            finally
+            {
+                log.ExitMethod(nameof(Get), "with field {field} and term {term}", field, term);
+            }
+        }
+        
         [HttpGet("{id}")]
         public async Task<ActionResult<LogElement>> Get(ulong id)
         {

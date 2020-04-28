@@ -86,6 +86,72 @@ namespace Caesura.Solace.Manager.Controllers.Services
             }
         }
         
+        public Task<LogServiceResult.GetBySearch> Get(string field, string term)
+        {
+            log.EnterMethod(nameof(Get), "with field {field} and term {term}", field, term);
+            
+            var elms = new List<LogElement>(get_limit);
+            using (var context = new LogElementContext(db_connection))
+            {
+                if (field == "name")
+                {
+                    var db_elms = context.LogElements.Where(x => x.Name == term);
+                    elms.AddRange(db_elms);
+                }
+                else if (field == "message")
+                {
+                    var newterm = term.ToLower();
+                    var db_elms = context.LogElements.Where(x => 
+                        x.Message.ToLower().Contains(newterm));
+                    elms.AddRange(db_elms);
+                }
+                else if (field == "before")
+                {
+                    var dt_success = DateTime.TryParse(term, out var dt);
+                    if (dt_success)
+                    {
+                        var db_elms = context.LogElements.Where(x => x.TimeStamp < dt).Take(get_limit);
+                        elms.AddRange(db_elms);
+                    }
+                    else
+                    {
+                        return Task.FromResult(LogServiceResult.GetBySearch.InvalidTerm(term));
+                    }
+                }
+                else if (field == "after")
+                {
+                    var dt_success = DateTime.TryParse(term, out var dt);
+                    if (dt_success)
+                    {
+                        var db_elms = context.LogElements.Where(x => x.TimeStamp > dt).Take(get_limit);
+                        elms.AddRange(db_elms);
+                    }
+                    else
+                    {
+                        return Task.FromResult(LogServiceResult.GetBySearch.InvalidTerm(term));
+                    }
+                }
+                else if (field == "exception-name")
+                {
+                    var db_elms = context.LogElements.Where(x => x.Exception.Name == term);
+                    elms.AddRange(db_elms);
+                }
+                else if (field == "exception-message")
+                {
+                    var newterm = term.ToLower();
+                    var db_elms = context.LogElements.Where(x => 
+                        x.Exception.Message.ToLower().Contains(newterm));
+                    elms.AddRange(db_elms);
+                }
+                else
+                {
+                    return Task.FromResult(LogServiceResult.GetBySearch.InvalidField(field));
+                }
+            }
+            log.ExitMethod(nameof(Get), "with field {field} and term {term}", field, term);
+            return Task.FromResult(LogServiceResult.GetBySearch.Ok(elms));
+        }
+        
         public Task<LogServiceResult.Put> Put(ulong id, LogElement element)
         {
             log.EnterMethod(nameof(Put), "for Id {Id} and LogElement {LogElement}.", id, element);
