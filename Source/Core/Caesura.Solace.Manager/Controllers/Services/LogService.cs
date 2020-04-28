@@ -5,7 +5,6 @@ namespace Caesura.Solace.Manager.Controllers.Services
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using System.IO;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
     using Foundation.Logging;
