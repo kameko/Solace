@@ -88,7 +88,7 @@ namespace Caesura.Solace.Manager.Controllers.Services
         
         public Task<LogServiceResult.GetBySearch> Get(string field, string term)
         {
-            log.EnterMethod(nameof(Get), "with field {field} and term {term}", field, term);
+            log.EnterMethod(nameof(Get), "with search field {field} and term {term}", field, term);
             
             var elms = new List<LogElement>(get_limit);
             using (var context = new LogElementContext(db_connection))
@@ -148,7 +148,7 @@ namespace Caesura.Solace.Manager.Controllers.Services
                     return Task.FromResult(LogServiceResult.GetBySearch.InvalidField(field));
                 }
             }
-            log.ExitMethod(nameof(Get), "with field {field} and term {term}", field, term);
+            log.ExitMethod(nameof(Get), "with search field {field} and term {term}", field, term);
             return Task.FromResult(LogServiceResult.GetBySearch.Ok(elms));
         }
         

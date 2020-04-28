@@ -65,8 +65,8 @@ namespace Caesura.Solace.Manager.Controllers
         [HttpGet("search/{field}/{term}")]
         public async Task<ActionResult<LogElement>> Get(string field, string term)
         {
-            log.EnterMethod(nameof(Get), "with field {field} and term {term}", field, term);
             term = term.Replace("\u0022", string.Empty);
+            log.EnterMethod(nameof(Get), "with search field {field} and term {term}", field, term);
             try
             {
                 var service_result = await service.Get(field, term);
@@ -94,7 +94,7 @@ namespace Caesura.Solace.Manager.Controllers
             }
             finally
             {
-                log.ExitMethod(nameof(Get), "with field {field} and term {term}", field, term);
+                log.ExitMethod(nameof(Get), "with search field {field} and term {term}", field, term);
             }
         }
         

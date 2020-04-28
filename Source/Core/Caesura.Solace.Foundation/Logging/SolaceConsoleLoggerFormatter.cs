@@ -217,7 +217,12 @@ namespace Caesura.Solace.Foundation.Logging
                 {
                     var xsplits = str.Replace("<$JSON>", string.Empty).Split("</JSON>");
                     Console.ForegroundColor = item.Configuration.Theme.JsonColor;
-                    Write(xsplits[0]);
+                    var xjson = xsplits[0];
+                    if (xjson.StartsWith("\"") && xjson.EndsWith("\""))
+                    {
+                        xjson = xjson.TrimStart('"').TrimEnd('"');
+                    }
+                    Write(xjson);
                     Console.ForegroundColor = original_foreground;
                     if (xsplits.Length > 1)
                     {
