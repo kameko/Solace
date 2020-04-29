@@ -1,5 +1,5 @@
 
-namespace Caesura.Solace.Entities.Core.Contexts
+namespace Caesura.Solace.Entities.Core
 {
     public interface IHasId<T>
     {

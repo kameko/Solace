@@ -15,7 +15,7 @@ namespace Caesura.Solace.Manager.Controllers
     [ApiController]
     [Route("system/[controller]")]
     public class LogController
-        : BaseServiceController<LogController, LogElement, ILogService, LogElementContext>
+        : BaseServiceController<LogController, LogElement, ILogService>
     {
         public LogController(ILogger<LogController> ilog, IConfiguration configuration, ILogService iservice)
             : base(iservice, ilog, configuration)

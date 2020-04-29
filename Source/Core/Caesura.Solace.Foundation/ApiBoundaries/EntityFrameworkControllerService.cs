@@ -10,10 +10,12 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
     using Microsoft.Extensions.Logging;
     using Microsoft.EntityFrameworkCore;
     using Logging;
+    using Entities.Core;
     using Entities.Core.Contexts;
     
     public abstract class EntityFrameworkControllerService<TService, TKey, T, TTerm, TSource>
-        : IControllerSearchableService<TKey, T, TTerm, TSource>
+        : IControllerSearchableService<TKey, T, TTerm>
+        , IControllerSource<TKey, T, TSource>
         where T : IHasId<TKey>
         where TSource : DbContext
     {

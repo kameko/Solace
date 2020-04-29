@@ -9,12 +9,12 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
     using Foundation.Logging;
-    using Entities.Core.Contexts;
+    using Entities.Core;
     
-    public abstract class BaseServiceController<TController, T, TService, TSource>
+    public abstract class BaseServiceController<TController, T, TService>
         : ControllerBase
         where T : IHasId<ulong>
-        where TService : IControllerSearchableService<ulong, T, string, TSource>
+        where TService : IControllerSearchableService<ulong, T, string>
     {
         private string t_name;
         protected TService Service { get; private set; }
