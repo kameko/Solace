@@ -14,7 +14,7 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
     
     public abstract class EntityFrameworkControllerService<TService, TKey, T, TTerm, TSource>
         : IControllerSearchableService<TKey, T, TTerm, TSource>
-        where T : IId<TKey>
+        where T : IHasId<TKey>
         where TSource : DbContext
     {
         protected FileInfo SourcePath { get; set; }

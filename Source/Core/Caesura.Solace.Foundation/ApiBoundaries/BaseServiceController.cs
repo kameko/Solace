@@ -11,11 +11,9 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
     using Foundation.Logging;
     using Entities.Core.Contexts;
     
-    // TODO: implement all REST calls.
-    
     public abstract class BaseServiceController<TController, T, TService, TSource>
         : ControllerBase
-        where T : IId<ulong>
+        where T : IHasId<ulong>
         where TService : IControllerSearchableService<ulong, T, string, TSource>
     {
         private string t_name;
@@ -189,7 +187,33 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             }
         }
         
-        // TODO: DeleteAllDefault()
+        public virtual async Task<IActionResult> DeleteAllDefault()
+        {
+            Log.EnterMethod(nameof(DeleteAllDefault));
+            try
+            {
+                var service_result = await Service.DeleteAll();
+                Log.Debug($"DELETE request for {t_name}, Result: {{Result}}.", service_result.Result);
+                return service_result.Result switch
+                {
+                    ControllerResult.Result.Ok           => Ok(),
+                    ControllerResult.Result.NoContent    => NoContent(),
+                    ControllerResult.Result.NotFound     => NotFound(),
+                    ControllerResult.Result.Unauthorized => Unauthorized(),
+                    
+                    _ => BadRequest()
+                };
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, string.Empty);
+                throw;
+            }
+            finally
+            {
+                Log.ExitMethod(nameof(DeleteAllDefault));
+            }
+        }
         
         public virtual async Task<IActionResult> DeleteByIdDefault(ulong id)
         {
@@ -200,7 +224,8 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
                 Log.Debug($"DELETE request for {t_name} {{Id}}, Result: {{Result}}.", id, service_result.Result);
                 return service_result.Result switch
                 {
-                    ControllerResult.Result.Ok           => NoContent(),
+                    ControllerResult.Result.Ok           => Ok(),
+                    ControllerResult.Result.NoContent    => NoContent(),
                     ControllerResult.Result.NotFound     => NotFound(),
                     ControllerResult.Result.Unauthorized => Unauthorized(),
                     

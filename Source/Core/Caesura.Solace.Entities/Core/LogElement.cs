@@ -12,7 +12,7 @@ namespace Caesura.Solace.Entities.Core
     // - Receiving service name
     // - Current resource usage
     
-    public class LogElement : IId<ulong>
+    public class LogElement : IHasId<ulong>
     {
         public ulong Id                   { get; set; }
         

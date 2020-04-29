@@ -1,7 +1,7 @@
 
 namespace Caesura.Solace.Entities.Core.Contexts
 {
-    public interface IId<T>
+    public interface IHasId<T>
     {
         T Id { get; set; }
     }

@@ -4,7 +4,7 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
     using System.Threading.Tasks;
     using Entities.Core.Contexts;
     
-    public interface IControllerService<TKey, T, TSource> where T : IId<TKey>
+    public interface IControllerService<TKey, T, TSource> where T : IHasId<TKey>
     {
         Task<ControllerResult.GetOne<T>> GetOne();
         Task<ControllerResult.GetAll<T>> GetAll();
@@ -17,7 +17,7 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
     
     public interface IControllerSearchableService<TKey, T, TTerm, TSource>
         : IControllerService<TKey, T, TSource>
-        where T : IId<TKey>
+        where T : IHasId<TKey>
     {
         Task<ControllerResult.GetBySearch<T>> GetBySearch(string field, TTerm term);
     }
