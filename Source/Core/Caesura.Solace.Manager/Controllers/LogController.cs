@@ -24,13 +24,13 @@ namespace Caesura.Solace.Manager.Controllers
         }
         
         [HttpGet]
-        public Task<ActionResult<IEnumerable<LogElement>>> Get() => GetAll();
+        public Task<ActionResult<IEnumerable<LogElement>>> Get() => GetAllDefault();
         
         [HttpGet("search/{field}/{term}")]
-        public Task<ActionResult<LogElement>> Get(string field, string term) => GetBySearch(field, term);
+        public Task<ActionResult<LogElement>> Get(string field, string term) => GetBySearchDefault(field, term);
         
         [HttpGet("{id}")]
-        public Task<ActionResult<LogElement>> Get(ulong id) => GetById(id);
+        public Task<ActionResult<LogElement>> Get(ulong id) => GetByIdDefault(id);
         
         [HttpPost]
         public Task<ActionResult<LogElement>> Post(LogElement element) => PostDefault(element);

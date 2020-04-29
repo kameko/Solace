@@ -32,9 +32,11 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             Configuration = configuration;
         }
         
-        public virtual async Task<ActionResult<IEnumerable<T>>> GetAll()
+        // TODO: GetOneDefault()
+        
+        public virtual async Task<ActionResult<IEnumerable<T>>> GetAllDefault()
         {
-            Log.EnterMethod(nameof(GetAll));
+            Log.EnterMethod(nameof(GetAllDefault));
             try
             {
                 var service_result = await Service.GetAll();
@@ -57,14 +59,14 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             }
             finally
             {
-                Log.ExitMethod(nameof(GetAll));
+                Log.ExitMethod(nameof(GetAllDefault));
             }
         }
         
-        public virtual async Task<ActionResult<T>> GetBySearch(string field, string term)
+        public virtual async Task<ActionResult<T>> GetBySearchDefault(string field, string term)
         {
             term = term.Replace("\u0022", string.Empty);
-            Log.EnterMethod(nameof(GetBySearch), "with search field {field} and term {term}", field, term);
+            Log.EnterMethod(nameof(GetBySearchDefault), "with search field {field} and term {term}", field, term);
             try
             {
                 var service_result = await Service.GetBySearch(field, term);
@@ -92,13 +94,13 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             }
             finally
             {
-                Log.ExitMethod(nameof(GetBySearch), "with search field {field} and term {term}", field, term);
+                Log.ExitMethod(nameof(GetBySearchDefault), "with search field {field} and term {term}", field, term);
             }
         }
         
-        public virtual async Task<ActionResult<T>> GetById(ulong id)
+        public virtual async Task<ActionResult<T>> GetByIdDefault(ulong id)
         {
-            Log.EnterMethod(nameof(GetById), "for Id {Id}.", id);
+            Log.EnterMethod(nameof(GetByIdDefault), "for Id {Id}.", id);
             try
             {
                 var service_result = await Service.GetById(id);
@@ -121,7 +123,7 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             }
             finally
             {
-                Log.ExitMethod(nameof(GetById), "for Id {Id}.", id);
+                Log.ExitMethod(nameof(GetByIdDefault), "for Id {Id}.", id);
             }
         }
         
@@ -165,7 +167,7 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
                     var val = service_result.Value!;
                     Log.Debug($"Successful POST request for {t_name} {{{t_name}1}}. Returned item: {{{t_name}2}}.", element!, val);
                     return CreatedAtAction(
-                            nameof(GetById), // TODO: test if this is okay or if it needs to be "Get"
+                            nameof(GetByIdDefault),
                             new { id = element.Id },
                             val
                         );
@@ -187,9 +189,11 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             }
         }
         
-        public virtual async Task<IActionResult> DeleteDefault(ulong id)
+        // TODO: DeleteAllDefault()
+        
+        public virtual async Task<IActionResult> DeleteByIdDefault(ulong id)
         {
-            Log.EnterMethod(nameof(DeleteDefault), "for Id {Id}.", id);
+            Log.EnterMethod(nameof(DeleteByIdDefault), "for Id {Id}.", id);
             try
             {
                 var service_result = await Service.DeleteById(id);
@@ -210,7 +214,7 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             }
             finally
             {
-                Log.ExitMethod(nameof(DeleteDefault), "for Id {Id}.", id);
+                Log.ExitMethod(nameof(DeleteByIdDefault), "for Id {Id}.", id);
             }
         }
     }

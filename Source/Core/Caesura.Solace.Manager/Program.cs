@@ -3,12 +3,9 @@ namespace Caesura.Solace.Manager
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
-    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Foundation;
     using Foundation.Logging;
@@ -37,7 +34,6 @@ namespace Caesura.Solace.Manager
                             {
                                 "Caesura.Solace.Manager.Controllers.",
                             };
-                            // config.StringifyOption = SolaceConsoleLoggerConfiguration.ObjectStringifyOption.SerializeJsonPretty;
                         });
                 })
                 .ConfigureServices((hostContext, services) =>
