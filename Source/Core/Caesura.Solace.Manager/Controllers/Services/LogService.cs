@@ -24,6 +24,8 @@ namespace Caesura.Solace.Manager.Controllers.Services
             Log.InstanceAbreaction();
         }
         
+        // ---
+        
         public override async Task<ControllerResult.GetAll<LogElement>> GetAll()
         {
             return await DefaultGetAll(context => context.LogElements.Take(GetLimit));
@@ -43,6 +45,8 @@ namespace Caesura.Solace.Manager.Controllers.Services
         {
             return await DefaultPost(context => context.LogElements.Find(value.Id), context => context.Add(value));
         }
+        
+        // ---
         
         protected override LogElementContext ContextFactory() => new LogElementContext(SourceConnectionString);
         

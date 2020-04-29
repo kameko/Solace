@@ -2,6 +2,8 @@
 namespace Caesura.Solace.Manager.Controllers
 {
     using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
@@ -20,5 +22,17 @@ namespace Caesura.Solace.Manager.Controllers
         {
             
         }
+        
+        [HttpGet]
+        public Task<ActionResult<IEnumerable<LogElement>>> Get() => GetAll();
+        
+        [HttpGet("search/{field}/{term}")]
+        public Task<ActionResult<LogElement>> Get(string field, string term) => GetBySearch(field, term);
+        
+        [HttpGet("{id}")]
+        public Task<ActionResult<LogElement>> Get(ulong id) => GetById(id);
+        
+        [HttpPost]
+        public Task<ActionResult<LogElement>> Post(LogElement element) => PostDefault(element);
     }
 }

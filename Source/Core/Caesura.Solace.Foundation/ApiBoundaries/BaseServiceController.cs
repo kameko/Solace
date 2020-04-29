@@ -32,10 +32,9 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             Configuration = configuration;
         }
         
-        [HttpGet]
-        public virtual async Task<ActionResult<IEnumerable<T>>> Get()
+        public virtual async Task<ActionResult<IEnumerable<T>>> GetAll()
         {
-            Log.EnterMethod(nameof(Get));
+            Log.EnterMethod(nameof(GetAll));
             try
             {
                 var service_result = await Service.GetAll();
@@ -58,15 +57,14 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             }
             finally
             {
-                Log.ExitMethod(nameof(Get));
+                Log.ExitMethod(nameof(GetAll));
             }
         }
         
-        [HttpGet("search/{field}/{term}")]
-        public virtual async Task<ActionResult<T>> Get(string field, string term)
+        public virtual async Task<ActionResult<T>> GetBySearch(string field, string term)
         {
             term = term.Replace("\u0022", string.Empty);
-            Log.EnterMethod(nameof(Get), "with search field {field} and term {term}", field, term);
+            Log.EnterMethod(nameof(GetBySearch), "with search field {field} and term {term}", field, term);
             try
             {
                 var service_result = await Service.GetBySearch(field, term);
@@ -94,14 +92,13 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             }
             finally
             {
-                Log.ExitMethod(nameof(Get), "with search field {field} and term {term}", field, term);
+                Log.ExitMethod(nameof(GetBySearch), "with search field {field} and term {term}", field, term);
             }
         }
         
-        [HttpGet("{id}")]
-        public virtual async Task<ActionResult<T>> Get(ulong id)
+        public virtual async Task<ActionResult<T>> GetById(ulong id)
         {
-            Log.EnterMethod(nameof(Get), "for Id {Id}.", id);
+            Log.EnterMethod(nameof(GetById), "for Id {Id}.", id);
             try
             {
                 var service_result = await Service.GetById(id);
@@ -124,14 +121,13 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             }
             finally
             {
-                Log.ExitMethod(nameof(Get), "for Id {Id}.", id);
+                Log.ExitMethod(nameof(GetById), "for Id {Id}.", id);
             }
         }
         
-        [HttpPut("{id}")]
-        public virtual async Task<IActionResult> Put(ulong id, T element)
+        public virtual async Task<IActionResult> PutDefault(ulong id, T element)
         {
-            Log.EnterMethod(nameof(Put), $"for Id {{Id}} and {t_name} {{{t_name}}}.", id, element!);
+            Log.EnterMethod(nameof(PutDefault), $"for Id {{Id}} and {t_name} {{{t_name}}}.", id, element!);
             try
             {
                 var service_result = await Service.Put(id, element);
@@ -154,14 +150,13 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             }
             finally
             {
-                Log.ExitMethod(nameof(Put), $"for Id {{Id}} and LogElement {t_name} {{{t_name}}}.", id, element!);
+                Log.ExitMethod(nameof(PutDefault), $"for Id {{Id}} and LogElement {t_name} {{{t_name}}}.", id, element!);
             }
         }
         
-        [HttpPost]
-        public virtual async Task<ActionResult<T>> Post(T element)
+        public virtual async Task<ActionResult<T>> PostDefault(T element)
         {
-            Log.EnterMethod(nameof(Post), $"for LogElement {t_name} {{{t_name}}}.", element!);
+            Log.EnterMethod(nameof(PostDefault), $"for LogElement {t_name} {{{t_name}}}.", element!);
             try
             {
                 var service_result = await Service.Post(element);
@@ -170,7 +165,7 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
                     var val = service_result.Value!;
                     Log.Debug($"Successful POST request for {t_name} {{{t_name}1}}. Returned item: {{{t_name}2}}.", element!, val);
                     return CreatedAtAction(
-                            nameof(Get),
+                            nameof(GetById), // TODO: test if this is okay or if it needs to be "Get"
                             new { id = element.Id },
                             val
                         );
@@ -188,14 +183,13 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             }
             finally
             {
-                Log.ExitMethod(nameof(Post), $"for {t_name} {{{t_name}}}.", element!);
+                Log.ExitMethod(nameof(PostDefault), $"for {t_name} {{{t_name}}}.", element!);
             }
         }
         
-        [HttpDelete("{id}")]
-        public virtual async Task<IActionResult> Delete(ulong id)
+        public virtual async Task<IActionResult> DeleteDefault(ulong id)
         {
-            Log.EnterMethod(nameof(Delete), "for Id {Id}.", id);
+            Log.EnterMethod(nameof(DeleteDefault), "for Id {Id}.", id);
             try
             {
                 var service_result = await Service.DeleteById(id);
@@ -216,7 +210,7 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             }
             finally
             {
-                Log.ExitMethod(nameof(Delete), "for Id {Id}.", id);
+                Log.ExitMethod(nameof(DeleteDefault), "for Id {Id}.", id);
             }
         }
     }
