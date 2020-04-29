@@ -26,50 +26,27 @@ namespace Caesura.Solace.Manager.Controllers.Services
         
         public override async Task<ControllerResult.GetAll<LogElement>> GetAll()
         {
-            return await DefaultGetAll(
-                context => context.LogElements.Take(GetLimit),
-                SourcePath,
-                ContextFactory,
-                Seeder
-            );
+            return await DefaultGetAll(context => context.LogElements.Take(GetLimit));
         }
         
         public override async Task<ControllerResult.GetById<LogElement>> GetById(ulong id)
         {
-            return await DefaultGetById(
-                id,
-                context => context.LogElements.Find(id),
-                SourcePath,
-                ContextFactory,
-                Seeder
-            );
+            return await DefaultGetById(id, context => context.LogElements.Find(id));
         }
         
         public override async Task<ControllerResult.GetBySearch<LogElement>> GetBySearch(string field, string term)
         {
-            return await DefaultGetBySearch(
-                field,
-                term,
-                SourcePath,
-                ContextFactory,
-                Seeder
-            );
+            return await DefaultGetBySearch(field, term);
         }
         
         public override async Task<ControllerResult.Post<LogElement>> Post(LogElement value)
         {
-            return await DefaultPost(
-                context => context.LogElements.Find(value.Id),
-                context => context.Add(value),
-                SourcePath,
-                ContextFactory,
-                Seeder
-            );
+            return await DefaultPost(context => context.LogElements.Find(value.Id), context => context.Add(value));
         }
         
-        private LogElementContext ContextFactory() => new LogElementContext(SourceConnectionString);
+        protected override LogElementContext ContextFactory() => new LogElementContext(SourceConnectionString);
         
-        private void Seeder(LogElementContext context)
+        protected override void SeedFactory(LogElementContext context)
         {
             var le = new LogElement()
             {

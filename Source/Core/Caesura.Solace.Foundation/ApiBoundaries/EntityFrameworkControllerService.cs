@@ -88,6 +88,9 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
         
         // --- Default Options --- //
         
+        protected Task<ControllerResult.GetOne<T>> DefaultGetOne(Func<TSource, T> producer) =>
+            DefaultGetOne(producer, SourcePath, ContextFactory, SeedFactory);
+        
         protected async Task<ControllerResult.GetOne<T>> DefaultGetOne(
             Func<TSource, T> producer,
             FileInfo source,
@@ -105,6 +108,9 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
                 return ControllerResult.GetOne<T>.Ok(elm);
             }
         }
+        
+        protected Task<ControllerResult.GetAll<T>> DefaultGetAll(Func<TSource, IEnumerable<T>> producer) =>
+            DefaultGetAll(producer, SourcePath, ContextFactory, SeedFactory);
         
         protected async Task<ControllerResult.GetAll<T>> DefaultGetAll(
             Func<TSource, IEnumerable<T>> producer,
@@ -128,6 +134,9 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             Log.ExitMethod(nameof(GetAll));
             return ControllerResult.GetAll<T>.Ok(elms);
         }
+        
+        protected Task<ControllerResult.GetById<T>> DefaultGetById(TKey id, Func<TSource, T> producer) =>
+            DefaultGetById(id, producer, SourcePath, ContextFactory, SeedFactory);
         
         protected async Task<ControllerResult.GetById<T>> DefaultGetById(
             TKey id,
@@ -157,6 +166,9 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
                 }
             }
         }
+        
+        protected Task<ControllerResult.GetBySearch<T>> DefaultGetBySearch(string field, TTerm term) =>
+            DefaultGetBySearch(field, term, SourcePath, ContextFactory, SeedFactory);
         
         protected async Task<ControllerResult.GetBySearch<T>> DefaultGetBySearch(
             string field,
@@ -196,6 +208,9 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
 
         }
         
+        protected Task<ControllerResult.Put> DefaultPut(TKey id, T value, Func<TSource, T> producer) =>
+            DefaultPut(id, value, producer, SourcePath, ContextFactory, SeedFactory);
+        
         protected async Task<ControllerResult.Put> DefaultPut(
             TKey id,
             T value,
@@ -214,6 +229,9 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             
             throw new NotImplementedException();
         }
+        
+        protected Task<ControllerResult.Post<T>> DefaultPost(Func<TSource, T> producer, Action<TSource> joiner) =>
+            DefaultPost(producer, joiner, SourcePath, ContextFactory, SeedFactory);
         
         protected async Task<ControllerResult.Post<T>> DefaultPost(
             Func<TSource, T> producer,
@@ -253,6 +271,9 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             }
         }
         
+        protected Task<ControllerResult.DeleteAll> DefaultDeleteAll() =>
+            DefaultDeleteAll(SourcePath, ContextFactory, SeedFactory);
+        
         protected async Task<ControllerResult.DeleteAll> DefaultDeleteAll(
             FileInfo source,
             Func<TSource> source_factory,
@@ -269,12 +290,14 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             throw new NotImplementedException();
         }
         
+        protected Task<ControllerResult.DeleteById> DefaultDeleteById(TKey id) =>
+            DefaultDeleteById(id, SourcePath, ContextFactory, SeedFactory);
+        
         protected async Task<ControllerResult.DeleteById> DefaultDeleteById(
             TKey id,
             FileInfo source,
             Func<TSource> source_factory,
-            Action<TSource> seed_factory,
-            Func<TSource, T> producer)
+            Action<TSource> seed_factory)
         {
             Log.EnterMethod(nameof(DeleteById));
             
@@ -288,6 +311,16 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
         }
         
         // --- Utilities --- //
+        
+        protected virtual TSource ContextFactory()
+        {
+            throw new NotImplementedException();
+        }
+        
+        protected virtual void SeedFactory(TSource context)
+        {
+            throw new NotImplementedException();
+        }
         
         protected virtual async Task CreateDatabaseIfNotExist(FileInfo source, Func<TSource> source_factory, Action<TSource> seed_factory)
         {
