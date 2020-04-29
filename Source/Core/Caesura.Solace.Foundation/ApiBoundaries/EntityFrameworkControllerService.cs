@@ -47,41 +47,49 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
         
         public virtual Task<ControllerResult.GetOne<T>> GetOne()
         {
+            Log.Warning("{Method} unsupported.", nameof(GetOne));
             return GetOneUnsupported();
         }
         
         public virtual Task<ControllerResult.GetAll<T>> GetAll()
         {
+            Log.Warning("{Method} unsupported.", nameof(GetAll));
             return GetAllUnsupported();
         }
         
         public virtual Task<ControllerResult.GetById<T>> GetById(TKey id)
         {
+            Log.Warning("{Method} unsupported.", nameof(GetById));
             return GetByIdUnsupported();
         }
         
         public virtual Task<ControllerResult.GetBySearch<T>> GetBySearch(string field, TTerm term)
         {
+            Log.Warning("{Method} unsupported.", nameof(GetBySearch));
             return GetBySearchUnsupported();
         }
         
         public virtual Task<ControllerResult.Put> Put(TKey id, T value)
         {
+            Log.Warning("{Method} unsupported.", nameof(Put));
             return PutUnsupported();
         }
         
         public virtual Task<ControllerResult.Post<T>> Post(T value)
         {
+            Log.Warning("{Method} unsupported.", nameof(Post));
             return PostUnsupported();
         }
         
         public virtual Task<ControllerResult.DeleteAll> DeleteAll()
         {
+            Log.Warning("{Method} unsupported.", nameof(DeleteAll));
             return DeleteAllUnsupported();
         }
         
         public virtual Task<ControllerResult.DeleteById> DeleteById(TKey id)
         {
+            Log.Warning("{Method} unsupported.", nameof(DeleteById));
             return DeleteByIdUnsupported();
         }
         
