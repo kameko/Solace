@@ -226,6 +226,7 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
                 var success = updater.Invoke(context);
                 if (success)
                 {
+                    await context.SaveChangesAsync();
                     Log.ExitMethod(nameof(Put));
                     return ControllerResult.Put.NoContent();
                 }
@@ -294,6 +295,7 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             using (var context = source_factory.Invoke())
             {
                 var result = remover.Invoke(context);
+                await context.SaveChangesAsync();
                 Log.ExitMethod(nameof(DeleteAll));
                 return result;
             }
@@ -316,6 +318,7 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             using (var context = source_factory.Invoke())
             {
                 var result = remover.Invoke(context);
+                await context.SaveChangesAsync();
                 Log.ExitMethod(nameof(DeleteById));
                 return result;
             }
