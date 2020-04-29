@@ -12,8 +12,6 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
     using Logging;
     using Entities.Core.Contexts;
     
-    // TODO: implement all REST calls.
-    
     public abstract class EntityFrameworkControllerService<TService, TKey, T, TTerm, TSource>
         : IControllerSearchableService<TKey, T, TTerm, TSource>
         where T : IId<TKey>
@@ -208,13 +206,13 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
 
         }
         
-        protected Task<ControllerResult.Put> DefaultPut(TKey id, T value, Func<TSource, T> producer) =>
-            DefaultPut(id, value, producer, SourcePath, ContextFactory, SeedFactory);
+        protected Task<ControllerResult.Put> DefaultPut(TKey id, T value, Func<TSource, bool> updater) =>
+            DefaultPut(id, value, updater, SourcePath, ContextFactory, SeedFactory);
         
         protected async Task<ControllerResult.Put> DefaultPut(
             TKey id,
             T value,
-            Func<TSource, T> producer,
+            Func<TSource, bool> updater,
             FileInfo source,
             Func<TSource> source_factory,
             Action<TSource> seed_factory)
@@ -223,11 +221,20 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             
             await CreateDatabaseIfNotExist(source, source_factory, seed_factory);
             
-            // TODO:
-            
-            Log.ExitMethod(nameof(Put));
-            
-            throw new NotImplementedException();
+            using (var context = source_factory.Invoke())
+            {
+                var success = updater.Invoke(context);
+                if (success)
+                {
+                    Log.ExitMethod(nameof(Put));
+                    return ControllerResult.Put.NoContent();
+                }
+                else
+                {
+                    Log.ExitMethod(nameof(Put));
+                    return ControllerResult.Put.BadRequest();
+                }
+            }
         }
         
         protected Task<ControllerResult.Post<T>> DefaultPost(Func<TSource, T> producer, Action<TSource> joiner) =>
@@ -271,10 +278,11 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             }
         }
         
-        protected Task<ControllerResult.DeleteAll> DefaultDeleteAll() =>
-            DefaultDeleteAll(SourcePath, ContextFactory, SeedFactory);
+        protected Task<ControllerResult.DeleteAll> DefaultDeleteAll(Func<TSource, ControllerResult.DeleteAll> remover) =>
+            DefaultDeleteAll(remover, SourcePath, ContextFactory, SeedFactory);
         
         protected async Task<ControllerResult.DeleteAll> DefaultDeleteAll(
+            Func<TSource, ControllerResult.DeleteAll> remover,
             FileInfo source,
             Func<TSource> source_factory,
             Action<TSource> seed_factory)
@@ -283,18 +291,20 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             
             await CreateDatabaseIfNotExist(source, source_factory, seed_factory);
             
-            // TODO:
-            
-            Log.ExitMethod(nameof(DeleteAll));
-            
-            throw new NotImplementedException();
+            using (var context = source_factory.Invoke())
+            {
+                var result = remover.Invoke(context);
+                Log.ExitMethod(nameof(DeleteAll));
+                return result;
+            }
         }
         
-        protected Task<ControllerResult.DeleteById> DefaultDeleteById(TKey id) =>
-            DefaultDeleteById(id, SourcePath, ContextFactory, SeedFactory);
+        protected Task<ControllerResult.DeleteById> DefaultDeleteById(TKey id, Func<TSource, ControllerResult.DeleteById> remover) =>
+            DefaultDeleteById(id, remover, SourcePath, ContextFactory, SeedFactory);
         
         protected async Task<ControllerResult.DeleteById> DefaultDeleteById(
             TKey id,
+            Func<TSource, ControllerResult.DeleteById> remover,
             FileInfo source,
             Func<TSource> source_factory,
             Action<TSource> seed_factory)
@@ -303,11 +313,12 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             
             await CreateDatabaseIfNotExist(source, source_factory, seed_factory);
             
-            // TODO:
-            
-            Log.ExitMethod(nameof(DeleteById));
-            
-            throw new NotImplementedException();
+            using (var context = source_factory.Invoke())
+            {
+                var result = remover.Invoke(context);
+                Log.ExitMethod(nameof(DeleteById));
+                return result;
+            }
         }
         
         // --- Utilities --- //
