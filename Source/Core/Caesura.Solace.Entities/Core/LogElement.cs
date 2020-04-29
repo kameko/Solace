@@ -2,40 +2,67 @@
 namespace Caesura.Solace.Entities.Core
 {
     using System;
+    using System.Collections.Generic;
     using Microsoft.Extensions.Logging;
-    using Microsoft.EntityFrameworkCore;
     using Contexts;
-    
-    // TODO: Add an Elements class/property like in Foundation.Logging.LogItem
-    // TODO: way more information here
-    // Items to add:
-    // - Receiving service name
-    // - Current resource usage
     
     public class LogElement : IHasId<ulong>
     {
-        public ulong Id                   { get; set; }
+        public ulong Id                          { get; set; }
         
-        public DateTime TimeStamp         { get; set; }
-        public LogLevel Level             { get; set; }
-        public int EventId                { get; set; }
-        public string Name                { get; set; } = string.Empty;
-        public string Message             { get; set; } = string.Empty;
-        public ExceptionElement Exception { get; set; }
+        public DateTime TimeStamp                { get; set; }
+        public LogLevel Level                    { get; set; }
+        public int EventId                       { get; set; }
+        public string SenderService              { get; set; }
+        public string ReceiverService            { get; set; }
+        public string Message                    { get; set; }
+        public IEnumerable<ItemElement> Elements { get; set; }
+        public ExceptionElement Exception        { get; set; }
+        public ResourceSnapshot ResourceUse      { get; set; }
         
         public LogElement()
         {
-            Exception = new ExceptionElement();
+            SenderService   = string.Empty;
+            ReceiverService = string.Empty;
+            Message         = string.Empty;
+            Elements        = new List<ItemElement>();
+            Exception       = new ExceptionElement();
+            ResourceUse     = new ResourceSnapshot();
         }
         
         public override string ToString()
         {
             return 
-                $"[{Level}][{Name}({Id})]: {Message}{(string.IsNullOrEmpty(Message) ? string.Empty : " ")} " + 
+                $"[{Level}][{SenderService}({Id})]: {Message}{(string.IsNullOrEmpty(Message) ? string.Empty : " ")} " + 
                 $"{(Exception is null ? string.Empty : Environment.NewLine)}{Exception}";
         }
         
-        public class ExceptionElement
+        public class ItemElement : IHasId<ulong>
+        {
+            public ulong Id     { get; set; }
+            public int Position { get; set; }
+            public string Value { get; set; }
+            
+            public ItemElement()
+            {
+                Value = string.Empty;
+            }
+        }
+        
+        public class ResourceSnapshot : IHasId<ulong>
+        {
+            public ulong Id              { get; set; }
+            public int RamMbUse          { get; set; }
+            public int CpuPercentUse     { get; set; }
+            public int NetworkPercentUse { get; set; }
+            
+            public ResourceSnapshot()
+            {
+                
+            }
+        }
+        
+        public class ExceptionElement : IHasId<ulong>
         {
             public ulong Id       { get; set; }
             public string Name    { get; set; } = string.Empty;

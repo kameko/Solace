@@ -2,6 +2,8 @@
 namespace Caesura.Solace.Foundation.Logging
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using Microsoft.Extensions.Logging;
     using Entities.Core;
     
@@ -28,14 +30,33 @@ namespace Caesura.Solace.Foundation.Logging
         
         public LogElement ToLogElement()
         {
+            var statemsg = string.Empty;
+            IEnumerable<LogElement.ItemElement> elms;
+            if (State is SolaceLogState sls)
+            {
+                statemsg = sls.Message;
+                elms = sls.Values.Select(x => 
+                    new LogElement.ItemElement()
+                    {
+                        Position = x.Position,
+                        Value = x.Value?.ToString() ?? string.Empty
+                    });
+            }
+            else
+            {
+                elms = new List<LogElement.ItemElement>();
+                statemsg = State?.ToString() ?? string.Empty;
+            }
+            
             var le = new LogElement()
             {
-                TimeStamp = this.TimeStamp,
-                Level     = this.Level,
-                EventId   = this.Id.Id,
-                Name      = this.Name,
-                Message   = this.State?.ToString() ?? string.Empty,
-                Exception = new LogElement.ExceptionElement(this.Exception),
+                TimeStamp     = this.TimeStamp,
+                Level         = this.Level,
+                EventId       = this.Id.Id,
+                SenderService = this.Name,
+                Message       = statemsg,
+                Elements      = elms,
+                Exception     = new LogElement.ExceptionElement(this.Exception),
             };
             return le;
         }

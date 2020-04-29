@@ -26,9 +26,14 @@ namespace Caesura.Solace.Entities.Core.Contexts
         public bool Search(string field, string term, int limit, out IEnumerable<LogElement> result)
         {
             var elms = new List<LogElement>(limit);
-            if (field == "name")
+            if (field == "sender-service" || field == "sender" || field == "name")
             {
-                var db_elms = LogElements.Where(x => x.Name == term);
+                var db_elms = LogElements.Where(x => x.SenderService == term);
+                elms.AddRange(db_elms);
+            }
+            else if (field == "receiver-service" || field == "receiver")
+            {
+                var db_elms = LogElements.Where(x => x.ReceiverService == term);
                 elms.AddRange(db_elms);
             }
             else if (field == "message")
@@ -37,6 +42,16 @@ namespace Caesura.Solace.Entities.Core.Contexts
                 var db_elms = LogElements.Where(x => 
                     x.Message.ToLower().Contains(newterm));
                 elms.AddRange(db_elms);
+            }
+            else if (field == "element-exact" || field == "element")
+            {
+                // TODO:
+                throw new NotImplementedException();
+            }
+            else if (field == "element-contains")
+            {
+                // TODO:
+                throw new NotImplementedException();
             }
             else if (field == "before")
             {

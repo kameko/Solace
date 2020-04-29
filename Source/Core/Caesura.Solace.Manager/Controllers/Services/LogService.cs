@@ -54,10 +54,11 @@ namespace Caesura.Solace.Manager.Controllers.Services
         {
             var le = new LogElement()
             {
-                TimeStamp = DateTime.UtcNow,
-                Level     = LogLevel.Information,
-                Name      = nameof(LogService),
-                Message   = "Created log database.",
+                TimeStamp       = DateTime.UtcNow,
+                Level           = LogLevel.Information,
+                SenderService   = nameof(LogService),
+                ReceiverService = nameof(LogService),
+                Message         = "Created log database.",
             };
             context.LogElements.Add(le);
         }
