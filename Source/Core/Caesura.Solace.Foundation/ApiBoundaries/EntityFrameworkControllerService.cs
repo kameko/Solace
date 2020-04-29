@@ -165,7 +165,7 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             Func<TSource> source_factory,
             Action<TSource> seed_factory)
         {
-            Log.EnterMethod(nameof(GetBySearch), "with search field {field} and term {term}", field, term!);
+            Log.EnterMethod(nameof(GetBySearch), "with search field {field} and term \"{term}\"", field, term!);
             
             await CreateDatabaseIfNotExist(source, source_factory, seed_factory);
             
@@ -177,12 +177,12 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
                     var success = ist.Search(field, sterm, GetLimit, out var elms);
                     if (success)
                     {
-                        Log.ExitMethod(nameof(GetBySearch), "with search field {field} and term {term}", field, sterm);
+                        Log.ExitMethod(nameof(GetBySearch), "with search field {field} and term \"{term}\"", field, sterm);
                         return ControllerResult.GetBySearch<T>.Ok(elms);
                     }
                     else
                     {
-                        Log.ExitMethod(nameof(GetBySearch), "with search field {field} and term {term}", field, sterm);
+                        Log.ExitMethod(nameof(GetBySearch), "with search field {field} and term \"{term}\"", field, sterm);
                         return ControllerResult.GetBySearch<T>.NotFound();
                     }
                 }
