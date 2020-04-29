@@ -12,8 +12,11 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
     using Logging;
     using Entities.Core.Contexts;
     
+    // TODO: implement all REST calls.
+    
     public abstract class EntityFrameworkControllerService<TService, TKey, T, TTerm, TSource>
         : IControllerSearchableService<TKey, T, TTerm, TSource>
+        where T : IId<TKey>
         where TSource : DbContext
     {
         protected FileInfo SourcePath { get; set; }

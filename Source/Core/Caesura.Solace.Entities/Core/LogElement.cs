@@ -4,6 +4,7 @@ namespace Caesura.Solace.Entities.Core
     using System;
     using Microsoft.Extensions.Logging;
     using Microsoft.EntityFrameworkCore;
+    using Contexts;
     
     // TODO: Add an Elements class/property like in Foundation.Logging.LogItem
     // TODO: way more information here
@@ -11,7 +12,7 @@ namespace Caesura.Solace.Entities.Core
     // - Receiving service name
     // - Current resource usage
     
-    public class LogElement
+    public class LogElement : IId<ulong>
     {
         public ulong Id                   { get; set; }
         
