@@ -1,10 +1,9 @@
 
-namespace Caesura.Solace.Entities.Core
+namespace Caesura.Solace.Entities.Core.Manager
 {
     using System;
     using System.Collections.Generic;
     using Microsoft.Extensions.Logging;
-    using Contexts;
     
     public class LogElement : IHasId<ulong>
     {

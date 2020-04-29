@@ -9,7 +9,7 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
     using Foundation.Logging;
-    using Entities.Core;
+    using Entities;
     
     public abstract class BaseServiceController<TController, T, TService>
         : ControllerBase

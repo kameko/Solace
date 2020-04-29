@@ -1,5 +1,5 @@
 
-namespace Caesura.Solace.Entities.Core.Contexts
+namespace Caesura.Solace.Entities.Core.Manager.Contexts
 {
     using System;
     using System.Collections.Generic;
@@ -51,6 +51,12 @@ namespace Caesura.Solace.Entities.Core.Contexts
             else if (field == "element-contains")
             {
                 // TODO:
+                throw new NotImplementedException();
+            }
+            else if (field == "range")
+            {
+                // TODO: parse {ulong1}-{ulong2} and get all messages with ID
+                // greater than ulong1 but less than ulong2
                 throw new NotImplementedException();
             }
             else if (field == "before")

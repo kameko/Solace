@@ -2,7 +2,7 @@
 namespace Caesura.Solace.Foundation.ApiBoundaries
 {
     using System.Threading.Tasks;
-    using Entities.Core;
+    using Entities;
     
     public interface IControllerSource<TKey, T, TSource> where T : IHasId<TKey>
     {

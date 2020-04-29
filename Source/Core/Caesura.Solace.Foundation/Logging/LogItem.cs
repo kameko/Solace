@@ -5,7 +5,7 @@ namespace Caesura.Solace.Foundation.Logging
     using System.Collections.Generic;
     using System.Linq;
     using Microsoft.Extensions.Logging;
-    using Entities.Core;
+    using Entities.Core.Manager;
     
     public class LogItem
     {

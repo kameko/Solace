@@ -8,8 +8,7 @@ namespace Caesura.Solace.Manager.Controllers
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
     using Foundation.ApiBoundaries;
-    using Entities.Core;
-    using Entities.Core.Contexts;
+    using Entities.Core.Manager;
     using Interfaces;
     
     [ApiController]

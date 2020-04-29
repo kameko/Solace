@@ -9,8 +9,8 @@ namespace Caesura.Solace.Manager.Controllers.Services
     using Microsoft.Extensions.Logging;
     using Foundation.Logging;
     using Foundation.ApiBoundaries;
-    using Entities.Core;
-    using Entities.Core.Contexts;
+    using Entities.Core.Manager;
+    using Entities.Core.Manager.Contexts;
     using Interfaces;
     
     public class LogService 

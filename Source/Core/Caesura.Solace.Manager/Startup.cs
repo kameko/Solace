@@ -6,7 +6,7 @@ namespace Caesura.Solace.Manager
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
-    using Entities.Core.Contexts;
+    using Entities.Core.Manager.Contexts;
     using Controllers.Interfaces;
     using Controllers.Services;
     
