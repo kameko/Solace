@@ -10,6 +10,10 @@ namespace Caesura.Solace.Manager
     using Foundation;
     using Foundation.Logging;
     
+    // TODO: Add a ServiceProcessManagerService, like
+    // LifetimeEventsHostedService. It will be responsible
+    // for starting up and tracking all services.
+    
     public class Program
     {
         public static void Main(string[] args)
