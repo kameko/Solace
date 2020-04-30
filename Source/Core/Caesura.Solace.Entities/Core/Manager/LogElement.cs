@@ -53,7 +53,16 @@ namespace Caesura.Solace.Entities.Core.Manager
             public ulong Id              { get; set; }
             public int RamMbUse          { get; set; }
             public int CpuPercentUse     { get; set; }
-            public int NetworkPercentUse { get; set; }
+            public int NetworkPercentUse { get; set; } // TODO: remove, doesn't seem like we can get this
+            // TODO: GC stuff
+            
+            // TODO: Generate this with:
+            // using System.Diagnostics.Process;
+            // var me = Process.GetCurrentProcess();
+            // me.WorkingSet64 (bytes, convert to MiB)
+            // me.TotalProcessorTime.TotalSeconds
+            // etc.
+            // https://docs.microsoft.com/en-us/dotnet/api/system.diagnostics.process?view=netcore-3.1 
             
             public ResourceSnapshot()
             {
