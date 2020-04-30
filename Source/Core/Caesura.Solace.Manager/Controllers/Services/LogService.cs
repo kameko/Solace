@@ -22,7 +22,7 @@ namespace Caesura.Solace.Manager.Controllers.Services
             : base(ilog, configuration)
         {
             le_context = lec;
-            Reconfigure("Data");
+            Reconfigure("Storage:Log");
             
             Log.InstanceAbreaction();
         }

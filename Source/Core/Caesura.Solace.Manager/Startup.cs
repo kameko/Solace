@@ -25,8 +25,8 @@ namespace Caesura.Solace.Manager
         public void ConfigureServices(IServiceCollection services)
         {
             // TODO: verify these config items are valid.
-            var path   = new FileInfo(Configuration[$"Data:DatabasePath"]);
-            var constr = Configuration[$"Data:ConnectionString"].Replace("{DatabasePath}", path.FullName);
+            var path   = new FileInfo(Configuration[$"Storage:Log:Path"]);
+            var constr = Configuration[$"Storage:Log:ConnectionString"].Replace("{Path}", path.FullName);
             
             services.AddDbContext<LogElementContext>(opt =>
             {
@@ -40,6 +40,8 @@ namespace Caesura.Solace.Manager
                 setupAction.EnableEndpointRouting = false;
             });
             
+            services.AddHttpClient();
+            
             services.AddControllers()
                 // TODO: remove this when possible in favor of System.Text.Json. Maybe in .NET 5
                 .AddNewtonsoftJson(); // what GODDAMN IDIOT working on OData is responsible for this?
@@ -48,7 +50,7 @@ namespace Caesura.Solace.Manager
         
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (!int.TryParse(Configuration[$"Data:GetLimit"], out var get_limit))
+            if (!int.TryParse(Configuration[$"Networking:GetLimit"], out var get_limit))
             {
                 get_limit = 100;
             }
@@ -69,8 +71,12 @@ namespace Caesura.Solace.Manager
                     .Select()
                     .Count()
                     .OrderBy()
-                    .Filter()
-                    .MaxTop(get_limit);
+                    .Filter();
+                
+                if (get_limit > 0)
+                {
+                    routeBuilder.MaxTop(get_limit);
+                }
             });
         }
     }

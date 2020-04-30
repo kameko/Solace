@@ -33,8 +33,8 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
         
         protected void Reconfigure(string service_name)
         {
-            SourcePath = new FileInfo(Configuration[$"{service_name}:DatabasePath"]);
-            if (!int.TryParse(Configuration[$"{service_name}:GetLimit"], out var get_limit))
+            SourcePath = new FileInfo(Configuration[$"{service_name}:Path"]);
+            if (!int.TryParse(Configuration[$"Networking:GetLimit"], out var get_limit))
             {
                 get_limit = 100;
             }
