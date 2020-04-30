@@ -30,8 +30,6 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             Configuration = configuration;
         }
         
-        // TODO: GetOneDefault()
-        
         public virtual async Task<ActionResult<IEnumerable<T>>> GetAllDefault()
         {
             Log.EnterMethod(nameof(GetAllDefault));

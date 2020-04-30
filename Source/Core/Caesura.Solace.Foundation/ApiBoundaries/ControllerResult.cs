@@ -65,8 +65,18 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             
             public override string ToString()
             {
-                // TODO:
-                return $"{Result}";
+                if (HasValue)
+                {
+                    return $"{Result}: {Value}";
+                }
+                else if (Threw)
+                {
+                    return $"{Result}: {Exception}";
+                }
+                else
+                {
+                    return $"{Result}";
+                }
             }
         }
         
