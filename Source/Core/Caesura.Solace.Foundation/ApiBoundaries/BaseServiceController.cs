@@ -14,7 +14,7 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
     public abstract class BaseServiceController<TController, T, TService>
         : ControllerBase
         where T : IHasId<ulong>
-        where TService : IControllerSearchableService<ulong, T, string>
+        where TService : IControllerService<ulong, T>
     {
         private string t_name;
         protected TService Service { get; private set; }
@@ -58,41 +58,6 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             finally
             {
                 Log.ExitMethod(nameof(GetAllDefault));
-            }
-        }
-        
-        public virtual async Task<ActionResult<T>> GetBySearchDefault(string field, string term)
-        {
-            term = term.Replace("\u0022", string.Empty);
-            Log.EnterMethod(nameof(GetBySearchDefault), "with search field {field} and term {term}", field, term);
-            try
-            {
-                var service_result = await Service.GetBySearch(field, term);
-                if (service_result.Success)
-                {
-                    var val = service_result.Value;
-                    Log.Debug(
-                        $"Successful GET search for {t_name} with search term {{field}}/{{term}}. "
-                        + "Returned {num} item(s).", field, term, val.Count());
-                    return Ok(val);
-                }
-                else
-                {
-                    Log.Debug(
-                        $"Unsuccessful GET search for {t_name} with search term "
-                        + "{field}/{term}. Error: {error}", field, term, service_result.Exception
-                    );
-                    return BadRequest($"Invalid term: {service_result.Exception}");
-                }
-            }
-            catch (Exception e)
-            {
-                Log.Error(e, string.Empty);
-                throw;
-            }
-            finally
-            {
-                Log.ExitMethod(nameof(GetBySearchDefault), "with search field {field} and term {term}", field, term);
             }
         }
         

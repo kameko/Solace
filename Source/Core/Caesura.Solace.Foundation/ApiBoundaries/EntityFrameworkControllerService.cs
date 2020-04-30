@@ -3,7 +3,6 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
     using System.IO;
     using Microsoft.Extensions.Configuration;
@@ -13,7 +12,7 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
     using Entities;
     
     public abstract class EntityFrameworkControllerService<TService, TKey, T, TTerm, TSource>
-        : IControllerSearchableService<TKey, T, TTerm>
+        : IControllerService<TKey, T>
         , IControllerSource<TKey, T, TSource>
         where T : IHasId<TKey>
         where TSource : DbContext
@@ -58,12 +57,6 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
         {
             Log.Warning("{Method} unsupported.", nameof(GetById));
             return GetByIdUnsupported();
-        }
-        
-        public virtual Task<ControllerResult.GetBySearch<T>> GetBySearch(string field, TTerm term)
-        {
-            Log.Warning("{Method} unsupported.", nameof(GetBySearch));
-            return GetBySearchUnsupported();
         }
         
         public virtual Task<ControllerResult.Put> Put(TKey id, T value)
@@ -126,6 +119,12 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             
             await CreateDatabaseIfNotExist(source, source_factory, seed_factory);
             
+            var context = source_factory.Invoke();
+            var db_elms = producer.Invoke(context);
+            Log.ExitMethod(nameof(GetAll));
+            return ControllerResult.GetAll<T>.Ok(db_elms);
+            
+            /*
             var elms = new List<T>();
             using (var context = source_factory.Invoke())
             {
@@ -137,6 +136,7 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             
             Log.ExitMethod(nameof(GetAll));
             return ControllerResult.GetAll<T>.Ok(elms);
+            */
         }
         
         protected Task<ControllerResult.GetById<T>> DefaultGetById(TKey id, Func<TSource, T> producer) =>
@@ -169,47 +169,6 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
                     return ok;
                 }
             }
-        }
-        
-        protected Task<ControllerResult.GetBySearch<T>> DefaultGetBySearch(string field, TTerm term) =>
-            DefaultGetBySearch(field, term, SourcePath, ContextFactory, SeedFactory);
-        
-        protected async Task<ControllerResult.GetBySearch<T>> DefaultGetBySearch(
-            string field,
-            TTerm term,
-            FileInfo source,
-            Func<TSource> source_factory,
-            Action<TSource> seed_factory)
-        {
-            Log.EnterMethod(nameof(GetBySearch), "with search field {field} and term \"{term}\"", field, term!);
-            
-            await CreateDatabaseIfNotExist(source, source_factory, seed_factory);
-            
-            using (var context = source_factory.Invoke())
-            {
-                if (context is ISearchable<T> ist)
-                {
-                    var sterm = term!.ToString()!;
-                    var success = ist.Search(field, sterm, GetLimit, out var elms);
-                    if (success)
-                    {
-                        Log.ExitMethod(nameof(GetBySearch), "with search field {field} and term \"{term}\"", field, sterm);
-                        return ControllerResult.GetBySearch<T>.Ok(elms);
-                    }
-                    else
-                    {
-                        Log.ExitMethod(nameof(GetBySearch), "with search field {field} and term \"{term}\"", field, sterm);
-                        return ControllerResult.GetBySearch<T>.NotFound();
-                    }
-                }
-                else
-                {
-                    throw new NotSupportedException(
-                        $"{(typeof(TSource).FullName)} must implement {nameof(ISearchable<T>)} to be automatically searched."
-                    );
-                }
-            }
-
         }
         
         protected Task<ControllerResult.Put> DefaultPut(TKey id, T value, Func<TSource, bool> updater) =>
@@ -378,7 +337,6 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
         protected Task<ControllerResult.GetOne<T>> GetOneUnsupported() => Task.FromResult(ControllerResult.GetOne<T>.Unsupported());
         protected Task<ControllerResult.GetAll<T>> GetAllUnsupported() => Task.FromResult(ControllerResult.GetAll<T>.Unsupported());
         protected Task<ControllerResult.GetById<T>> GetByIdUnsupported() => Task.FromResult(ControllerResult.GetById<T>.Unsupported());
-        protected Task<ControllerResult.GetBySearch<T>> GetBySearchUnsupported() => Task.FromResult(ControllerResult.GetBySearch<T>.Unsupported());
         protected Task<ControllerResult.Put> PutUnsupported() => Task.FromResult(ControllerResult.Put.Unsupported());
         protected Task<ControllerResult.Post<T>> PostUnsupported() => Task.FromResult(ControllerResult.Post<T>.Unsupported());
         protected Task<ControllerResult.DeleteAll> DeleteAllUnsupported() => Task.FromResult(ControllerResult.DeleteAll.Unsupported());

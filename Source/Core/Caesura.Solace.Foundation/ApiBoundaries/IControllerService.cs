@@ -19,11 +19,4 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
         Task<ControllerResult.DeleteAll> DeleteAll();
         Task<ControllerResult.DeleteById> DeleteById(TKey id);
     }
-    
-    public interface IControllerSearchableService<TKey, T, TTerm>
-        : IControllerService<TKey, T>
-        where T : IHasId<TKey>
-    {
-        Task<ControllerResult.GetBySearch<T>> GetBySearch(string field, TTerm term);
-    }
 }

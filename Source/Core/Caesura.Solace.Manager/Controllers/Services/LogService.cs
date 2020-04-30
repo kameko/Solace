@@ -2,7 +2,6 @@
 namespace Caesura.Solace.Manager.Controllers.Services
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Configuration;
@@ -17,8 +16,12 @@ namespace Caesura.Solace.Manager.Controllers.Services
         : EntityFrameworkControllerService<LogService, ulong, LogElement, string, LogElementContext>
         , ILogService
     {
-        public LogService(ILogger<LogService> ilog, IConfiguration configuration) : base(ilog, configuration)
+        private LogElementContext le_context;
+        
+        public LogService(ILogger<LogService> ilog, IConfiguration configuration, LogElementContext lec)
+            : base(ilog, configuration)
         {
+            le_context = lec;
             Reconfigure(nameof(LogService));
             
             Log.InstanceAbreaction();
@@ -36,11 +39,6 @@ namespace Caesura.Solace.Manager.Controllers.Services
             return await DefaultGetById(id, context => context.LogElements.Find(id));
         }
         
-        public override async Task<ControllerResult.GetBySearch<LogElement>> GetBySearch(string field, string term)
-        {
-            return await DefaultGetBySearch(field, term);
-        }
-        
         public override async Task<ControllerResult.Post<LogElement>> Post(LogElement value)
         {
             return await DefaultPost(context => context.LogElements.Find(value.Id), context => context.Add(value));
@@ -48,7 +46,7 @@ namespace Caesura.Solace.Manager.Controllers.Services
         
         // ---
         
-        protected override LogElementContext ContextFactory() => new LogElementContext();
+        protected override LogElementContext ContextFactory() => le_context;
         
         protected override void SeedFactory(LogElementContext context)
         {

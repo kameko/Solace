@@ -5,6 +5,7 @@ namespace Caesura.Solace.Manager.Controllers
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Mvc;
+    using Microsoft.AspNet.OData;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
     using Foundation.ApiBoundaries;
@@ -23,10 +24,8 @@ namespace Caesura.Solace.Manager.Controllers
         }
         
         [HttpGet]
+        [EnableQuery]
         public Task<ActionResult<IEnumerable<LogElement>>> Get() => GetAllDefault();
-        
-        [HttpGet("search/{field}/{term}")]
-        public Task<ActionResult<LogElement>> Get(string field, string term) => GetBySearchDefault(field, term);
         
         [HttpGet("{id}")]
         public Task<ActionResult<LogElement>> Get(ulong id) => GetByIdDefault(id);

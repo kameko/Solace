@@ -2,8 +2,10 @@
 namespace Caesura.Solace.Manager
 {
     using System;
+    using System.IO;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
+    using Microsoft.AspNet.OData.Extensions;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.EntityFrameworkCore;
@@ -22,8 +24,8 @@ namespace Caesura.Solace.Manager
         
         public void ConfigureServices(IServiceCollection services)
         {
-            var path   = Configuration[$"Manager:DatabasePath"];
-            var constr = Configuration[$"Manager:ConnectionString"].Replace("{DatabasePath}", path);
+            var path   = new FileInfo(Configuration[$"LogService:DatabasePath"]);
+            var constr = Configuration[$"LogService:ConnectionString"].Replace("{DatabasePath}", path.FullName);
             
             services.AddDbContext<LogElementContext>(opt =>
             {
@@ -32,18 +34,38 @@ namespace Caesura.Solace.Manager
             
             services.AddScoped<ILogService, LogService>();
             
-            services.AddControllers();
-            // TODO: services.AddOData();
+            
+            services.AddMvc(setupAction =>
+            {
+                setupAction.EnableEndpointRouting = false;
+            });
+            
+            services.AddControllers()
+                // TODO: remove this when possible.
+                .AddNewtonsoftJson(); // what GODDAMN IDIOT working on OData is responsible for this?
+            services.AddOData();
         }
         
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseDeveloperExceptionPage();
             app.UseRouting();
-            app.UseAuthorization();
+            
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+            });
+            
+            app.UseMvc(routeBuilder =>
+            {
+                routeBuilder.EnableDependencyInjection();
+                routeBuilder // OData functionality list
+                    .Expand()
+                    .Select()
+                    .Count()
+                    .OrderBy()
+                    .Filter()
+                    .MaxTop(100);
             });
         }
     }
