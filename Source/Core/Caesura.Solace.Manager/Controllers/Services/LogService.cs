@@ -48,7 +48,7 @@ namespace Caesura.Solace.Manager.Controllers.Services
         
         // ---
         
-        protected override LogElementContext ContextFactory() => new LogElementContext(SourceConnectionString);
+        protected override LogElementContext ContextFactory() => new LogElementContext();
         
         protected override void SeedFactory(LogElementContext context)
         {

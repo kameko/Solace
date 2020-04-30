@@ -8,13 +8,12 @@ namespace Caesura.Solace.Entities.Core.Manager.Contexts
     
     public class LogElementContext : DbContext, ISearchable<LogElement>
     {
-        public string connection_string { get; private set; }
         public DbSet<LogElement> LogElements { get; set; }
         
         #nullable disable
-        public LogElementContext(string path) : base()
+        public LogElementContext() : base()
         {
-            connection_string = path;
+            
         }
         
         public LogElementContext(DbContextOptions<LogElementContext> options) : base(options)
@@ -111,7 +110,7 @@ namespace Caesura.Solace.Entities.Core.Manager.Contexts
         
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            options.UseSqlite(connection_string);
+            
         }
         
         protected override void OnModelCreating(ModelBuilder modelBuilder)

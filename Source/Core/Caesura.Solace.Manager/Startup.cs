@@ -6,6 +6,7 @@ namespace Caesura.Solace.Manager
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.EntityFrameworkCore;
     using Entities.Core.Manager.Contexts;
     using Controllers.Interfaces;
     using Controllers.Services;
@@ -21,14 +22,18 @@ namespace Caesura.Solace.Manager
         
         public void ConfigureServices(IServiceCollection services)
         {
+            var path   = Configuration[$"Manager:DatabasePath"];
+            var constr = Configuration[$"Manager:ConnectionString"].Replace("{DatabasePath}", path);
+            
             services.AddDbContext<LogElementContext>(opt =>
             {
-                
+                opt.UseSqlite(constr);
             });
             
             services.AddScoped<ILogService, LogService>();
             
             services.AddControllers();
+            // TODO: services.AddOData();
         }
         
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

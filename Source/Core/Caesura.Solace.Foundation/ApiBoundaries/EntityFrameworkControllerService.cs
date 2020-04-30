@@ -19,7 +19,6 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
         where TSource : DbContext
     {
         protected FileInfo SourcePath { get; set; }
-        protected string SourceConnectionString { get; set; }
         protected ILogger Log { get; private set; }
         protected IConfiguration Configuration { get; private set; }
         
@@ -28,7 +27,6 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
         public EntityFrameworkControllerService(ILogger<TService> logger, IConfiguration config)
         {
             SourcePath             = null!;
-            SourceConnectionString = null!;
             
             Log           = logger;
             Configuration = config;
@@ -36,8 +34,7 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
         
         protected void Reconfigure(string service_name)
         {
-            SourcePath             = new FileInfo(Configuration[$"{service_name}:DatabasePath"]);
-            SourceConnectionString = Configuration[$"{service_name}:ConnectionString"].Replace("{DatabasePath}", SourcePath.FullName);
+            SourcePath = new FileInfo(Configuration[$"{service_name}:DatabasePath"]);
             if (!int.TryParse(Configuration[$"{service_name}:GetLimit"], out var get_limit))
             {
                 get_limit = 100;
