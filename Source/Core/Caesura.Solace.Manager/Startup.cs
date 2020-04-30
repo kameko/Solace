@@ -24,6 +24,7 @@ namespace Caesura.Solace.Manager
         
         public void ConfigureServices(IServiceCollection services)
         {
+            // TODO: verify these config items are valid.
             var path   = new FileInfo(Configuration[$"Data:DatabasePath"]);
             var constr = Configuration[$"Data:ConnectionString"].Replace("{DatabasePath}", path.FullName);
             

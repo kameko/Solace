@@ -123,20 +123,6 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             var db_elms = producer.Invoke(context);
             Log.ExitMethod(nameof(GetAll));
             return ControllerResult.GetAll<T>.Ok(db_elms);
-            
-            /*
-            var elms = new List<T>();
-            using (var context = source_factory.Invoke())
-            {
-                var db_elms = producer.Invoke(context);
-                // required or the context will throw when we try to pass
-                // db_elms to the caller.
-                elms.AddRange(db_elms);
-            }
-            
-            Log.ExitMethod(nameof(GetAll));
-            return ControllerResult.GetAll<T>.Ok(elms);
-            */
         }
         
         protected Task<ControllerResult.GetById<T>> DefaultGetById(TKey id, Func<TSource, T> producer) =>
@@ -153,21 +139,19 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             
             await CreateDatabaseIfNotExist(source, source_factory, seed_factory);
             
-            using (var context = source_factory.Invoke())
+            var context = source_factory.Invoke();
+            var elm = producer.Invoke(context);
+            if (elm is null)
             {
-                var elm = producer.Invoke(context);
-                if (elm is null)
-                {
-                    var bad = ControllerResult.GetById<T>.NotFound();
-                    Log.ExitMethod(nameof(GetById));
-                    return bad;
-                }
-                else
-                {
-                    var ok = ControllerResult.GetById<T>.Ok(elm);
-                    Log.ExitMethod(nameof(GetById));
-                    return ok;
-                }
+                var bad = ControllerResult.GetById<T>.NotFound();
+                Log.ExitMethod(nameof(GetById));
+                return bad;
+            }
+            else
+            {
+                var ok = ControllerResult.GetById<T>.Ok(elm);
+                Log.ExitMethod(nameof(GetById));
+                return ok;
             }
         }
         
@@ -186,20 +170,18 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             
             await CreateDatabaseIfNotExist(source, source_factory, seed_factory);
             
-            using (var context = source_factory.Invoke())
+            var context = source_factory.Invoke();
+            var success = updater.Invoke(context);
+            if (success)
             {
-                var success = updater.Invoke(context);
-                if (success)
-                {
-                    await context.SaveChangesAsync();
-                    Log.ExitMethod(nameof(Put));
-                    return ControllerResult.Put.NoContent();
-                }
-                else
-                {
-                    Log.ExitMethod(nameof(Put));
-                    return ControllerResult.Put.BadRequest();
-                }
+                await context.SaveChangesAsync();
+                Log.ExitMethod(nameof(Put));
+                return ControllerResult.Put.NoContent();
+            }
+            else
+            {
+                Log.ExitMethod(nameof(Put));
+                return ControllerResult.Put.BadRequest();
             }
         }
         
@@ -217,30 +199,28 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             
             await CreateDatabaseIfNotExist(source, source_factory, seed_factory);
             
-            using (var context = source_factory.Invoke())
+            var context = source_factory.Invoke();
+            var elm = producer.Invoke(context);
+            if (elm is null)
             {
-                var elm = producer.Invoke(context);
+                joiner.Invoke(context);
+                await context.SaveChangesAsync();
+                elm = producer.Invoke(context);
                 if (elm is null)
                 {
-                    joiner.Invoke(context);
-                    await context.SaveChangesAsync();
-                    elm = producer.Invoke(context);
-                    if (elm is null)
-                    {
-                        Log.ExitMethod(nameof(Post));
-                        return ControllerResult.Post<T>.BadRequest("Item was added but not found.");
-                    }
-                    else
-                    {
-                        Log.ExitMethod(nameof(Post));
-                        return ControllerResult.Post<T>.Ok(elm);
-                    }
+                    Log.ExitMethod(nameof(Post));
+                    return ControllerResult.Post<T>.BadRequest("Item was added but not found.");
                 }
                 else
                 {
                     Log.ExitMethod(nameof(Post));
-                    return ControllerResult.Post<T>.BadRequest("Item already exists.");
+                    return ControllerResult.Post<T>.Ok(elm);
                 }
+            }
+            else
+            {
+                Log.ExitMethod(nameof(Post));
+                return ControllerResult.Post<T>.BadRequest("Item already exists.");
             }
         }
         
@@ -257,13 +237,11 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             
             await CreateDatabaseIfNotExist(source, source_factory, seed_factory);
             
-            using (var context = source_factory.Invoke())
-            {
-                var result = remover.Invoke(context);
-                await context.SaveChangesAsync();
-                Log.ExitMethod(nameof(DeleteAll));
-                return result;
-            }
+            var context = source_factory.Invoke();
+            var result = remover.Invoke(context);
+            await context.SaveChangesAsync();
+            Log.ExitMethod(nameof(DeleteAll));
+            return result;
         }
         
         protected Task<ControllerResult.DeleteById> DefaultDeleteById(TKey id, Func<TSource, ControllerResult.DeleteById> remover) =>
@@ -280,13 +258,11 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             
             await CreateDatabaseIfNotExist(source, source_factory, seed_factory);
             
-            using (var context = source_factory.Invoke())
-            {
-                var result = remover.Invoke(context);
-                await context.SaveChangesAsync();
-                Log.ExitMethod(nameof(DeleteById));
-                return result;
-            }
+            var context = source_factory.Invoke();
+            var result = remover.Invoke(context);
+            await context.SaveChangesAsync();
+            Log.ExitMethod(nameof(DeleteById));
+            return result;
         }
         
         // --- Utilities --- //
@@ -320,13 +296,11 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
                     Directory.CreateDirectory(dir);
                 }
                 
-                using (var context = source_factory.Invoke())
-                {
-                    await context.Database.EnsureDeletedAsync();
-                    await context.Database.EnsureCreatedAsync();
-                    seed_factory.Invoke(context);
-                    await context.SaveChangesAsync();
-                }
+                var context = source_factory.Invoke();
+                await context.Database.EnsureDeletedAsync();
+                await context.Database.EnsureCreatedAsync();
+                seed_factory.Invoke(context);
+                await context.SaveChangesAsync();
                 
                 Log.Information($"Created system log database at {source.FullName}.");
                 
