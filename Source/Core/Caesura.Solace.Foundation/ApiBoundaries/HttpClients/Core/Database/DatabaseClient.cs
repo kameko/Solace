@@ -4,6 +4,7 @@ namespace Caesura.Solace.Foundation.ApiBoundaries.HttpClients.Core.Database
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using System.Net.Http;
     using Microsoft.Extensions.Logging;
@@ -24,6 +25,7 @@ namespace Caesura.Solace.Foundation.ApiBoundaries.HttpClients.Core.Database
             Client.BaseAddress = new Uri(Configuration["HttpClients:Core.Database:Connection"]);
         }
         
-        // TODO: get pid, maybe make a "get pid" class to put in a field here or something.
+        public Task<int> RequestPid() => RequestPid((new CancellationTokenSource(5_000).Token));
+        public Task<int> RequestPid(CancellationToken token) => ProcGetControllerBase.RequestPid(Client, token);
     }
 }
