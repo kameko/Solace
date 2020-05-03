@@ -11,9 +11,9 @@ namespace Caesura.Solace.Manager.Controllers
     
     [ApiController]
     [Route("system/[controller]")]
-    public class PidController : PidGetControllerBase<PidController>
+    public class ProcController : ProcGetControllerBase<ProcController>
     {
-        public PidController(ILogger<PidController> logger) : base(logger)
+        public ProcController(ILogger<ProcController> logger) : base(logger)
         {
             
         }

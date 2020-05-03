@@ -10,16 +10,16 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
     using Microsoft.Extensions.Logging;
     using Logging;
     
-    public abstract class PidGetControllerBase<T>
+    public abstract class ProcGetControllerBase<T>
     {
         protected ILogger Log { get; }
         
-        public PidGetControllerBase(ILogger<T> logger)
+        public ProcGetControllerBase(ILogger<T> logger)
         {
             Log = logger;
         }
         
-        [HttpGet]
+        [HttpGet("pid")]
         public int GetPid()
         {
             var pid = Process.GetCurrentProcess().Id;
