@@ -10,22 +10,12 @@ namespace Caesura.Solace.Foundation.ApiBoundaries.HttpClients.Core.Database
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Configuration;
     
-    public class DatabaseClient
+    public class DatabaseClient : BaseClient<DatabaseClient>
     {
-        private readonly ILogger Log;
-        private readonly IConfiguration Configuration;
-        public HttpClient Client { get; }
-        
         public DatabaseClient(ILogger<DatabaseClient> logger, IConfiguration configuration, HttpClient client)
+            : base("Core.Database", logger, configuration, client)
         {
-            Log           = logger;
-            Configuration = configuration;
-            Client        = client;
             
-            Client.BaseAddress = new Uri(Configuration["HttpClients:Core.Database:Connection"]);
         }
-        
-        public Task<int> RequestPid() => RequestPid((new CancellationTokenSource(5_000).Token));
-        public Task<int> RequestPid(CancellationToken token) => ProcGetControllerBase.RequestPid(Client, token);
     }
 }

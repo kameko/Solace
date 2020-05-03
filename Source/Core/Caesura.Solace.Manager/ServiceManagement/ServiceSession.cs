@@ -7,7 +7,8 @@ namespace Caesura.Solace.Manager.ServiceManagement
     using System.Linq;
     using System.Threading.Tasks;
     using System.Diagnostics;
-    using ConfigurationModels;
+    using Foundation.ConfigurationModels;
+    using Foundation.ApiBoundaries.HttpClients;
     
     public class ServiceSession
     {
@@ -15,35 +16,40 @@ namespace Caesura.Solace.Manager.ServiceManagement
         public FileInfo ExecutablePath { get; private set; }
         public Uri ConnectionPath { get; private set; }
         public bool Local { get; set; }
+        public bool Autostart { get; set; }
+        
+        public BaseClient Client { get; set; }
         public Process? Handle { get; set; }
         
-        public ServiceSession(string name, ServicesModel.Service model)
-            : this(name, model.ExecPath, model.Connection, model.Local)
+        public ServiceSession(string name, BaseClient client, ServicesModel.Service model)
+            : this(name, client, model.ExecPath, model.Connection, model.Local, model.Autostart)
         {
             
         }
         
-        public ServiceSession(string name, string exec_path, string connection_path, bool local)
-            : this(name, new FileInfo(exec_path), new Uri(connection_path, UriKind.Absolute), local)
+        public ServiceSession(string name, BaseClient client, string exec_path, string connection_path, bool local, bool autostart)
+            : this(name, client, new FileInfo(exec_path), new Uri(connection_path, UriKind.Absolute), local, autostart)
         {
             
         }
         
-        public ServiceSession(string name, FileInfo exec_info, Uri connection_uri, bool local)
+        public ServiceSession(string name, BaseClient client, FileInfo exec_info, Uri connection_uri, bool local, bool autostart)
         {
             Name           = name;
+            Client         = client;
             ExecutablePath = exec_info;
             ConnectionPath = connection_uri;
             Local          = local;
+            Autostart      = autostart;
         }
         
-        public static ValidationResult TryCreate(string name, ServicesModel.Service model, out ServiceSession? session)
+        public static ValidationResult TryCreate(string name, BaseClient client, ServicesModel.Service model, out ServiceSession? session)
         {
             var uri_success = Uri.TryCreate(model.Connection, UriKind.Absolute, out var uri);
             if (uri_success)
             {
                 var exec_fi = new FileInfo(model.ExecPath);
-                session = new ServiceSession(name, exec_fi, uri!, model.Local);
+                session = new ServiceSession(name, client, exec_fi, uri!, model.Local, model.Autostart);
                 var exec_verification = File.Exists(exec_fi.FullName);
                 if (exec_verification)
                 {

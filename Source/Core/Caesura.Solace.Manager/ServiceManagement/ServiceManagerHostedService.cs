@@ -10,7 +10,7 @@ namespace Caesura.Solace.Manager.ServiceManagement
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
     using Foundation.Logging;
-    using ConfigurationModels;
+    using Foundation.ConfigurationModels;
     
     public class ServiceManagerHostedService : IHostedService
     {
@@ -34,7 +34,13 @@ namespace Caesura.Solace.Manager.ServiceManagement
         {
             foreach (var (name, model) in ConfiguredServicesModel.Items)
             {
-                var session_result = ServiceSession.TryCreate(name, model, out var session);
+                var client_result = Services.TryGet(name, out var client);
+                if (!client_result)
+                {
+                    Log.Error("Client {name} not found in ServiceCollection.", name);
+                    continue;
+                }
+                var session_result = ServiceSession.TryCreate(name, client!, model, out var session);
                 if (ServiceSession.IsValid(session_result) && !(session is null))
                 {
                     Sessions.Add(session);
@@ -76,11 +82,11 @@ namespace Caesura.Solace.Manager.ServiceManagement
                         
                         if (session.Local)
                         {
-                            HandleLocalSession(session);
+                            await HandleLocalSession(session);
                         }
                         else
                         {
-                            HandleRemoteSession(session);
+                            await HandleRemoteSession(session);
                         }
                     }
                 }
@@ -91,35 +97,41 @@ namespace Caesura.Solace.Manager.ServiceManagement
             }
         }
         
-        private void HandleLocalSession(ServiceSession session)
+        private async Task HandleLocalSession(ServiceSession session)
         {
-            var pid = TryContactSession(session);
+            var pid = await TryContactSession(session);
             if (pid <= 0)
             {
-                HandleNonstartedLocalSession(session);
+                await HandleNonstartedLocalSession(session);
             }
             else
             {
-                HandleRunningLocalSession(pid, session);
+                await HandleRunningLocalSession(pid, session);
             }
         }
         
-        private void HandleNonstartedLocalSession(ServiceSession session)
+        private Task HandleNonstartedLocalSession(ServiceSession session)
+        {
+            if (!session.Autostart)
+            {
+                Log.Debug("Service {name} is not set to autostart. Ignoring.", session.Name);
+                return Task.CompletedTask;
+            }
+            
+            throw new NotImplementedException();
+        }
+        
+        private Task HandleRunningLocalSession(int pid, ServiceSession session)
         {
             throw new NotImplementedException();
         }
         
-        private void HandleRunningLocalSession(int pid, ServiceSession session)
-        {
-            throw new NotImplementedException();
-        }
-        
-        private void HandleRemoteSession(ServiceSession session)
+        private async Task HandleRemoteSession(ServiceSession session)
         {
             // TODO: we'll have to add some kind of remote watchdog system
             // that runs on the other server to check for messages sent 
             // from here to start and stop remote services.
-            var pid = TryContactSession(session);
+            var pid = await TryContactSession(session);
             if (pid <= 0)
             {
                 throw new NotImplementedException();
@@ -132,11 +144,9 @@ namespace Caesura.Solace.Manager.ServiceManagement
         
         // ...
         
-        private int TryContactSession(ServiceSession session)
+        private Task<int> TryContactSession(ServiceSession session)
         {
-            // TODO: Send a GET request to the (future) PidController,
-            // if no response, return -1;
-            throw new NotImplementedException();
+            return session.Client.RequestPid();
         }
     }
 }

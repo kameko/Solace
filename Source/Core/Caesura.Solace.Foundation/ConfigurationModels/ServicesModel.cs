@@ -1,5 +1,5 @@
 
-namespace Caesura.Solace.Manager.ConfigurationModels
+namespace Caesura.Solace.Foundation.ConfigurationModels
 {
     using System;
     using System.Collections.Generic;
@@ -19,12 +19,17 @@ namespace Caesura.Solace.Manager.ConfigurationModels
         {
             public string ExecPath { get; set; }
             public string Connection { get; set; }
+            public int TimeoutMs { get; set; }
             public bool Local { get; set; }
+            public bool Autostart { get; set; }
             
             public Service()
             {
                 ExecPath   = string.Empty;
                 Connection = string.Empty;
+                TimeoutMs  = 3_000;
+                Local      = true;
+                Autostart  = false;
             }
         }
     }
