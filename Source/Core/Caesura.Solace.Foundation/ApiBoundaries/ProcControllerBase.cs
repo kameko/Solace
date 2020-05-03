@@ -5,6 +5,7 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
+    using System.IO;
     using System.Threading;
     using System.Threading.Tasks;
     using System.Net.Http;
@@ -14,7 +15,7 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
     using Microsoft.Extensions.Configuration;
     using Logging;
     
-    public abstract class ProcControllerBase
+    public abstract class ProcControllerBase : ControllerBase
     {
         protected ILogger Log { get; }
         protected IConfiguration Configuration { get; }
@@ -51,10 +52,46 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
         [HttpPost("shutdown")]
         public virtual string PostShutdown()
         {
-            // TODO: figure out how to get the body.
+            var reason = string.Empty;
+            StreamReader? reader = null;
+            try
+            {
+                reader = new StreamReader(Request.Body);
+                reason = reader.ReadToEnd();
+            }
+            catch (Exception e)
+            {
+                Log.Warning(e, "Attempted to read shutdown request, but failed.");
+            }
+            finally
+            {
+                reader?.Dispose();
+            }
+            
             if (AllowShutdown)
             {
-                Log.Information("Shutdown request encountered. Service will shut down in {delay} milliseconds.", ShutdownDelay);
+                Log.Information(
+                    "Shutdown request encountered. Service will shut down in {delay} milliseconds."
+                  + (string.IsNullOrEmpty(reason) ? string.Empty : $" Reason: {reason}"), 
+                    ShutdownDelay
+                );
+                if (string.IsNullOrEmpty(reason))
+                {
+                    Log.Information(
+                        "Shutdown request encountered. Service will shut down in {delay} milliseconds. "
+                      + "No reason given.",
+                        ShutdownDelay
+                    );
+                }
+                else
+                {
+                    Log.Information(
+                        "Shutdown request encountered. Service will shut down in {delay} milliseconds."
+                      + "Reason: {reason}",
+                        ShutdownDelay,
+                        reason
+                    );
+                }
                 
                 Task.Run(async () =>
                 {
