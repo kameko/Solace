@@ -6,21 +6,23 @@ namespace Caesura.Solace.Manager.ServiceManagement
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using System.Diagnostics;
+    using System.ComponentModel;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
     using Foundation.Logging;
     using Foundation.ConfigurationModels;
     
-    public class ServiceManagerHostedService : IHostedService
+    public class ServiceManagerHostedService : IHostedService, IDisposable
     {
         private readonly ILogger Log;
         private readonly IConfiguration Configuration;
         private readonly ServicesModel ConfiguredServicesModel;
-        private readonly ServiceCollection Services;
+        private readonly ISolaceServiceCollection Services;
         private readonly List<ServiceSession> Sessions;
         
-        public ServiceManagerHostedService(ILogger<ServiceManagerHostedService> log, IConfiguration config, ServiceCollection services)
+        public ServiceManagerHostedService(ILogger<ServiceManagerHostedService> log, IConfiguration config, ISolaceServiceCollection services)
         {
             Log = log;
             Configuration = config;
@@ -80,6 +82,13 @@ namespace Caesura.Solace.Manager.ServiceManagement
                             break;
                         }
                         
+                        if (!(session.Handle is null))
+                        {
+                            // TODO: check if process exited
+                            // otherwise, continue
+                            continue;
+                        }
+                        
                         if (session.Local)
                         {
                             await HandleLocalSession(session);
@@ -114,16 +123,80 @@ namespace Caesura.Solace.Manager.ServiceManagement
         {
             if (!session.Autostart)
             {
-                Log.Debug("Service {name} is not set to autostart. Ignoring.", session.Name);
+                Log.Information("Service {name} is not set to autostart. Ignoring.", session.Name);
                 return Task.CompletedTask;
             }
             
-            throw new NotImplementedException();
+            Process? proc = null;
+            try
+            {
+                Log.Information("Start service {name}", session.Name);
+                proc = new Process();
+                proc.StartInfo.UseShellExecute = false;
+                proc.StartInfo.FileName        = session.ExecutablePath.FullName;
+                proc.StartInfo.CreateNoWindow  = !session.CreateWindow;
+                // TODO: consider redirecting this to this process.
+                // proc.StartInfo.RedirectStandardOutput
+                proc.Start();
+                session.Handle = proc;
+                Log.Information("Started service {name}", session.Name);
+            }
+            catch (Win32Exception w32e)
+            {
+                OnAnyException(w32e);
+            }
+            catch (ObjectDisposedException ode)
+            {
+                OnAnyException(ode);
+            }
+            catch (Exception e)
+            {
+                OnAnyException(e);
+                throw;
+            }
+            
+            return Task.CompletedTask;
+            
+            void OnAnyException(Exception e)
+            {
+                Log.Error(e, "Error in non-running service {name}. Cleaning up resources.", session.Name);
+                session.Handle = null;
+                proc?.Dispose();
+            }
         }
         
         private Task HandleRunningLocalSession(int pid, ServiceSession session)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var proc = Process.GetProcessById(pid);
+                if (proc.HasExited)
+                {
+                    throw new InvalidOperationException("Process has excited.");
+                }
+                session.Handle = proc;
+            }
+            catch (Win32Exception w32e)
+            {
+                OnAnyException(w32e);
+            }
+            catch (InvalidOperationException ioe)
+            {
+                OnAnyException(ioe);
+            }
+            catch (Exception e)
+            {
+                OnAnyException(e);
+                throw;
+            }
+            
+            return Task.CompletedTask;
+            
+            void OnAnyException(Exception e)
+            {
+                Log.Error(e, "Error in running service {name}. Cleaning up resources.", session.Name);
+                session.Handle = null;
+            }
         }
         
         private async Task HandleRemoteSession(ServiceSession session)
@@ -147,6 +220,15 @@ namespace Caesura.Solace.Manager.ServiceManagement
         private Task<int> TryContactSession(ServiceSession session)
         {
             return session.Client.RequestPid();
+        }
+        
+        public void Dispose()
+        {
+            Log.Trace("Disposing.");
+            foreach (var session in Sessions)
+            {
+                session.Dispose();
+            }
         }
     }
 }

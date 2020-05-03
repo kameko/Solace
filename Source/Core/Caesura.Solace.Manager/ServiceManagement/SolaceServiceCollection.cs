@@ -11,11 +11,17 @@ namespace Caesura.Solace.Manager.ServiceManagement
     // then add it to this class as a property and to the constructor
     // for the dependency injector.
     
-    public class ServiceCollection
+    public interface ISolaceServiceCollection
+    {
+        DatabaseClient Database { get; }
+        bool TryGet(string name, out BaseClient? client);
+    }
+    
+    public class SolaceServiceCollection : ISolaceServiceCollection
     {
         public DatabaseClient Database { get; private set; }
         
-        public ServiceCollection(
+        public SolaceServiceCollection(
             DatabaseClient database
         )
         {

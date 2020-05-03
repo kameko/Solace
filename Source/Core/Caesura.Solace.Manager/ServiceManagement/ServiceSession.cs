@@ -10,30 +10,63 @@ namespace Caesura.Solace.Manager.ServiceManagement
     using Foundation.ConfigurationModels;
     using Foundation.ApiBoundaries.HttpClients;
     
-    public class ServiceSession
+    public class ServiceSession : IDisposable
     {
         public string Name { get; private set; }
         public FileInfo ExecutablePath { get; private set; }
         public Uri ConnectionPath { get; private set; }
         public bool Local { get; set; }
         public bool Autostart { get; set; }
+        public bool CreateWindow { get; set; }
         
         public BaseClient Client { get; set; }
         public Process? Handle { get; set; }
         
         public ServiceSession(string name, BaseClient client, ServicesModel.Service model)
-            : this(name, client, model.ExecPath, model.Connection, model.Local, model.Autostart)
+            : this(
+                name,
+                client,
+                model.ExecPath,
+                model.Connection,
+                model.Local,
+                model.Autostart,
+                model.CreateWindow
+            )
         {
             
         }
         
-        public ServiceSession(string name, BaseClient client, string exec_path, string connection_path, bool local, bool autostart)
-            : this(name, client, new FileInfo(exec_path), new Uri(connection_path, UriKind.Absolute), local, autostart)
+        public ServiceSession(
+            string name,
+            BaseClient client,
+            string exec_path,
+            string connection_path,
+            bool local,
+            bool autostart,
+            bool create_window
+        )
+            : this(
+                name,
+                client,
+                new FileInfo(exec_path),
+                new Uri(connection_path, UriKind.Absolute),
+                local,
+                autostart,
+                create_window
+            )
         {
             
         }
         
-        public ServiceSession(string name, BaseClient client, FileInfo exec_info, Uri connection_uri, bool local, bool autostart)
+        public ServiceSession(
+            string name,
+            BaseClient client,
+            FileInfo exec_info,
+            Uri connection_uri,
+            bool local,
+            bool autostart,
+            bool create_window
+        )
         {
             Name           = name;
             Client         = client;
@@ -41,6 +74,7 @@ namespace Caesura.Solace.Manager.ServiceManagement
             ConnectionPath = connection_uri;
             Local          = local;
             Autostart      = autostart;
+            CreateWindow   = create_window;
         }
         
         public static ValidationResult TryCreate(string name, BaseClient client, ServicesModel.Service model, out ServiceSession? session)
@@ -49,7 +83,15 @@ namespace Caesura.Solace.Manager.ServiceManagement
             if (uri_success)
             {
                 var exec_fi = new FileInfo(model.ExecPath);
-                session = new ServiceSession(name, client, exec_fi, uri!, model.Local, model.Autostart);
+                session = new ServiceSession(
+                    name,
+                    client,
+                    exec_fi,
+                    uri!,
+                    model.Local,
+                    model.Autostart,
+                    model.CreateWindow
+                );
                 var exec_verification = File.Exists(exec_fi.FullName);
                 if (exec_verification)
                 {
@@ -70,6 +112,11 @@ namespace Caesura.Solace.Manager.ServiceManagement
         public static bool IsValid(ValidationResult result)
         {
             return result == ValidationResult.Success;
+        }
+        
+        public void Dispose()
+        {
+            Handle?.Dispose();
         }
         
         public enum ValidationResult

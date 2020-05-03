@@ -11,6 +11,7 @@ namespace Caesura.Solace.Manager
     using Microsoft.EntityFrameworkCore;
     using Entities.Core.Manager.Contexts;
     using Foundation;
+    using Foundation.ApiBoundaries.HttpClients.Core.Database;
     using Controllers.Interfaces;
     using Controllers.Services;
     using ServiceManagement;
@@ -36,6 +37,10 @@ namespace Caesura.Solace.Manager
             });
             
             services.AddScoped<ILogService, LogService>();
+            
+            services.AddSingleton<ISolaceServiceCollection, SolaceServiceCollection>();
+            
+            services.AddHttpClient<DatabaseClient>();
             
             services.AddHostedService<LifetimeEventsHostedService>();
             services.AddHostedService<ServiceManagerHostedService>();

@@ -22,14 +22,16 @@ namespace Caesura.Solace.Foundation.ConfigurationModels
             public int TimeoutMs { get; set; }
             public bool Local { get; set; }
             public bool Autostart { get; set; }
+            public bool CreateWindow { get; set; }
             
             public Service()
             {
-                ExecPath   = string.Empty;
-                Connection = string.Empty;
-                TimeoutMs  = 3_000;
-                Local      = true;
-                Autostart  = false;
+                ExecPath     = string.Empty;
+                Connection   = string.Empty;
+                TimeoutMs    = 3_000;
+                Local        = true;
+                Autostart    = false;
+                CreateWindow = true;
             }
         }
     }
