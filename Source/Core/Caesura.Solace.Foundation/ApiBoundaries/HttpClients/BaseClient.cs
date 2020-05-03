@@ -45,7 +45,7 @@ namespace Caesura.Solace.Foundation.ApiBoundaries.HttpClients
         }
         
         public virtual Task<int> RequestPid() => RequestPid((new CancellationTokenSource(5_000).Token));
-        public virtual Task<int> RequestPid(CancellationToken token) => ProcGetControllerBase.RequestPid(Client, token);
+        public virtual Task<int> RequestPid(CancellationToken token) => ProcControllerBase.RequestPid(Client, token);
     }
     
     public abstract class BaseClient<T> : BaseClient

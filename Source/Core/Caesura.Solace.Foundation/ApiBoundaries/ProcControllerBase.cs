@@ -12,11 +12,11 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
     using Microsoft.Extensions.Logging;
     using Logging;
     
-    public abstract class ProcGetControllerBase
+    public abstract class ProcControllerBase
     {
         protected ILogger Log { get; }
         
-        internal ProcGetControllerBase(ILogger logger)
+        internal ProcControllerBase(ILogger logger)
         {
             Log = logger;
         }
@@ -28,6 +28,8 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             Log.Information("GET request for current Process ID. Returning {pid}.", pid);
             return pid;
         }
+        
+        // TODO: POST a request to end the process here.
         
         public static async Task<int> RequestPid(HttpClient client, CancellationToken token)
         {
@@ -51,7 +53,7 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
         }
     }
     
-    public abstract class ProcGetControllerBase<T> : ProcGetControllerBase
+    public abstract class ProcGetControllerBase<T> : ProcControllerBase
     {
         public ProcGetControllerBase(ILogger<T> logger) : base(logger)
         {
