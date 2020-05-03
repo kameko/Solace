@@ -34,18 +34,20 @@ namespace Caesura.Solace.Foundation.ApiBoundaries.HttpClients
             
             Client.BaseAddress = new Uri(model.Connection);
             TimeoutMs          = model.TimeoutMs;
-            
-            /*
-            Client.BaseAddress = new Uri(Configuration[$"Services:Items:{Name}:Connection"]);
-            if (int.TryParse(Configuration[$"Services:Items:{Name}:TimeoutMs"], out var timeout))
-            {
-                TimeoutMs = timeout;
-            }
-            //*/
         }
         
-        public virtual Task<int> RequestPid() => RequestPid((new CancellationTokenSource(5_000).Token));
-        public virtual Task<int> RequestPid(CancellationToken token) => ProcControllerBase.RequestPid(Client, token);
+        public virtual Task<int> RequestPid() => 
+            RequestPid(DefaultToken());
+        public virtual Task<int> RequestPid(CancellationToken token) => 
+            ProcControllerBase.RequestPid(Client, token);
+        
+        public virtual Task<string> RequestShutdown(string reason) =>
+            RequestShutdown(reason, DefaultToken());
+        public virtual Task<string> RequestShutdown(string reason, CancellationToken token) => 
+            ProcControllerBase.RequestShutdown(reason, Client, token);
+        
+        
+        protected virtual CancellationToken DefaultToken() => new CancellationTokenSource(5_000).Token;
     }
     
     public abstract class BaseClient<T> : BaseClient

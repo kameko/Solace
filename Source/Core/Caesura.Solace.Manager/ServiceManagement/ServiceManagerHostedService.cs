@@ -126,9 +126,18 @@ namespace Caesura.Solace.Manager.ServiceManagement
             {
                 if (session.Autoclose)
                 {
-                    // TODO: log if the process handle is null,
-                    // even if we aren't using it here.
-                    // TODO: send remote kill command.
+                    Log.Information("Shutting down service {name}.", session.Name);
+                    
+                    if (session.Local && session.Handle is null)
+                    {
+                        Log.Warning(
+                            "Local session {name} process handle is null. "
+                          + "Trying to send shutdown request anyway.", 
+                            session.Name
+                        );
+                    }
+                    
+                    session.Client.RequestShutdown("System Shutdown Initiated.");
                 }
             }
         }
