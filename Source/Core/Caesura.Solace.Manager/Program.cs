@@ -6,18 +6,14 @@ namespace Caesura.Solace.Manager
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
-    using Microsoft.Extensions.DependencyInjection;
     using Foundation;
     using Foundation.Logging;
-    
-    // TODO: Add a ServiceProcessManagerService, like
-    // LifetimeEventsHostedService. It will be responsible
-    // for starting up and tracking all services.
     
     public class Program
     {
         public static void Main(string[] args)
         {
+            // TODO: move this elsewhere, let the config handle this.
             using (WindowTitle.Set("Caesura Solace Manager"))
             {
                 CreateHostBuilder(args).Build().Run();
@@ -39,10 +35,6 @@ namespace Caesura.Solace.Manager
                                 "Caesura.Solace.Manager.Controllers.",
                             };
                         });
-                })
-                .ConfigureServices((hostContext, services) =>
-                {
-                    services.AddHostedService<LifetimeEventsHostedService>();
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
