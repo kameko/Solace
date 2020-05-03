@@ -3,9 +3,6 @@ namespace Caesura.Solace.Manager.ServiceManagement
 {
     using System;
     using System.IO;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
     using System.Diagnostics;
     using Foundation.ConfigurationModels;
     using Foundation.ApiBoundaries.HttpClients;
@@ -17,6 +14,7 @@ namespace Caesura.Solace.Manager.ServiceManagement
         public Uri ConnectionPath { get; private set; }
         public bool Local { get; set; }
         public bool Autostart { get; set; }
+        public bool Autoclose { get; set; }
         public bool CreateWindow { get; set; }
         
         public BaseClient Client { get; set; }
@@ -30,6 +28,7 @@ namespace Caesura.Solace.Manager.ServiceManagement
                 model.Connection,
                 model.Local,
                 model.Autostart,
+                model.Autoclose,
                 model.CreateWindow
             )
         {
@@ -43,6 +42,7 @@ namespace Caesura.Solace.Manager.ServiceManagement
             string connection_path,
             bool local,
             bool autostart,
+            bool autoclose,
             bool create_window
         )
             : this(
@@ -52,6 +52,7 @@ namespace Caesura.Solace.Manager.ServiceManagement
                 new Uri(connection_path, UriKind.Absolute),
                 local,
                 autostart,
+                autoclose,
                 create_window
             )
         {
@@ -65,6 +66,7 @@ namespace Caesura.Solace.Manager.ServiceManagement
             Uri connection_uri,
             bool local,
             bool autostart,
+            bool autoclose,
             bool create_window
         )
         {
@@ -74,6 +76,7 @@ namespace Caesura.Solace.Manager.ServiceManagement
             ConnectionPath = connection_uri;
             Local          = local;
             Autostart      = autostart;
+            Autoclose      = autoclose;
             CreateWindow   = create_window;
         }
         
@@ -90,6 +93,7 @@ namespace Caesura.Solace.Manager.ServiceManagement
                     uri!,
                     model.Local,
                     model.Autostart,
+                    model.Autoclose,
                     model.CreateWindow
                 );
                 var exec_verification = File.Exists(exec_fi.FullName);

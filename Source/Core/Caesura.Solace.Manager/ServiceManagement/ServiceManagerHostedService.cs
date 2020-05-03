@@ -11,6 +11,7 @@ namespace Caesura.Solace.Manager.ServiceManagement
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
+    using Foundation;
     using Foundation.Logging;
     using Foundation.ConfigurationModels;
     
@@ -30,6 +31,8 @@ namespace Caesura.Solace.Manager.ServiceManagement
             Services = services;
             
             Sessions = new List<ServiceSession>();
+            
+            LifetimeEventsHostedService.OnStopping += Autoclose;
         }
         
         public Task StartAsync(CancellationToken cancellationToken)
@@ -103,6 +106,30 @@ namespace Caesura.Solace.Manager.ServiceManagement
             catch (Exception e)
             {
                 Log.Error(e, nameof(RunAsync));
+            }
+        }
+        
+        private void Autoclose()
+        {
+            var reqcount = Sessions.FindAll(x => x.Autoclose).Count();
+            if (reqcount > 0)
+            {
+                Log.Information(
+                    "Requesting {number} service"
+                  + (reqcount > 1 ? "s" : string.Empty)
+                  + " to close.",
+                    reqcount
+                );
+            }
+            
+            foreach (var session in Sessions)
+            {
+                if (session.Autoclose)
+                {
+                    // TODO: log if the process handle is null,
+                    // even if we aren't using it here.
+                    // TODO: send remote kill command.
+                }
             }
         }
         

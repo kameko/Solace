@@ -22,6 +22,7 @@ namespace Caesura.Solace.Foundation.ConfigurationModels
             public int TimeoutMs { get; set; }
             public bool Local { get; set; }
             public bool Autostart { get; set; }
+            public bool Autoclose { get; set; }
             public bool CreateWindow { get; set; }
             
             public Service()
@@ -31,6 +32,7 @@ namespace Caesura.Solace.Foundation.ConfigurationModels
                 TimeoutMs    = 3_000;
                 Local        = true;
                 Autostart    = false;
+                Autoclose    = false;
                 CreateWindow = true;
             }
         }
