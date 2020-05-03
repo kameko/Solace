@@ -10,8 +10,10 @@ namespace Caesura.Solace.Manager
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.EntityFrameworkCore;
     using Entities.Core.Manager.Contexts;
+    using Foundation;
     using Controllers.Interfaces;
     using Controllers.Services;
+    using ServiceManagement;
     
     public class Startup
     {
@@ -34,6 +36,9 @@ namespace Caesura.Solace.Manager
             });
             
             services.AddScoped<ILogService, LogService>();
+            
+            services.AddHostedService<LifetimeEventsHostedService>();
+            services.AddHostedService<ServiceManagerHostedService>();
             
             services.AddMvc(setupAction =>
             {
