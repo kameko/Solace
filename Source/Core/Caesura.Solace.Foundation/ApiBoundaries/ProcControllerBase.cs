@@ -49,20 +49,11 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
         public virtual string PostShutdown()
         {
             Log.EnterMethod(nameof(PostShutdown));
-            var reason = string.Empty;
-            StreamReader? reader = null;
-            try
+            
+            var reason = HttpHelper.RequestBodyAsString(Request);
+            if (reason is null)
             {
-                reader = new StreamReader(Request.Body);
-                reason = reader.ReadToEnd();
-            }
-            catch (Exception e)
-            {
-                Log.Warning(e, "Attempted to read shutdown request, but failed.");
-            }
-            finally
-            {
-                reader?.Dispose();
+                Log.Warning("Attempted to read shutdown request, but failed. Continuing anyway.");
             }
             
             if (AllowShutdown)
@@ -108,7 +99,7 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             log.EnterMethod(nameof(RequestPid));
             try
             {
-                if (!IsPortOpen(client))
+                if (!HttpHelper.IsPortOpen(client))
                 {
                     var port = client.BaseAddress!.Port;
                     log.Warning("Port {port} is not open.", port);
@@ -146,7 +137,7 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             log.EnterMethod(nameof(RequestShutdown));
             try
             {
-                if (!IsPortOpen(client))
+                if (!HttpHelper.IsPortOpen(client))
                 {
                     var port = client.BaseAddress!.Port;
                     log.Warning("Port {port} is not open.", port);
@@ -175,39 +166,6 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             finally
             {
                 log.ExitMethod(nameof(RequestShutdown));
-            }
-        }
-        
-        public static bool IsPortOpen(HttpClient client)
-        {
-            // I hate how I have to do any of this just to see
-            // if a port is being used, but, that's the wonderful
-            // world of information technology for you.
-            
-            var baseaddr = client.BaseAddress;
-            var host     = baseaddr!.Host;
-            var port     = baseaddr!.Port;
-            
-            TcpClient? tcp = null;
-            try
-            {
-                tcp = new TcpClient();
-                var async_result = tcp.BeginConnect(host, port, null, null);
-                var success = async_result.AsyncWaitHandle.WaitOne(1_000);
-                if (success)
-                {
-                    tcp.EndConnect(async_result);
-                    return true;
-                }
-                return false;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-            finally
-            {
-                tcp?.Dispose();
             }
         }
     }
