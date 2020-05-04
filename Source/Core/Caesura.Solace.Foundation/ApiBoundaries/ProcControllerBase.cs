@@ -67,11 +67,6 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             
             if (AllowShutdown)
             {
-                Log.Information(
-                    "Shutdown request encountered. Service will shut down in {delay} milliseconds."
-                  + (string.IsNullOrEmpty(reason) ? string.Empty : $" Reason: {reason}"), 
-                    ShutdownDelay
-                );
                 if (string.IsNullOrEmpty(reason))
                 {
                     Log.Information(
