@@ -25,12 +25,12 @@ namespace Caesura.Solace.Manager.ServiceManagement
         
         public ServiceManagerHostedService(ILogger<ServiceManagerHostedService> log, IConfiguration config, ISolaceServiceCollection services)
         {
-            Log = log;
-            Configuration = config;
+            Log                     = log;
+            Configuration           = config;
             ConfiguredServicesModel = Configuration.GetSection(ConfigurationConstants.Services).Get<ServicesModel>();
-            Services = services;
+            Services                = services;
             
-            Sessions = new List<ServiceSession>();
+            Sessions                = new List<ServiceSession>();
             
             LifetimeEventsHostedService.OnStopping += Autoclose;
         }
@@ -143,7 +143,7 @@ namespace Caesura.Solace.Manager.ServiceManagement
                     {
                         Log.Warning(
                             "Local session {name} process handle is null. "
-                          + "Trying to send shutdown request anyway.", 
+                          + "Trying to send shutdown request, anyway.", 
                             session.Name
                         );
                     }

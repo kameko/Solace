@@ -16,7 +16,7 @@ namespace Caesura.Solace.Foundation
             {
                 reader = new StreamReader(request.Body);
                 var response = reader.ReadToEnd();
-                return response;
+                return response ?? string.Empty;
             }
             catch (Exception)
             {

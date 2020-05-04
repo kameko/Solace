@@ -2,14 +2,10 @@
 namespace Caesura.Solace.Foundation.ApiBoundaries
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
     using System.Text;
-    using System.IO;
     using System.Threading;
     using System.Threading.Tasks;
     using System.Net.Http;
-    using System.Net.Sockets;
     using System.Diagnostics;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Logging;
