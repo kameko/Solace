@@ -17,10 +17,10 @@ namespace Caesura.Solace.Manager.ServiceManagement
         public bool Autoclose { get; set; }
         public bool CreateWindow { get; set; }
         
-        public BaseClient Client { get; set; }
+        public IBaseClient Client { get; set; }
         public Process? Handle { get; set; }
         
-        public ServiceSession(string name, BaseClient client, ServicesModel.Service model)
+        public ServiceSession(string name, IBaseClient client, ServicesModel.Service model)
             : this(
                 name,
                 client,
@@ -37,7 +37,7 @@ namespace Caesura.Solace.Manager.ServiceManagement
         
         public ServiceSession(
             string name,
-            BaseClient client,
+            IBaseClient client,
             string exec_path,
             string connection_path,
             bool local,
@@ -61,7 +61,7 @@ namespace Caesura.Solace.Manager.ServiceManagement
         
         public ServiceSession(
             string name,
-            BaseClient client,
+            IBaseClient client,
             FileInfo exec_info,
             Uri connection_uri,
             bool local,
@@ -80,7 +80,7 @@ namespace Caesura.Solace.Manager.ServiceManagement
             CreateWindow   = create_window;
         }
         
-        public static ValidationResult TryCreate(string name, BaseClient client, ServicesModel.Service model, out ServiceSession? session)
+        public static ValidationResult TryCreate(string name, IBaseClient client, ServicesModel.Service model, out ServiceSession? session)
         {
             var uri_success = Uri.TryCreate(model.Connection, UriKind.Absolute, out var uri);
             if (uri_success)

@@ -14,7 +14,7 @@ namespace Caesura.Solace.Manager.ServiceManagement
     public interface ISolaceServiceCollection
     {
         DatabaseClient Database { get; }
-        bool TryGet(string name, out BaseClient? client);
+        bool TryGet(string name, out IBaseClient? client);
     }
     
     public class SolaceServiceCollection : ISolaceServiceCollection
@@ -26,20 +26,20 @@ namespace Caesura.Solace.Manager.ServiceManagement
         )
         {
             Database = database;
-            clients = new Dictionary<string, BaseClient>()
+            clients = new Dictionary<string, IBaseClient>()
             {
                 { Database.Name, Database },
             };
         }
         
-        private Dictionary<string, BaseClient> clients;
+        private Dictionary<string, IBaseClient> clients;
         
-        public BaseClient this[string name]
+        public IBaseClient this[string name]
         {
             get => clients[name];
         }
         
-        public bool TryGet(string name, out BaseClient? client)
+        public bool TryGet(string name, out IBaseClient? client)
         {
             var success = clients.TryGetValue(name, out client);
             return success;

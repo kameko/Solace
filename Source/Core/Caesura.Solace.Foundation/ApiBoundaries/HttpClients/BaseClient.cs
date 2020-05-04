@@ -11,9 +11,7 @@ namespace Caesura.Solace.Foundation.ApiBoundaries.HttpClients
     using Microsoft.Extensions.Configuration;
     using ConfigurationModels;
     
-    // TODO: make interfaces for this and everything using it (DatabaseClient)
-    
-    public abstract class BaseClient
+    public abstract class BaseClient : IBaseClient
     {
         public string Name { get; }
         protected ILogger Log { get; }
