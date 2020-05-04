@@ -95,12 +95,14 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             log.EnterMethod(nameof(RequestPid));
             try
             {
+                //*
                 if (!HttpHelper.IsPortOpen(client))
                 {
                     var port = client.BaseAddress!.Port;
                     log.Warning("Port {port} is not open.", port);
                     return -1;
                 }
+                //*/
                 
                 var response = await client.GetAsync("/proc/pid", token);
 
@@ -133,12 +135,14 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             log.EnterMethod(nameof(RequestShutdown));
             try
             {
+                //*
                 if (!HttpHelper.IsPortOpen(client))
                 {
                     var port = client.BaseAddress!.Port;
                     log.Warning("Port {port} is not open.", port);
                     return $"Error: Port {port} is not open.";
                 }
+                //*/
                 
                 var response = await client.PostAsync(
                     $"proc/shutdown", 

@@ -45,7 +45,6 @@ namespace Caesura.Solace.Manager
             services.AddHttpClient<DatabaseClient>();
             
             services.AddHostedService<LifetimeEventsHostedService>();
-            services.AddHostedService<ServiceManagerHostedService>();
             
             services.AddMvc(setupAction =>
             {
