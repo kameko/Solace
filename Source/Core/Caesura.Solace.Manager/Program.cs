@@ -33,6 +33,7 @@ namespace Caesura.Solace.Manager
                             config.TrimNames = new List<string>()
                             {
                                 "Caesura.Solace.Manager.Controllers.",
+                                "System.Net.Http.",
                             };
                         });
                 })

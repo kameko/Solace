@@ -25,7 +25,7 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
         
         public EntityFrameworkControllerService(ILogger<TService> logger, IConfiguration config)
         {
-            SourcePath    = new FileInfo(string.Empty);
+            SourcePath    = new FileInfo("./system_log.db");
             Log           = logger;
             Configuration = config;
         }
