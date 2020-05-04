@@ -13,6 +13,7 @@ namespace Caesura.Solace.Manager.Controllers.Services
     using Entities.Core.Manager;
     using Entities.Core.Manager.Contexts;
     using Interfaces;
+    using ConfigurationModels;
     
     public class LogService 
         : EntityFrameworkControllerService<LogService, ulong, LogElement, string, LogElementContext>

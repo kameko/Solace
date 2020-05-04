@@ -16,6 +16,7 @@ namespace Caesura.Solace.Manager
     using Controllers.Interfaces;
     using Controllers.Services;
     using ServiceManagement;
+    using ConfigurationModels;
     
     public class Startup
     {

@@ -1,5 +1,5 @@
 
-namespace Caesura.Solace.Foundation.ConfigurationModels
+namespace Caesura.Solace.Manager.ConfigurationModels
 {
     using System;
     using System.Collections.Generic;
