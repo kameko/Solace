@@ -9,6 +9,7 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
     using System.Threading;
     using System.Threading.Tasks;
     using System.Net.Http;
+    using System.Net.Sockets;
     using System.Diagnostics;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Logging;
@@ -112,6 +113,13 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             log.EnterMethod(nameof(RequestPid));
             try
             {
+                if (!IsPortOpen(client))
+                {
+                    var port = client.BaseAddress!.Port;
+                    log.Warning("Port {port} is not open.", port);
+                    return -1;
+                }
+                
                 var response = await client.GetAsync("/proc/pid", token);
 
                 response.EnsureSuccessStatusCode();
@@ -143,6 +151,13 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             log.EnterMethod(nameof(RequestShutdown));
             try
             {
+                if (!IsPortOpen(client))
+                {
+                    var port = client.BaseAddress!.Port;
+                    log.Warning("Port {port} is not open.", port);
+                    return $"Error: Port {port} is not open.";
+                }
+                
                 var response = await client.PostAsync(
                     $"proc/shutdown", 
                     new StringContent(
@@ -165,6 +180,41 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             finally
             {
                 log.ExitMethod(nameof(RequestShutdown));
+            }
+        }
+        
+        public static bool IsPortOpen(HttpClient client)
+        {
+            var baseaddr = client.BaseAddress;
+            var host     = baseaddr!.Host;
+            var port     = baseaddr!.Port;
+            
+            TcpClient? tcp = null;
+            IAsyncResult? async_result = null;
+            var can_disconnect = false;
+            try
+            {
+                tcp = new TcpClient();
+                async_result = tcp.BeginConnect(host, port, null, null);
+                var success = async_result.AsyncWaitHandle.WaitOne(1_000);
+                if (success)
+                {
+                    can_disconnect = true;
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+            finally
+            {
+                if (can_disconnect && !(async_result is null))
+                {
+                    tcp?.EndConnect(async_result);
+                }
+                tcp?.Dispose();
             }
         }
     }
