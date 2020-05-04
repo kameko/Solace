@@ -185,21 +185,23 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
         
         public static bool IsPortOpen(HttpClient client)
         {
+            // I hate how I have to do any of this just to see
+            // if a port is being used, but, that's the wonderful
+            // world of information technology for you.
+            
             var baseaddr = client.BaseAddress;
             var host     = baseaddr!.Host;
             var port     = baseaddr!.Port;
             
             TcpClient? tcp = null;
-            IAsyncResult? async_result = null;
-            var can_disconnect = false;
             try
             {
                 tcp = new TcpClient();
-                async_result = tcp.BeginConnect(host, port, null, null);
+                var async_result = tcp.BeginConnect(host, port, null, null);
                 var success = async_result.AsyncWaitHandle.WaitOne(1_000);
                 if (success)
                 {
-                    can_disconnect = true;
+                    tcp.EndConnect(async_result);
                     return true;
                 }
                 return false;
@@ -210,10 +212,6 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             }
             finally
             {
-                if (can_disconnect && !(async_result is null))
-                {
-                    tcp?.EndConnect(async_result);
-                }
                 tcp?.Dispose();
             }
         }
