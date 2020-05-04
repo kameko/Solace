@@ -29,7 +29,7 @@ namespace Caesura.Solace.Foundation.ApiBoundaries.HttpClients
             Client        = client;
             TimeoutMs     = 3_000;
             
-            var models = Configuration.GetSection("Services").Get<ServicesModel>();
+            var models = Configuration.GetSection(ConfigurationConstants.Services).Get<ServicesModel>();
             var model  = models.Items[Name];
             
             Client.BaseAddress = new Uri(model.Connection);
@@ -39,12 +39,12 @@ namespace Caesura.Solace.Foundation.ApiBoundaries.HttpClients
         public virtual Task<int> RequestPid() => 
             RequestPid(DefaultToken());
         public virtual Task<int> RequestPid(CancellationToken token) => 
-            ProcControllerBase.RequestPid(Client, token);
+            ProcControllerBase.RequestPid(Log, Client, token);
         
         public virtual Task<string> RequestShutdown(string reason) =>
             RequestShutdown(reason, DefaultToken());
         public virtual Task<string> RequestShutdown(string reason, CancellationToken token) => 
-            ProcControllerBase.RequestShutdown(reason, Client, token);
+            ProcControllerBase.RequestShutdown(reason, Log, Client, token);
         
         
         protected virtual CancellationToken DefaultToken() => new CancellationTokenSource(5_000).Token;

@@ -27,7 +27,7 @@ namespace Caesura.Solace.Manager.ServiceManagement
         {
             Log = log;
             Configuration = config;
-            ConfiguredServicesModel = Configuration.GetSection("Services").Get<ServicesModel>();
+            ConfiguredServicesModel = Configuration.GetSection(ConfigurationConstants.Services).Get<ServicesModel>();
             Services = services;
             
             Sessions = new List<ServiceSession>();
@@ -74,10 +74,10 @@ namespace Caesura.Solace.Manager.ServiceManagement
         {
             try
             {
+                await Task.Delay(3_000);
+                
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    await Task.Delay(15);
-                    
                     foreach (var session in Sessions)
                     {
                         if (cancellationToken.IsCancellationRequested)
@@ -87,9 +87,18 @@ namespace Caesura.Solace.Manager.ServiceManagement
                         
                         if (!(session.Handle is null))
                         {
-                            // TODO: check if process exited
-                            // otherwise, continue
-                            continue;
+                            try
+                            {
+                                if (!session.Handle.HasExited)
+                                {
+                                    continue;
+                                }
+                            }
+                            catch (Exception e)
+                            {
+                                session.Handle = null;
+                                Log.Error(e, "Error checking process handle for service {name}.", session.Name);
+                            }
                         }
                         
                         if (session.Local)
@@ -101,6 +110,8 @@ namespace Caesura.Solace.Manager.ServiceManagement
                             await HandleRemoteSession(session);
                         }
                     }
+                    
+                    await Task.Delay(ConfiguredServicesModel.ReconnectDelayMs);
                 }
             }
             catch (Exception e)

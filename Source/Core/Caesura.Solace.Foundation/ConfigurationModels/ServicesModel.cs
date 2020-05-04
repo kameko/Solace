@@ -3,16 +3,16 @@ namespace Caesura.Solace.Foundation.ConfigurationModels
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
     
     public class ServicesModel
     {
+        public int ReconnectDelayMs { get; set; }
         public Dictionary<string, Service> Items { get; set; }
         
         public ServicesModel()
         {
-            Items = new Dictionary<string, Service>();
+            ReconnectDelayMs = 5_000;
+            Items            = new Dictionary<string, Service>();
         }
         
         public class Service

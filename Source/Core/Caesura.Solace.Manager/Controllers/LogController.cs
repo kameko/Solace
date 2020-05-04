@@ -9,6 +9,7 @@ namespace Caesura.Solace.Manager.Controllers
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
     using Foundation.ApiBoundaries;
+    using Foundation.Logging;
     using Entities.Core.Manager;
     using Interfaces;
     
@@ -20,7 +21,7 @@ namespace Caesura.Solace.Manager.Controllers
         public LogController(ILogger<LogController> ilog, IConfiguration configuration, ILogService iservice)
             : base(iservice, ilog, configuration)
         {
-            
+            Log.InstanceAbreaction();
         }
         
         [HttpGet]

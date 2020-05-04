@@ -12,6 +12,7 @@ namespace Caesura.Solace.Manager
     using Entities.Core.Manager.Contexts;
     using Foundation;
     using Foundation.ApiBoundaries.HttpClients.Core.Database;
+    using Foundation.ConfigurationModels;
     using Controllers.Interfaces;
     using Controllers.Services;
     using ServiceManagement;
@@ -27,9 +28,9 @@ namespace Caesura.Solace.Manager
         
         public void ConfigureServices(IServiceCollection services)
         {
-            // TODO: verify these config items are valid.
-            var path   = new FileInfo(Configuration[$"Storage:Log:Path"]);
-            var constr = Configuration[$"Storage:Log:ConnectionString"].Replace("{Path}", path.FullName);
+            var storage_model = Configuration.GetSection(ConfigurationConstants.Storage).Get<StorageModel>();
+            var path          = new FileInfo(storage_model.Log.Path);
+            var constr        = storage_model.Log.ConnectionString.Replace("{Path}", path.FullName);
             
             services.AddDbContext<LogElementContext>(opt =>
             {
@@ -60,10 +61,8 @@ namespace Caesura.Solace.Manager
         
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (!int.TryParse(Configuration[$"Networking:GetLimit"], out var get_limit))
-            {
-                get_limit = 100;
-            }
+            var networking_model = Configuration.GetSection(ConfigurationConstants.Networking).Get<NetworkingModel>();
+            var get_limit = networking_model.GetLimit;
             
             app.UseDeveloperExceptionPage();
             app.UseRouting();

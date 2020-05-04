@@ -6,6 +6,7 @@ namespace Caesura.Solace.Manager.Controllers
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Configuration;
     using Foundation.ApiBoundaries;
+    using Foundation.Logging;
     
     [ApiController]
     [Route("system/[controller]")]
@@ -14,7 +15,7 @@ namespace Caesura.Solace.Manager.Controllers
         public ProcController(ILogger<ProcController> logger, IConfiguration configuration)
             : base(logger, configuration)
         {
-            
+            Log.InstanceAbreaction();
         }
     }
 }

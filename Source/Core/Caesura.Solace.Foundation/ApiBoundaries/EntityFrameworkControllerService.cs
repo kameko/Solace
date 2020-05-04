@@ -25,20 +25,9 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
         
         public EntityFrameworkControllerService(ILogger<TService> logger, IConfiguration config)
         {
-            SourcePath             = null!;
-            
+            SourcePath    = new FileInfo(string.Empty);
             Log           = logger;
             Configuration = config;
-        }
-        
-        protected void Reconfigure(string service_name)
-        {
-            SourcePath = new FileInfo(Configuration[$"{service_name}:Path"]);
-            if (!int.TryParse(Configuration[$"Networking:GetLimit"], out var get_limit))
-            {
-                get_limit = 100;
-            }
-            GetLimit = get_limit;
         }
         
         public virtual Task<ControllerResult.GetOne<T>> GetOne()

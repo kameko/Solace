@@ -4,10 +4,12 @@ namespace Caesura.Solace.Manager.Controllers.Services
     using System;
     using System.Linq;
     using System.Threading.Tasks;
+    using System.IO;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
     using Foundation.Logging;
     using Foundation.ApiBoundaries;
+    using Foundation.ConfigurationModels;
     using Entities.Core.Manager;
     using Entities.Core.Manager.Contexts;
     using Interfaces;
@@ -22,9 +24,12 @@ namespace Caesura.Solace.Manager.Controllers.Services
             : base(ilog, configuration)
         {
             le_context = lec;
-            Reconfigure("Storage:Log");
             
-            Log.InstanceAbreaction();
+            var storage_model = Configuration.GetSection(ConfigurationConstants.Storage).Get<StorageModel>();
+            SourcePath = new FileInfo(storage_model.Log.Path);
+            
+            var networking_model = Configuration.GetSection(ConfigurationConstants.Networking).Get<NetworkingModel>();
+            GetLimit = networking_model.GetLimit;
         }
         
         // ---

@@ -14,6 +14,7 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Configuration;
     using Logging;
+    using ConfigurationModels;
     
     public abstract class ProcControllerBase : ControllerBase
     {
@@ -28,30 +29,25 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             Log           = logger;
             Configuration = configuration;
             
-            AllowShutdown = true;
-            if (bool.TryParse(Configuration["Proc:AllowShutdown"], out var allow_shutdown))
-            {
-                AllowShutdown = allow_shutdown;
-            }
-            
-            ShutdownDelay = 3_000;
-            if (int.TryParse(Configuration["Proc:ShutdownDelay"], out var shutdown_delay) && shutdown_delay > 0)
-            {
-                ShutdownDelay = shutdown_delay;
-            }
+            var model     = Configuration.GetSection(ConfigurationConstants.Process).Get<ProcModel>();
+            AllowShutdown = model.AllowShutdown;
+            ShutdownDelay = model.ShutdownDelayMs;
         }
         
         [HttpGet("pid")]
         public virtual int GetPid()
         {
+            Log.EnterMethod(nameof(GetPid));
             var pid = Process.GetCurrentProcess().Id;
             Log.Information("GET request for current Process ID. Returning {pid}.", pid);
+            Log.ExitMethod(nameof(GetPid));
             return pid;
         }
         
         [HttpPost("shutdown")]
         public virtual string PostShutdown()
         {
+            Log.EnterMethod(nameof(PostShutdown));
             var reason = string.Empty;
             StreamReader? reader = null;
             try
@@ -96,20 +92,24 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
                 Task.Run(async () =>
                 {
                     await Task.Delay(ShutdownDelay);
+                    Log.Information("Countdown complete. Now requesting service shutdown.");
                     LifetimeEventsHostedService.StopApplication();
                 });
                 
+                Log.ExitMethod(nameof(PostShutdown));
                 return $"OK. Service will shut down in {ShutdownDelay} milliseconds.";
             }
             else
             {
                 Log.Information("Request to shut down current service. Shutdown is disabled, request denied.");
+                Log.ExitMethod(nameof(PostShutdown));
                 return "Shutdown not enabled.";
             }
         }
         
-        public static async Task<int> RequestPid(HttpClient client, CancellationToken token)
+        public static async Task<int> RequestPid(ILogger log, HttpClient client, CancellationToken token)
         {
+            log.EnterMethod(nameof(RequestPid));
             try
             {
                 var response = await client.GetAsync("/proc/pid", token);
@@ -121,16 +121,26 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
                 {
                     return pid;
                 }
+                else
+                {
+                    log.Debug("PID request return value not an integer. Value: {value}.", responseStr);
+                    return -1;
+                }
+            }
+            catch (HttpRequestException e)
+            {
+                log.Debug(e, nameof(RequestPid));
                 return -1;
             }
-            catch (HttpRequestException)
+            finally
             {
-                return -1;
+                log.ExitMethod(nameof(RequestPid));
             }
         }
         
-        public static async Task<string> RequestShutdown(string reason, HttpClient client, CancellationToken token)
+        public static async Task<string> RequestShutdown(string reason, ILogger log, HttpClient client, CancellationToken token)
         {
+            log.EnterMethod(nameof(RequestShutdown));
             try
             {
                 var response = await client.PostAsync(
@@ -147,9 +157,14 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
                 var responseStr = await response.Content!.ReadAsStringAsync();
                 return responseStr;
             }
-            catch (HttpRequestException)
+            catch (HttpRequestException e)
             {
+                log.Debug(e, nameof(RequestShutdown));
                 return string.Empty;
+            }
+            finally
+            {
+                log.ExitMethod(nameof(RequestShutdown));
             }
         }
     }
