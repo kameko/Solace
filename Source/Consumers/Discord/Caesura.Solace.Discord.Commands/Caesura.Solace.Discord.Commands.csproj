@@ -4,6 +4,11 @@
     <ProjectReference Include="..\..\..\Core\Caesura.Solace.Entities\Caesura.Solace.Entities.csproj" />
     <ProjectReference Include="..\..\..\Core\Caesura.Solace.Foundation\Caesura.Solace.Foundation.csproj" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.0-preview.3.20215.14" />
+    <PackageReference Include="Microsoft.AspNetCore.OData" Version="7.4.0" />
+  </ItemGroup>
 
   <PropertyGroup>
     <TargetFramework>netcoreapp5.0</TargetFramework>
