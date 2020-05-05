@@ -1,50 +1,76 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 namespace Caesura.Solace.Discord.Endpoint
 {
+    using System;
+    using Microsoft.AspNetCore.Builder;
+    using Microsoft.AspNetCore.Hosting;
+    using Microsoft.AspNet.OData.Extensions;
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.DependencyInjection;
+    using Foundation;
+    using Foundation.ApiBoundaries.HttpClients.Core.Database;
+    using Foundation.ApiBoundaries.HttpClients.Core.Manager;
+    using Foundation.ConfigurationModels;
+    
     public class Startup
     {
+        public IConfiguration Configuration { get; }
+        
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
         }
-
-        public IConfiguration Configuration { get; }
-
-        // This method gets called by the runtime. Use this method to add services to the container.
+        
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            // ...
+            
+            services.AddHttpClient<ManagerClient>();
+            services.AddHttpClient<DatabaseClient>();
+            // TODO: DiscordCommandsClient
+            
+            services.AddHostedService<LifetimeEventsHostedService>();
+            
+            services.AddMvc(setupAction =>
+            {
+                setupAction.EnableEndpointRouting = false;
+            });
+            
+            services.AddHttpClient();
+            
+            services.AddControllers()
+                // TODO: remove this when possible in favor of System.Text.Json. Maybe in .NET 5
+                .AddNewtonsoftJson();
+            services.AddOData();
         }
-
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-
-            app.UseHttpsRedirection();
-
+            var networking_model = Configuration.GetSection(ConfigurationConstants.Networking).Get<NetworkingModel>();
+            var get_limit = networking_model.GetLimit;
+            
+            app.UseDeveloperExceptionPage();
             app.UseRouting();
-
-            app.UseAuthorization();
-
+            
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+            });
+            
+            app.UseMvc(routeBuilder =>
+            {
+                routeBuilder.EnableDependencyInjection();
+                routeBuilder // OData functionality list
+                    .Expand()
+                    .Select()
+                    .Count()
+                    .OrderBy()
+                    .Filter();
+                
+                if (get_limit > 0)
+                {
+                    routeBuilder.MaxTop(get_limit);
+                }
             });
         }
     }
