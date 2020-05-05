@@ -2,19 +2,15 @@
 namespace Caesura.Solace.Database
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
-    using Microsoft.AspNetCore.HttpsPolicy;
-    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.AspNet.OData.Extensions;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.Extensions.Hosting;
-    using Microsoft.Extensions.Logging;
     using Microsoft.EntityFrameworkCore;
-    using Entities.Core;
+    using Foundation;
+    using Foundation.ConfigurationModels;
+    using Foundation.ApiBoundaries.HttpClients.Core.Manager;
     
     public class Startup
     {
@@ -27,23 +23,52 @@ namespace Caesura.Solace.Database
         
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            // TODO: add db context for entities
+            
+            services.AddHttpClient<ManagerClient>();
+            
+            services.AddHostedService<LifetimeEventsHostedService>();
+            
+            services.AddMvc(setupAction =>
+            {
+                setupAction.EnableEndpointRouting = false;
+            });
+            
+            services.AddHttpClient();
+            
+            services.AddControllers()
+                // TODO: remove this when possible in favor of System.Text.Json. Maybe in .NET 5
+                .AddNewtonsoftJson();
+            services.AddOData();
         }
         
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            var networking_model = Configuration.GetSection(ConfigurationConstants.Networking).Get<NetworkingModel>();
+            var get_limit = networking_model.GetLimit;
+            
             app.UseDeveloperExceptionPage();
-            
-            app.UseHttpsRedirection();
-            
             app.UseRouting();
-            
-            app.UseAuthorization();
             
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+            });
+            
+            app.UseMvc(routeBuilder =>
+            {
+                routeBuilder.EnableDependencyInjection();
+                routeBuilder // OData functionality list
+                    .Expand()
+                    .Select()
+                    .Count()
+                    .OrderBy()
+                    .Filter();
+                
+                if (get_limit > 0)
+                {
+                    routeBuilder.MaxTop(get_limit);
+                }
             });
         }
     }

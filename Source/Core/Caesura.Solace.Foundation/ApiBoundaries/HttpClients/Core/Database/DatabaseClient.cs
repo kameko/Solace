@@ -15,5 +15,7 @@ namespace Caesura.Solace.Foundation.ApiBoundaries.HttpClients.Core.Database
         {
             
         }
+        
+        // TODO: add APIs for all Entities.
     }
 }

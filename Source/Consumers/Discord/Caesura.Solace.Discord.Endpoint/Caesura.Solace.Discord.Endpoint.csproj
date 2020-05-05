@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Core\Caesura.Solace.Entities\Caesura.Solace.Entities.csproj" />
+    <ProjectReference Include="..\..\..\Core\Caesura.Solace.Foundation\Caesura.Solace.Foundation.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp5.0</TargetFramework>
+  </PropertyGroup>
+
+
+</Project>

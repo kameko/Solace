@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
-namespace Caesura.Solace.Database.Controllers
+namespace Caesura.Solace.Discord.Endpoint.Controllers
 {
     [ApiController]
     [Route("[controller]")]

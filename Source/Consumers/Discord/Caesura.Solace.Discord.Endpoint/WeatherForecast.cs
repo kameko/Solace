@@ -1,6 +1,6 @@
 using System;
 
-namespace Caesura.Solace.Database
+namespace Caesura.Solace.Discord.Endpoint
 {
     public class WeatherForecast
     {
@@ -10,6 +10,6 @@ namespace Caesura.Solace.Database
 
         public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
 
-        public string? Summary { get; set; }
+        public string Summary { get; set; }
     }
 }

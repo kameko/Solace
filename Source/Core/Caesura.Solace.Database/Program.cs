@@ -2,6 +2,7 @@
 namespace Caesura.Solace.Database
 {
     using System;
+    using System.Collections.Generic;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
@@ -13,7 +14,11 @@ namespace Caesura.Solace.Database
     {
         public static void Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            // TODO: move this elsewhere, let the config handle this.
+            using (WindowTitle.Set("Caesura Solace Database"))
+            {
+                CreateHostBuilder(args).Build().Run();
+            }
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
@@ -22,11 +27,15 @@ namespace Caesura.Solace.Database
                 {
                     logging
                         .ClearProviders()
-                        .AddSolaceConsoleLogger();
-                })
-                .ConfigureServices((hostContext, services) =>
-                {
-                    services.AddHostedService<LifetimeEventsHostedService>();
+                        .AddSolaceConsoleLogger(config =>
+                        {
+                            config.LogLevel  = LogLevel.Trace;
+                            config.TrimNames = new List<string>()
+                            {
+                                "Caesura.Solace.Manager.Controllers.",
+                                "System.Net.Http.",
+                            };
+                        });
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {

@@ -31,6 +31,9 @@ namespace Caesura.Solace.Foundation.ApiBoundaries
             ShutdownDelay = model.ShutdownDelayMs;
         }
         
+        // TODO: GetStatus, return an enum, or maybe a string. Probably gonna need it
+        // from a static hosted service or something. Maybe put it in Lifetime.
+        
         [HttpGet("pid")]
         public virtual int GetPid()
         {
