@@ -1,5 +1,6 @@
 
 TODO:
+ - Add NO_COLOR to the loggers: https://no-color.org/
  - Make a script to start up all services. Either PowerShell or Deno.
  - Security; Use security tokens/encryption in request/response headers between services.
  
